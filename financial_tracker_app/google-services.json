@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "496881441828",
+    "project_id": "financial-tracker-c6577",
+    "storage_bucket": "financial-tracker-c6577.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:496881441828:android:c2cb73bd917c091ddcccb1",
+        "android_client_info": {
+          "package_name": "com.lumivrym.financial_tracker"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC_jlmv9N2dV-WDowx4g75cVhUtj0E5Jws"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
