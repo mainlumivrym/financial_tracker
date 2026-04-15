@@ -30,8 +30,7 @@ export default function Login({ navigation }) {
     try {
       setLoading(true);
       await login(email, password);
-      // Navigation to Dashboard will happen automatically
-      navigation.replace('Dashboard');
+      // Navigation to Dashboard will happen automatically via AuthContext
     } catch (error) {
       let errorMessage = 'Failed to log in';
       

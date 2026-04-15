@@ -58,7 +58,6 @@ export default function Signup({ navigation }) {
       });
       
       // Navigation to Dashboard will happen automatically via AuthContext
-      navigation.replace('Dashboard');
     } catch (error) {
       let errorMessage = 'Failed to create account';
       

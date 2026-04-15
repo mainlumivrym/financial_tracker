@@ -57,7 +57,7 @@ export default function UserInfo({ navigation }) {
           onPress: async () => {
             try {
               await logout();
-              navigation.replace('Landing');
+              // Navigation will happen automatically via AuthContext
             } catch (error) {
               Alert.alert('Error', 'Failed to logout');
             }
