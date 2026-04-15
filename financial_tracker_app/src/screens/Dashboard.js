@@ -73,11 +73,17 @@ export default function Dashboard({ navigation }) {
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Quick Actions</Text>
           <View style={styles.actionsGrid}>
-            <TouchableOpacity style={styles.actionButton}>
+            <TouchableOpacity 
+              style={styles.actionButton}
+              onPress={() => navigation.navigate('AddTransaction', { type: 'expense' })}
+            >
               <Text style={styles.actionIcon}>➕</Text>
               <Text style={styles.actionText}>Add Expense</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.actionButton}>
+            <TouchableOpacity 
+              style={styles.actionButton}
+              onPress={() => navigation.navigate('AddTransaction', { type: 'income' })}
+            >
               <Text style={styles.actionIcon}>💰</Text>
               <Text style={styles.actionText}>Add Income</Text>
             </TouchableOpacity>

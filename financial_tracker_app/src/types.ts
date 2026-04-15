@@ -30,6 +30,7 @@ export type RootStackParamList = {
   Signup: undefined;
   Dashboard: undefined;
   UserInfo: undefined;
+  AddTransaction: { type: 'expense' | 'income' };
 };
 
 // Auth Context Types
