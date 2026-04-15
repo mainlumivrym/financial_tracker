@@ -1,7 +1,7 @@
 import { StatusBar } from 'expo-status-bar';
 import { StyleSheet, Text, View, ScrollView, TouchableOpacity } from 'react-native';
 
-export default function Dashboard() {
+export default function Dashboard({ navigation }) {
   return (
     <View style={styles.container}>
       <StatusBar style='light' />
@@ -13,7 +13,10 @@ export default function Dashboard() {
             <Text style={styles.greeting}>Welcome back!</Text>
             <Text style={styles.userName}>John Doe</Text>
           </View>
-          <TouchableOpacity style={styles.avatarContainer}>
+          <TouchableOpacity 
+            style={styles.avatarContainer}
+            onPress={() => navigation.navigate('UserInfo')}
+          >
             <Text style={styles.avatar}>👤</Text>
           </TouchableOpacity>
         </View>
