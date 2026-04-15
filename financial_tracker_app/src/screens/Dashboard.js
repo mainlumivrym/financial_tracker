@@ -71,7 +71,6 @@ export default function Dashboard({ navigation }) {
 
         {/* Quick Actions */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Quick Actions</Text>
           <View style={styles.actionsGrid}>
             <TouchableOpacity 
               style={styles.actionButton}

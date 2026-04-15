@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { StatusBar } from 'expo-status-bar';
 import {
   StyleSheet,
@@ -10,7 +10,7 @@ import {
   Alert,
   Platform
 } from 'react-native';
-import DateTimePicker from '@react-native-community/datetimepicker';
+import DateTimePicker, { DateTimePickerAndroid } from '@react-native-community/datetimepicker';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '../context/AuthContext';
@@ -61,19 +61,39 @@ export default function AddTransaction({ navigation, route }: Props) {
     setSelectedIcon(cat.icon);
   };
 
-  const onDateChange = (event: any, selectedDate?: Date) => {
-    const { type } = event;
-
-    // On dismiss (cancel or neutral button), just hide picker
-    if (type === 'dismissed') {
-      setShowDatePicker(false);
-      return;
+  const showDateTimePicker = () => {
+    if (Platform.OS === 'android') {
+      // Use imperative API for Android
+      DateTimePickerAndroid.open({
+        value: date,
+        mode: 'date',
+        is24Hour: true,
+        onChange: (event, selectedDate) => {
+          if (selectedDate) {
+            // After date is selected, show time picker
+            DateTimePickerAndroid.open({
+              value: selectedDate,
+              mode: 'time',
+              is24Hour: true,
+              onChange: (timeEvent, selectedTime) => {
+                if (selectedTime) {
+                  setDate(selectedTime);
+                }
+              },
+            });
+          }
+        },
+      });
+    } else {
+      // Use component for iOS
+      setShowDatePicker(true);
     }
+  };
 
-    // On set (OK button), update date and hide picker
-    if (type === 'set' && selectedDate) {
+  const onDateChange = (event: any, selectedDate?: Date) => {
+    // iOS only - update date immediately as user scrolls
+    if (selectedDate) {
       setDate(selectedDate);
-      setShowDatePicker(false);
     }
   };
 
@@ -140,32 +160,24 @@ export default function AddTransaction({ navigation, route }: Props) {
 
   const renderDatePicker = () => (
     <View style={styles.section}>
-
       <TouchableOpacity
         style={styles.dateButton}
-        onPress={() => setShowDatePicker(true)}
+        onPress={showDateTimePicker}
       >
         <Ionicons name="calendar-outline" size={20} color="#4ecca3" />
         <Text style={styles.dateText}>{formatDate(date)}</Text>
         <Ionicons name="chevron-forward" size={20} color="#a0a0a0" />
       </TouchableOpacity>
-      {showDatePicker && Platform.OS === 'android' && (
-        <DateTimePicker
-          value={date}
-          mode="datetime"
-          is24Hour={false}
-          display="default"
-          onChange={onDateChange}
-        />
-      )}
-      {showDatePicker && Platform.OS === 'ios' && (
-        <View>
+      
+      {/* iOS only - Android uses imperative API */}
+      {Platform.OS === 'ios' && showDatePicker && (
+        <>
           <DateTimePicker
             value={date}
             mode="datetime"
-            is24Hour={false}
             display="spinner"
             onChange={onDateChange}
+            textColor="#ffffff"
           />
           <TouchableOpacity
             style={styles.doneButton}
@@ -173,14 +185,13 @@ export default function AddTransaction({ navigation, route }: Props) {
           >
             <Text style={styles.doneButtonText}>Done</Text>
           </TouchableOpacity>
-        </View>
+        </>
       )}
     </View>
   )
 
   const renderCategoryPicker = () => (
     <View style={styles.section}>
-
       <View style={styles.categoriesGrid}>
         {categories.map((cat) => (
           <TouchableOpacity
@@ -379,9 +390,9 @@ const styles = StyleSheet.create({
   },
   dateText: {
     flex: 1,
-    fontSize: 16,
-    color: '#ffffff',
     marginLeft: 12,
+    color: '#fff',
+    fontSize: 16,
   },
   doneButton: {
     backgroundColor: '#4ecca3',
