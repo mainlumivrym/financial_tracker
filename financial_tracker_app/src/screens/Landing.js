@@ -33,11 +33,14 @@ export default function Landing({ navigation }) {
       <View style={styles.buttonContainer}>
         <TouchableOpacity 
           style={styles.primaryButton}
-          onPress={() => navigation.navigate('Dashboard')}
+          onPress={() => navigation.navigate('Signup')}
         >
           <Text style={styles.primaryButtonText}>Get Started</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.secondaryButton}>
+        <TouchableOpacity 
+          style={styles.secondaryButton}
+          onPress={() => navigation.navigate('Login')}
+        >
           <Text style={styles.secondaryButtonText}>I already have an account</Text>
         </TouchableOpacity>
       </View>
