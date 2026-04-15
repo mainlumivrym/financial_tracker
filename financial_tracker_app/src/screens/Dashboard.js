@@ -1,7 +1,31 @@
+import React, { useState, useEffect } from 'react';
 import { StatusBar } from 'expo-status-bar';
 import { StyleSheet, Text, View, ScrollView, TouchableOpacity } from 'react-native';
+import { useFocusEffect } from '@react-navigation/native';
+import { useAuth } from '../context/AuthContext';
+import { getUserProfile } from '../services/userService';
 
 export default function Dashboard({ navigation }) {
+  const { currentUser } = useAuth();
+  const [userProfile, setUserProfile] = useState(null);
+
+  const loadUserProfile = async () => {
+    if (currentUser) {
+      try {
+        const profile = await getUserProfile(currentUser.uid);
+        setUserProfile(profile);
+      } catch (error) {
+        console.error('Error loading profile:', error);
+      }
+    }
+  };
+
+  // Reload profile when screen comes into focus
+  useFocusEffect(
+    React.useCallback(() => {
+      loadUserProfile();
+    }, [currentUser])
+  );
   return (
     <View style={styles.container}>
       <StatusBar style='light' />
@@ -11,7 +35,7 @@ export default function Dashboard({ navigation }) {
         <View style={styles.header}>
           <View>
             <Text style={styles.greeting}>Welcome back!</Text>
-            <Text style={styles.userName}>John Doe</Text>
+            <Text style={styles.userName}>{userProfile?.username || 'User'}</Text>
           </View>
           <TouchableOpacity 
             style={styles.avatarContainer}

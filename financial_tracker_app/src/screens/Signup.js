@@ -14,7 +14,10 @@ import {
 import { useAuth } from '../context/AuthContext';
 import PasswordInput from '../components/PasswordInput';
 
+import { createUserProfile } from '../services/userService';
+
 export default function Signup({ navigation }) {
+  const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -23,8 +26,13 @@ export default function Signup({ navigation }) {
 
   const handleSignup = async () => {
     // Validation
-    if (!email || !password || !confirmPassword) {
+    if (!username || !email || !password || !confirmPassword) {
       Alert.alert('Error', 'Please fill in all fields');
+      return;
+    }
+
+    if (username.length < 3) {
+      Alert.alert('Error', 'Username must be at least 3 characters');
       return;
     }
 
@@ -40,7 +48,15 @@ export default function Signup({ navigation }) {
 
     try {
       setLoading(true);
-      await signup(email, password);
+      const userCredential = await signup(email, password);
+      
+      // Create user profile in Firestore
+      await createUserProfile(userCredential.user.uid, {
+        username,
+        email,
+        phone: ''
+      });
+      
       // Navigation to Dashboard will happen automatically via AuthContext
       navigation.replace('Dashboard');
     } catch (error) {
@@ -79,6 +95,19 @@ export default function Signup({ navigation }) {
 
         {/* Form */}
         <View style={styles.form}>
+          <View style={styles.inputContainer}>
+            <Text style={styles.label}>Username</Text>
+            <TextInput
+              style={styles.input}
+              placeholder="Choose a username"
+              placeholderTextColor="#a0a0a0"
+              value={username}
+              onChangeText={setUsername}
+              autoCapitalize="none"
+              autoComplete="username"
+            />
+          </View>
+
           <View style={styles.inputContainer}>
             <Text style={styles.label}>Email</Text>
             <TextInput

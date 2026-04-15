@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { StatusBar } from 'expo-status-bar';
 import { 
   StyleSheet, 
@@ -11,13 +11,35 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '../context/AuthContext';
+import { getUserProfile, updateUserProfile } from '../services/userService';
 
 export default function UserInfo({ navigation }) {
   const { currentUser, logout } = useAuth();
-  const [name, setName] = useState('John Doe');
+  const [username, setUsername] = useState('');
   const [email, setEmail] = useState(currentUser?.email || '');
   const [phone, setPhone] = useState('');
   const [isEditing, setIsEditing] = useState(false);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    loadUserProfile();
+  }, []);
+
+  const loadUserProfile = async () => {
+    if (currentUser) {
+      try {
+        const profile = await getUserProfile(currentUser.uid);
+        if (profile) {
+          setUsername(profile.username || '');
+          setPhone(profile.phone || '');
+        }
+      } catch (error) {
+        console.error('Error loading profile:', error);
+      } finally {
+        setLoading(false);
+      }
+    }
+  };
 
   const handleLogout = async () => {
     Alert.alert(
@@ -41,10 +63,18 @@ export default function UserInfo({ navigation }) {
     );
   };
 
-  const handleSave = () => {
-    setIsEditing(false);
-    Alert.alert('Success', 'Profile updated successfully');
-    // TODO: Save to Firebase/Firestore
+  const handleSave = async () => {
+    try {
+      await updateUserProfile(currentUser.uid, {
+        username,
+        phone
+      });
+      setIsEditing(false);
+      Alert.alert('Success', 'Profile updated successfully');
+    } catch (error) {
+      Alert.alert('Error', 'Failed to update profile');
+      console.error('Error updating profile:', error);
+    }
   };
 
   return (
@@ -89,17 +119,17 @@ export default function UserInfo({ navigation }) {
           
           <View style={styles.infoCard}>
             <View style={styles.infoItem}>
-              <Text style={styles.label}>Full Name</Text>
+              <Text style={styles.label}>Username</Text>
               {isEditing ? (
                 <TextInput
                   style={styles.input}
-                  value={name}
-                  onChangeText={setName}
-                  placeholder="Enter your name"
+                  value={username}
+                  onChangeText={setUsername}
+                  placeholder="Enter your username"
                   placeholderTextColor="#a0a0a0"
                 />
               ) : (
-                <Text style={styles.value}>{name}</Text>
+                <Text style={styles.value}>{username}</Text>
               )}
             </View>
 
