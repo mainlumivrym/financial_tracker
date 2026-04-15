@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View, ScrollView, TouchableOpacity } from 'react-native';
+import { StyleSheet, Text, View, ScrollView, TouchableOpacity, Image } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
 import { useAuth } from '../context/AuthContext';
 import { getUserProfile } from '../services/userService';
@@ -41,7 +41,14 @@ export default function Dashboard({ navigation }) {
             style={styles.avatarContainer}
             onPress={() => navigation.navigate('UserInfo')}
           >
-            <Text style={styles.avatar}>👤</Text>
+            {userProfile?.profilePicture ? (
+              <Image 
+                source={{ uri: userProfile.profilePicture }} 
+                style={styles.profileImage} 
+              />
+            ) : (
+              <Text style={styles.avatar}>👤</Text>
+            )}
           </TouchableOpacity>
         </View>
 
@@ -173,6 +180,11 @@ const styles = StyleSheet.create({
     backgroundColor: '#2a2a3e',
     alignItems: 'center',
     justifyContent: 'center',
+    overflow: 'hidden',
+  },
+  profileImage: {
+    width: '100%',
+    height: '100%',
   },
   avatar: {
     fontSize: 24,

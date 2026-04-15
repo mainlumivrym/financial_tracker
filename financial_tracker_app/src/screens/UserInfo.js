@@ -7,8 +7,10 @@ import {
   TextInput, 
   TouchableOpacity,
   ScrollView,
-  Alert
+  Alert,
+  Image
 } from 'react-native';
+import * as ImagePicker from 'expo-image-picker';
 import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '../context/AuthContext';
 import { getUserProfile, updateUserProfile } from '../services/userService';
@@ -18,6 +20,7 @@ export default function UserInfo({ navigation }) {
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState(currentUser?.email || '');
   const [phone, setPhone] = useState('');
+  const [profilePicture, setProfilePicture] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
   const [loading, setLoading] = useState(true);
 
@@ -32,6 +35,7 @@ export default function UserInfo({ navigation }) {
         if (profile) {
           setUsername(profile.username || '');
           setPhone(profile.phone || '');
+          setProfilePicture(profile.profilePicture || null);
         }
       } catch (error) {
         console.error('Error loading profile:', error);
@@ -63,11 +67,34 @@ export default function UserInfo({ navigation }) {
     );
   };
 
+  const pickImage = async () => {
+    // Request permissions
+    const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    
+    if (status !== 'granted') {
+      Alert.alert('Permission Denied', 'We need camera roll permissions to change your profile picture.');
+      return;
+    }
+
+    // Launch image picker
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      aspect: [1, 1],
+      quality: 0.5,
+    });
+
+    if (!result.canceled) {
+      setProfilePicture(result.assets[0].uri);
+    }
+  };
+
   const handleSave = async () => {
     try {
       await updateUserProfile(currentUser.uid, {
         username,
-        phone
+        phone,
+        profilePicture
       });
       setIsEditing(false);
       Alert.alert('Success', 'Profile updated successfully');
@@ -104,10 +131,17 @@ export default function UserInfo({ navigation }) {
         {/* Avatar Section */}
         <View style={styles.avatarSection}>
           <View style={styles.avatarContainer}>
-            <Ionicons name="person" size={60} color="#4ecca3" />
+            {profilePicture ? (
+              <Image source={{ uri: profilePicture }} style={styles.profileImage} />
+            ) : (
+              <Ionicons name="person" size={60} color="#4ecca3" />
+            )}
           </View>
           {isEditing && (
-            <TouchableOpacity style={styles.changePhotoButton}>
+            <TouchableOpacity 
+              style={styles.changePhotoButton}
+              onPress={pickImage}
+            >
               <Text style={styles.changePhotoText}>Change Photo</Text>
             </TouchableOpacity>
           )}
@@ -257,6 +291,12 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     borderWidth: 3,
     borderColor: '#4ecca3',
+    overflow: 'hidden',
+  },
+  profileImage: {
+    width: '100%',
+    height: '100%',
+    borderRadius: 60,
   },
   changePhotoButton: {
     marginTop: 12,

@@ -4,6 +4,7 @@ export interface UserProfile {
   username: string;
   email: string;
   phone: string;
+  profilePicture?: string;
   createdAt: any; // Firestore Timestamp
   updatedAt: any; // Firestore Timestamp
 }
