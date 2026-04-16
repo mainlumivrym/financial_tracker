@@ -15,7 +15,6 @@ import DateTimePickerAndroid from '@react-native-community/datetimepicker';
 import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '../context/AuthContext';
 import { getUserTransactions } from '../services/transactionService';
-import { getBudget, getCurrentMonth } from '../services/budgetService';
 import { RootStackParamList } from '../types';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'MonthlyReport'>;
@@ -199,31 +198,6 @@ export default function MonthlyReport({ navigation }: Props) {
               {monthlyData.transactionCount} transactions this month
             </Text>
           </View>
-
-          {/* Top Spending Categories */}
-          {topCategories.length > 0 && (
-            <View style={styles.section}>
-              <Text style={styles.sectionTitle}>Top Spending Categories</Text>
-              <View style={styles.topCategoriesContainer}>
-                {topCategories.map((item, index) => (
-                  <View key={item.category} style={styles.topCategoryItem}>
-                    <View style={styles.rankBadge}>
-                      <Text style={styles.rankText}>{index + 1}</Text>
-                    </View>
-                    <View style={styles.topCategoryInfo}>
-                      <Text style={styles.topCategoryName}>{item.category}</Text>
-                      <Text style={styles.topCategoryAmount}>
-                        ${item.amount.toFixed(2)}
-                      </Text>
-                    </View>
-                    <Text style={styles.topCategoryPercentage}>
-                      {item.percentage.toFixed(0)}%
-                    </Text>
-                  </View>
-                ))}
-              </View>
-            </View>
-          )}
 
           {/* Category Breakdown */}
           {categoryBreakdown.length > 0 && (

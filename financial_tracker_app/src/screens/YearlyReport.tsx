@@ -14,6 +14,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '../context/AuthContext';
 import { getUserTransactions } from '../services/transactionService';
 import { RootStackParamList } from '../types';
+import CategoryDistributionChart from '../components/CategoryDistributionChart';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'YearlyReport'>;
 
@@ -40,6 +41,7 @@ export default function YearlyReport({ navigation }: Props) {
     transactionCount: 0
   });
   const [topExpenseCategory, setTopExpenseCategory] = useState<{ category: string; amount: number } | null>(null);
+  const [categoryBreakdown, setCategoryBreakdown] = useState<any[]>([]);
 
   useEffect(() => {
     loadYearlyData();
@@ -123,6 +125,17 @@ export default function YearlyReport({ navigation }: Props) {
         setTopExpenseCategory({ category: topCategory[0], amount: topCategory[1] });
       }
 
+      // Calculate category breakdown with percentages
+      const totalExpenses = Object.values(categoryTotals).reduce((sum, val) => sum + val, 0);
+      const breakdown = Object.entries(categoryTotals).map(([category, amount]) => ({
+        category,
+        amount,
+        percentage: (amount / totalExpenses) * 100
+      }));
+
+      breakdown.sort((a, b) => b.amount - a.amount);
+      setCategoryBreakdown(breakdown);
+
     } catch (error) {
       console.error('Error loading yearly data:', error);
     } finally {
@@ -190,21 +203,11 @@ export default function YearlyReport({ navigation }: Props) {
             </Text>
           </View>
 
-          {/* Top Expense Category */}
-          {topExpenseCategory && (
-            <View style={styles.section}>
-              <Text style={styles.sectionTitle}>Top Spending Category</Text>
-              <View style={styles.topCategoryCard}>
-                <View style={styles.topCategoryContent}>
-                  <Text style={styles.topCategoryName}>{topExpenseCategory.category}</Text>
-                  <Text style={styles.topCategoryAmount}>
-                    ${topExpenseCategory.amount.toFixed(2)}
-                  </Text>
-                </View>
-                <Text style={styles.topCategorySubtext}>in the last 12 months</Text>
-              </View>
-            </View>
-          )}
+          {/* Category Distribution Chart */}
+          <CategoryDistributionChart 
+            data={categoryBreakdown} 
+            title="Expense Distribution (12 Months)" 
+          />
 
           {/* Monthly Chart */}
           <View style={styles.section}>
