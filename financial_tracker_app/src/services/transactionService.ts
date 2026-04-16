@@ -63,7 +63,7 @@ export const getUserTransactions = async (userId: string): Promise<Transaction[]
     const q = query(
       collection(db, TRANSACTIONS_COLLECTION),
       where('userId', '==', userId),
-      orderBy('createdAt', 'desc')
+      orderBy('date', 'desc')
     );
     
     const querySnapshot = await getDocs(q);
@@ -112,9 +112,9 @@ export const getTransactionsByDateRange = async (userId: string, startDate: Date
     const q = query(
       collection(db, TRANSACTIONS_COLLECTION),
       where('userId', '==', userId),
-      where('createdAt', '>=', Timestamp.fromDate(startDate)),
-      where('createdAt', '<=', Timestamp.fromDate(endDate)),
-      orderBy('createdAt', 'desc')
+      where('date', '>=', Timestamp.fromDate(startDate)),
+      where('date', '<=', Timestamp.fromDate(endDate)),
+      orderBy('date', 'desc')
     );
     
     const querySnapshot = await getDocs(q);

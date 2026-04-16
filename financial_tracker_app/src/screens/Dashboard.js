@@ -212,6 +212,20 @@ export default function Dashboard({ navigation }) {
             </TouchableOpacity>
             <TouchableOpacity
               style={styles.actionButton}
+              onPress={() => navigation.navigate('BudgetManagement')}
+            >
+              <Text style={styles.actionIcon}>🎯</Text>
+              <Text style={styles.actionText}>Set Budget</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.actionButton}
+              onPress={() => navigation.navigate('RecurringExpenses')}
+            >
+              <Text style={styles.actionIcon}>🔔</Text>
+              <Text style={styles.actionText}>Reminders</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.actionButton}
               onPress={() => navigation.navigate('MonthlyReport')}
             >
               <Text style={styles.actionIcon}>📊</Text>
