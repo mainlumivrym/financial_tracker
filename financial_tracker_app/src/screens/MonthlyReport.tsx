@@ -21,10 +21,17 @@ type Props = NativeStackScreenProps<RootStackParamList, 'MonthlyReport'>;
 
 const SCREEN_WIDTH = Dimensions.get('window').width;
 
-export default function MonthlyReport({ navigation }: Props) {
+export default function MonthlyReport({ navigation, route }: Props) {
   const { currentUser } = useAuth();
   const [loading, setLoading] = useState(true);
-  const [selectedDate, setSelectedDate] = useState(new Date());
+  
+  // If year and month are provided via route params, use them; otherwise use current date
+  const initialDate = route.params?.year && route.params?.month !== undefined
+    ? new Date(route.params.year, route.params.month, 1)
+    : new Date();
+  
+  const [selectedDate, setSelectedDate] = useState(initialDate);
+  const isDateLocked = route.params?.year !== undefined && route.params?.month !== undefined;
   const [transactions, setTransactions] = useState<any[]>([]);
   const [monthlyData, setMonthlyData] = useState({
     income: 0,
@@ -143,28 +150,37 @@ export default function MonthlyReport({ navigation }: Props) {
         <View style={styles.backButton} />
       </View>
 
-      {/* Month Picker */}
-      <View style={styles.monthPickerContainer}>
-        <TouchableOpacity
-          style={styles.monthNavButton}
-          onPress={() => navigateMonth('prev')}
-        >
-          <Ionicons name="chevron-back" size={24} color="#4ecca3" />
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={styles.monthDisplay}
-          onPress={showMonthPicker}
-        >
-          <Text style={styles.monthText}>{formatMonthYear(selectedDate)}</Text>
-          <Ionicons name="calendar-outline" size={20} color="#a0a0a0" style={{ marginLeft: 8 }} />
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={styles.monthNavButton}
-          onPress={() => navigateMonth('next')}
-        >
-          <Ionicons name="chevron-forward" size={24} color="#4ecca3" />
-        </TouchableOpacity>
-      </View>
+      {/* Month Picker - only show if date is not locked */}
+      {!isDateLocked && (
+        <View style={styles.monthPickerContainer}>
+          <TouchableOpacity
+            style={styles.monthNavButton}
+            onPress={() => navigateMonth('prev')}
+          >
+            <Ionicons name="chevron-back" size={24} color="#4ecca3" />
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.monthDisplay}
+            onPress={showMonthPicker}
+          >
+            <Text style={styles.monthText}>{formatMonthYear(selectedDate)}</Text>
+            <Ionicons name="calendar-outline" size={20} color="#a0a0a0" style={{ marginLeft: 8 }} />
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.monthNavButton}
+            onPress={() => navigateMonth('next')}
+          >
+            <Ionicons name="chevron-forward" size={24} color="#4ecca3" />
+          </TouchableOpacity>
+        </View>
+      )}
+      
+      {/* Show month title when date is locked */}
+      {isDateLocked && (
+        <View style={styles.lockedMonthContainer}>
+          <Text style={styles.lockedMonthText}>{formatMonthYear(selectedDate)}</Text>
+        </View>
+      )}
 
       {loading ? (
         <View style={styles.loadingContainer}>
@@ -289,6 +305,16 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '600',
     color: '#ffffff',
+  },
+  lockedMonthContainer: {
+    paddingHorizontal: 20,
+    paddingBottom: 20,
+    alignItems: 'center',
+  },
+  lockedMonthText: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: '#4ecca3',
   },
   backButton: {
     width: 40,

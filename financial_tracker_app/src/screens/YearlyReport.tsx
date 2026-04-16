@@ -262,7 +262,15 @@ export default function YearlyReport({ navigation }: Props) {
             <Text style={styles.sectionTitle}>Monthly Breakdown</Text>
             <View style={styles.detailsContainer}>
               {monthlyData.slice().reverse().map((monthData, index) => (
-                <View key={index} style={styles.monthDetailCard}>
+                <TouchableOpacity 
+                  key={index} 
+                  style={styles.monthDetailCard}
+                  onPress={() => navigation.navigate('MonthlyReport', { 
+                    year: monthData.year, 
+                    month: monthData.monthIndex 
+                  })}
+                  activeOpacity={0.7}
+                >
                   <View style={styles.monthDetailHeader}>
                     <Text style={styles.monthDetailTitle}>
                       {monthData.month} {monthData.year}
@@ -294,7 +302,11 @@ export default function YearlyReport({ navigation }: Props) {
                       </Text>
                     </View>
                   </View>
-                </View>
+                  <View style={styles.viewDetailsHint}>
+                    <Ionicons name="chevron-forward" size={16} color="#4ecca3" />
+                    <Text style={styles.viewDetailsText}>View details</Text>
+                  </View>
+                </TouchableOpacity>
               ))}
             </View>
           </View>
@@ -524,6 +536,21 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: '600',
     color: '#ffffff',
+  },
+  viewDetailsHint: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: 12,
+    paddingTop: 12,
+    borderTopWidth: 1,
+    borderTopColor: '#3a3a4e',
+    gap: 4,
+  },
+  viewDetailsText: {
+    fontSize: 12,
+    color: '#4ecca3',
+    fontWeight: '600',
   },
   bottomSpacer: {
     height: 40,

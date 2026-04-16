@@ -33,7 +33,7 @@ export type RootStackParamList = {
   AddTransaction: { type: 'expense' | 'income' };
   FullTransactionList: undefined;
   BudgetManagement: undefined;
-  MonthlyReport: undefined;
+  MonthlyReport: { year?: number; month?: number } | undefined;
   YearlyReport: undefined;
 };
 
