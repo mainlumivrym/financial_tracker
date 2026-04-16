@@ -212,14 +212,17 @@ export default function Dashboard({ navigation }) {
             </TouchableOpacity>
             <TouchableOpacity
               style={styles.actionButton}
-              onPress={() => navigation.navigate('BudgetManagement')}
+              onPress={() => navigation.navigate('MonthlyReport')}
             >
-              <Text style={styles.actionIcon}>🎯</Text>
-              <Text style={styles.actionText}>Set Budget</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.actionButton}>
               <Text style={styles.actionIcon}>📊</Text>
-              <Text style={styles.actionText}>View Report</Text>
+              <Text style={styles.actionText}>Monthly Report</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.actionButton}
+              onPress={() => navigation.navigate('YearlyReport')}
+            >
+              <Text style={styles.actionIcon}>📈</Text>
+              <Text style={styles.actionText}>Yearly Report</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -229,6 +232,12 @@ export default function Dashboard({ navigation }) {
           <View style={styles.section}>
             <View style={styles.sectionHeader}>
               <Text style={styles.sectionTitle}>Budget Overview</Text>
+              <TouchableOpacity style={{
+                height: '100%',
+                justifyContent: 'center'
+              }} onPress={() => navigation.navigate('BudgetManagement')}>
+                <Text style={styles.seeAllText}>Set budget</Text>
+              </TouchableOpacity>
             </View>
             <View style={styles.budgetProgressList}>
               {budgetProgress.slice(0, 5).map((item) => {
