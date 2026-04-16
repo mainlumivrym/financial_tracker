@@ -54,5 +54,24 @@ service cloud.firestore {
       allow delete: if request.auth != null 
         && resource.data.userId == request.auth.uid;
     }
+    
+    // Recurring Expenses: Users can only read/write their own recurring expenses
+    match /recurringExpenses/{expenseId} {
+      // Allow read for user's own expenses
+      allow read: if request.auth != null 
+        && resource.data.userId == request.auth.uid;
+      
+      // Allow create if the new document belongs to the authenticated user
+      allow create: if request.auth != null 
+        && request.resource.data.userId == request.auth.uid;
+      
+      // Allow update if the document belongs to the authenticated user
+      allow update: if request.auth != null 
+        && resource.data.userId == request.auth.uid;
+      
+      // Allow delete if the document belongs to the authenticated user
+      allow delete: if request.auth != null 
+        && resource.data.userId == request.auth.uid;
+    }
   }
 }

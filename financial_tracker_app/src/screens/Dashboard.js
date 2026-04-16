@@ -141,7 +141,6 @@ export default function Dashboard({ navigation }) {
     }
   };
 
-
   // Reload profile and transactions when screen comes into focus
   useFocusEffect(
     React.useCallback(() => {
@@ -200,7 +199,7 @@ export default function Dashboard({ navigation }) {
               style={styles.actionButton}
               onPress={() => navigation.navigate('AddTransaction', { type: 'expense' })}
             >
-              <Text style={styles.actionIcon}>➕</Text>
+              <Text style={styles.actionIcon}>💸</Text>
               <Text style={styles.actionText}>Add Expense</Text>
             </TouchableOpacity>
             <TouchableOpacity
@@ -209,6 +208,20 @@ export default function Dashboard({ navigation }) {
             >
               <Text style={styles.actionIcon}>💰</Text>
               <Text style={styles.actionText}>Add Income</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.actionButton}
+              onPress={() => navigation.navigate('BudgetManagement')}
+            >
+              <Text style={styles.actionIcon}>🎯</Text>
+              <Text style={styles.actionText}>Set Budget</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.actionButton}
+              onPress={() => navigation.navigate('RecurringExpenses')}
+            >
+              <Text style={styles.actionIcon}>🔁</Text>
+              <Text style={styles.actionText}>Recurring Expenses</Text>
             </TouchableOpacity>
             <TouchableOpacity
               style={styles.actionButton}

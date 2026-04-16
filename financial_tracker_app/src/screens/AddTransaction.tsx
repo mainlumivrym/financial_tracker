@@ -8,7 +8,8 @@ import {
   TouchableOpacity,
   ScrollView,
   Alert,
-  Platform
+  Platform,
+  KeyboardAvoidingView
 } from 'react-native';
 import DateTimePicker, { DateTimePickerAndroid } from '@react-native-community/datetimepicker';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
@@ -249,7 +250,11 @@ export default function AddTransaction({ navigation, route }: Props) {
   )
 
   return (
-    <View style={styles.container}>
+    <KeyboardAvoidingView 
+      style={styles.container}
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      keyboardVerticalOffset={0}
+    >
       <StatusBar style="light" />
 
       {/* Header */}
@@ -277,7 +282,7 @@ export default function AddTransaction({ navigation, route }: Props) {
         </TouchableOpacity>
       </View>
 
-      <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
+      <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
         {/* Amount Input */}
         <View style={styles.amountSection}>
           <Text style={styles.currencySymbol}>$</Text>
@@ -322,7 +327,7 @@ export default function AddTransaction({ navigation, route }: Props) {
         onAdd={handleAddCategory}
         type={transactionType}
       />
-    </View>
+    </KeyboardAvoidingView>
   );
 }
 

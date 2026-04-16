@@ -26,6 +26,7 @@ import FullTransactionList from './src/screens/FullTransactionList';
 import BudgetManagement from './src/screens/BudgetManagement';
 import MonthlyReport from './src/screens/MonthlyReport';
 import YearlyReport from './src/screens/YearlyReport';
+import RecurringExpenses from './src/screens/RecurringExpenses';
 
 const Stack = createStackNavigator();
 
@@ -61,6 +62,7 @@ function Navigation() {
           <Stack.Screen name="BudgetManagement" component={BudgetManagement} />
           <Stack.Screen name="MonthlyReport" component={MonthlyReport} />
           <Stack.Screen name="YearlyReport" component={YearlyReport} />
+          <Stack.Screen name="RecurringExpenses" component={RecurringExpenses} />
         </>
       ) : (
         // Unauthenticated screens

@@ -34,6 +34,7 @@ const EMOJI_OPTIONS: string[] = [
   '🏥', '💊', '🩺', '🦷', '👓', '🧘', '💆', '🏃',
   '💼', '📊', '💰', '💵', '💸', '📈', '🎓', '🏆',
   '❤️', '🎂', '🌟', '🔥', '⭐', '🌈', '🎯', '📦',
+  '🦷','🐶','🐢','🏋️'
 ];
 
 export default function AddCategoryModal({ visible, onClose, onAdd, type }: AddCategoryModalProps) {

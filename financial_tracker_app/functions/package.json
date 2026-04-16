@@ -1,0 +1,11 @@
+{
+  "name": "functions",
+  "description": "Cloud Functions for Financial Tracker",
+  "engines": {
+    "node": "20"
+  },
+  "dependencies": {
+    "firebase-admin": "^13.8.0",
+    "firebase-functions": "^7.2.5"
+  }
+}

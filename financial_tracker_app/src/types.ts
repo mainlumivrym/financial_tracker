@@ -35,6 +35,7 @@ export type RootStackParamList = {
   BudgetManagement: undefined;
   MonthlyReport: { year?: number; month?: number } | undefined;
   YearlyReport: undefined;
+  RecurringExpenses: undefined;
 };
 
 // Auth Context Types
