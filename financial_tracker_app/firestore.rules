@@ -35,5 +35,24 @@ service cloud.firestore {
         && resource.data.userId == request.auth.uid
         && resource.data.isDefault == false;
     }
+    
+    // Budgets: Users can only read/write their own budgets
+    match /budgets/{budgetId} {
+      // Allow read if authenticated and budgetId starts with user's uid
+      allow read: if request.auth != null 
+        && budgetId.matches(request.auth.uid + '_.*');
+      
+      // Allow create if the new document belongs to the authenticated user
+      allow create: if request.auth != null 
+        && request.resource.data.userId == request.auth.uid;
+      
+      // Allow update if the document belongs to the authenticated user
+      allow update: if request.auth != null 
+        && resource.data.userId == request.auth.uid;
+      
+      // Allow delete if the document belongs to the authenticated user
+      allow delete: if request.auth != null 
+        && resource.data.userId == request.auth.uid;
+    }
   }
 }
