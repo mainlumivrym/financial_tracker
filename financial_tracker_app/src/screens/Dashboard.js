@@ -129,7 +129,10 @@ export default function Dashboard({ navigation }) {
               <Text style={styles.actionIcon}>💰</Text>
               <Text style={styles.actionText}>Add Income</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.actionButton}>
+            <TouchableOpacity 
+              style={styles.actionButton}
+              onPress={() => navigation.navigate('BudgetManagement')}
+            >
               <Text style={styles.actionIcon}>🎯</Text>
               <Text style={styles.actionText}>Set Budget</Text>
             </TouchableOpacity>
