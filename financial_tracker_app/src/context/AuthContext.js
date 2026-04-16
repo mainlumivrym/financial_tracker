@@ -6,6 +6,7 @@ import {
   onAuthStateChanged 
 } from 'firebase/auth';
 import { auth } from '../config/firebase';
+import { saveFCMToken } from '../services/userService';
 
 const AuthContext = createContext();
 
@@ -34,9 +35,19 @@ export function AuthProvider({ children }) {
 
   // Listen for auth state changes
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
+    const unsubscribe = onAuthStateChanged(auth, async (user) => {
       setCurrentUser(user);
       setLoading(false);
+      
+      // Save FCM token when user logs in
+      if (user) {
+        try {
+          await saveFCMToken(user.uid);
+        } catch (error) {
+          console.error('Failed to save FCM token:', error);
+          // Don't block login if FCM token save fails
+        }
+      }
     });
 
     return unsubscribe;

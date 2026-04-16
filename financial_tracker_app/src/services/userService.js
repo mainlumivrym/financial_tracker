@@ -5,6 +5,7 @@ import {
   updateDoc,
   Timestamp 
 } from 'firebase/firestore';
+import * as Notifications from 'expo-notifications';
 import { db } from '../config/firebase';
 
 const USERS_COLLECTION = 'users';
@@ -66,5 +67,33 @@ export const checkUsernameExists = async (username) => {
   } catch (error) {
     console.error('Error checking username:', error);
     throw error;
+  }
+};
+
+// Save FCM token for push notifications
+export const saveFCMToken = async (userId) => {
+  try {
+    const { status } = await Notifications.requestPermissionsAsync();
+    if (status !== 'granted') {
+      console.log('Notification permission not granted');
+      return null;
+    }
+
+    // Get Expo push token with explicit projectId
+    const token = (await Notifications.getExpoPushTokenAsync({
+      projectId: '5df51602-ff91-4990-8169-b1d54cf6979c'
+    })).data;
+    
+    // Save to Firestore
+    await updateDoc(doc(db, USERS_COLLECTION, userId), {
+      fcmToken: token,
+      updatedAt: Timestamp.now()
+    });
+
+    console.log('FCM token saved:', token);
+    return token;
+  } catch (error) {
+    console.error('Error saving FCM token:', error);
+    return null;
   }
 };

@@ -16,7 +16,7 @@ import {
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { Ionicons } from '@expo/vector-icons';
 import { SwipeListView } from 'react-native-swipe-list-view';
-import DateTimePickerAndroid from '@react-native-community/datetimepicker';
+import { DateTimePickerAndroid } from '@react-native-community/datetimepicker';
 import { useAuth } from '../context/AuthContext';
 import { RootStackParamList } from '../types';
 import {
@@ -30,8 +30,6 @@ import {
 } from '../services/recurringExpenseService';
 import {
   requestNotificationPermissions,
-  scheduleRecurringExpenseNotification,
-  cancelNotification
 } from '../services/notificationService';
 import { getCategories } from '../services/categoryService';
 
@@ -95,24 +93,7 @@ export default function RecurringExpenses({ navigation }: Props) {
         description
       );
 
-      // Schedule notification
-      const newExpense = {
-        id: expenseId,
-        userId: currentUser.uid,
-        name,
-        amount: parseFloat(amount),
-        category,
-        frequency,
-        startDate,
-        nextDueDate: startDate,
-        notificationEnabled,
-        notificationTime,
-        description,
-      } as RecurringExpense;
-
-      if (notificationEnabled) {
-        await scheduleRecurringExpenseNotification(newExpense);
-      }
+      // Note: Notifications are now handled by Firebase Cloud Functions
 
       setModalVisible(false);
       resetForm();
@@ -136,7 +117,6 @@ export default function RecurringExpenses({ navigation }: Props) {
           onPress: async () => {
             try {
               await deleteRecurringExpense(expense.id);
-              await cancelNotification(expense.id);
               loadData();
               Alert.alert('Success', 'Recurring expense deleted');
             } catch (error) {
@@ -151,13 +131,15 @@ export default function RecurringExpenses({ navigation }: Props) {
   const handleTogglePaid = async (expense: RecurringExpense) => {
     try {
       if (expense.isPaid) {
+        // Mark as unpaid
         await markAsUnpaid(expense.id);
         loadData();
         Alert.alert('Success', 'Marked as unpaid');
       } else {
+        // Mark as paid
         await markAsPaid(expense.id, expense.frequency);
         loadData();
-        Alert.alert('Success', 'Marked as paid and next due date updated');
+        Alert.alert('Success', 'Marked as paid');
       }
     } catch (error) {
       Alert.alert('Error', 'Failed to update paid status');
