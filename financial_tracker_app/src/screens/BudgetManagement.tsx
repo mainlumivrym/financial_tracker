@@ -174,7 +174,6 @@ export default function BudgetManagement({ navigation }: Props) {
 
           {/* Category Budgets */}
           <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Category Budgets</Text>
             <View style={styles.categoriesList}>
               {categoryBudgets.map((item, index) => (
                 <View
