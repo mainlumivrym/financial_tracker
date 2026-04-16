@@ -7,22 +7,25 @@ import {
   ScrollView,
   TouchableOpacity,
   ActivityIndicator,
-  Dimensions
+  Dimensions,
+  Platform
 } from 'react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
+import DateTimePickerAndroid from '@react-native-community/datetimepicker';
 import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '../context/AuthContext';
 import { getUserTransactions } from '../services/transactionService';
 import { getBudget, getCurrentMonth } from '../services/budgetService';
 import { RootStackParamList } from '../types';
 
-type Props = NativeStackScreenProps<RootStackParamList, 'Reports'>;
+type Props = NativeStackScreenProps<RootStackParamList, 'MonthlyReport'>;
 
 const SCREEN_WIDTH = Dimensions.get('window').width;
 
-export default function Reports({ navigation }: Props) {
+export default function MonthlyReport({ navigation }: Props) {
   const { currentUser } = useAuth();
   const [loading, setLoading] = useState(true);
+  const [selectedDate, setSelectedDate] = useState(new Date());
   const [transactions, setTransactions] = useState<any[]>([]);
   const [monthlyData, setMonthlyData] = useState({
     income: 0,
@@ -35,20 +38,19 @@ export default function Reports({ navigation }: Props) {
 
   useEffect(() => {
     loadReportData();
-  }, []);
+  }, [selectedDate]);
 
   const loadReportData = async () => {
     try {
       setLoading(true);
       const fetchedTransactions = await getUserTransactions(currentUser.uid);
       
-      // Filter for current month
-      const now = new Date();
+      // Filter for selected month
       const currentMonthTransactions = fetchedTransactions.filter(t => {
         const transactionDate = t.date?.toDate?.() || t.createdAt?.toDate?.();
         return transactionDate && 
-               transactionDate.getMonth() === now.getMonth() &&
-               transactionDate.getFullYear() === now.getFullYear();
+               transactionDate.getMonth() === selectedDate.getMonth() &&
+               transactionDate.getFullYear() === selectedDate.getFullYear();
       });
 
       setTransactions(currentMonthTransactions);
@@ -97,6 +99,35 @@ export default function Reports({ navigation }: Props) {
     }
   };
 
+  const showMonthPicker = () => {
+    if (Platform.OS === 'android') {
+      DateTimePickerAndroid.open({
+        value: selectedDate,
+        mode: 'date',
+        display: 'default',
+        onChange: (event, date) => {
+          if (event.type === 'set' && date) {
+            setSelectedDate(date);
+          }
+        },
+      });
+    }
+  };
+
+  const formatMonthYear = (date: Date) => {
+    return date.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+  };
+
+  const navigateMonth = (direction: 'prev' | 'next') => {
+    const newDate = new Date(selectedDate);
+    if (direction === 'prev') {
+      newDate.setMonth(newDate.getMonth() - 1);
+    } else {
+      newDate.setMonth(newDate.getMonth() + 1);
+    }
+    setSelectedDate(newDate);
+  };
+
   return (
     <View style={styles.container}>
       <StatusBar style="light" />
@@ -109,8 +140,31 @@ export default function Reports({ navigation }: Props) {
         >
           <Ionicons name="arrow-back" size={24} color="#ffffff" />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>Monthly Report</Text>
+        <Text style={styles.headerTitle}>Reports</Text>
         <View style={styles.backButton} />
+      </View>
+
+      {/* Month Picker */}
+      <View style={styles.monthPickerContainer}>
+        <TouchableOpacity
+          style={styles.monthNavButton}
+          onPress={() => navigateMonth('prev')}
+        >
+          <Ionicons name="chevron-back" size={24} color="#4ecca3" />
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={styles.monthDisplay}
+          onPress={showMonthPicker}
+        >
+          <Text style={styles.monthText}>{formatMonthYear(selectedDate)}</Text>
+          <Ionicons name="calendar-outline" size={20} color="#a0a0a0" style={{ marginLeft: 8 }} />
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={styles.monthNavButton}
+          onPress={() => navigateMonth('next')}
+        >
+          <Ionicons name="chevron-forward" size={24} color="#4ecca3" />
+        </TouchableOpacity>
       </View>
 
       {loading ? (
@@ -229,7 +283,38 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingHorizontal: 20,
     paddingTop: 60,
+    paddingBottom: 15,
+  },
+  monthPickerContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: 20,
     paddingBottom: 20,
+    gap: 12,
+  },
+  monthNavButton: {
+    width: 40,
+    height: 40,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: 20,
+    backgroundColor: '#2a2a3e',
+  },
+  monthDisplay: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#2a2a3e',
+    paddingVertical: 12,
+    paddingHorizontal: 20,
+    borderRadius: 12,
+  },
+  monthText: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#ffffff',
   },
   backButton: {
     width: 40,

@@ -24,7 +24,8 @@ import UserInfo from './src/screens/UserInfo';
 import AddTransaction from './src/screens/AddTransaction';
 import FullTransactionList from './src/screens/FullTransactionList';
 import BudgetManagement from './src/screens/BudgetManagement';
-import Reports from './src/screens/Reports';
+import MonthlyReport from './src/screens/MonthlyReport';
+import YearlyReport from './src/screens/YearlyReport';
 
 const Stack = createStackNavigator();
 
@@ -58,7 +59,8 @@ function Navigation() {
           <Stack.Screen name="AddTransaction" component={AddTransaction} />
           <Stack.Screen name="FullTransactionList" component={FullTransactionList} />
           <Stack.Screen name="BudgetManagement" component={BudgetManagement} />
-          <Stack.Screen name="Reports" component={Reports} />
+          <Stack.Screen name="MonthlyReport" component={MonthlyReport} />
+          <Stack.Screen name="YearlyReport" component={YearlyReport} />
         </>
       ) : (
         // Unauthenticated screens

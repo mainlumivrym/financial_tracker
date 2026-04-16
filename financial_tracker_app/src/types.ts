@@ -33,7 +33,8 @@ export type RootStackParamList = {
   AddTransaction: { type: 'expense' | 'income' };
   FullTransactionList: undefined;
   BudgetManagement: undefined;
-  Reports: undefined;
+  MonthlyReport: undefined;
+  YearlyReport: undefined;
 };
 
 // Auth Context Types
