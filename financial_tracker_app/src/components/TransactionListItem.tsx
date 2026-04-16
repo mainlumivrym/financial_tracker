@@ -61,7 +61,7 @@ export default function TransactionListItem({
           <Text style={styles.transactionTitle}>
             {transaction.description || transaction.category}
           </Text>
-          {showCategory && transaction.description && (
+          {transaction.description && (
             <Text style={styles.transactionCategory}>{transaction.category}</Text>
           )}
           {!showTime && (

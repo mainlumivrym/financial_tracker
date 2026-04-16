@@ -4,14 +4,16 @@ import {
   StyleSheet,
   Text,
   View,
-  ScrollView,
+  SectionList,
   TouchableOpacity,
-  ActivityIndicator
+  ActivityIndicator,
+  Alert
 } from 'react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { Ionicons } from '@expo/vector-icons';
+import { SwipeRow } from 'react-native-swipe-list-view';
 import { useAuth } from '../context/AuthContext';
-import { getUserTransactions } from '../services/transactionService';
+import { getUserTransactions, deleteTransaction } from '../services/transactionService';
 import { RootStackParamList } from '../types';
 import TransactionListItem from '../components/TransactionListItem';
 
@@ -58,6 +60,33 @@ export default function FullTransactionList({ navigation }: Props) {
     }
   };
 
+  const handleDeleteTransaction = async (transactionId: string, transactionDescription: string) => {
+    Alert.alert(
+      'Delete Transaction',
+      `Are you sure you want to delete "${transactionDescription}"?`,
+      [
+        {
+          text: 'Cancel',
+          style: 'cancel'
+        },
+        {
+          text: 'Delete',
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              await deleteTransaction(transactionId);
+              // Reload transactions after deletion
+              loadTransactions();
+            } catch (error) {
+              console.error('Error deleting transaction:', error);
+              Alert.alert('Error', 'Failed to delete transaction');
+            }
+          }
+        }
+      ]
+    );
+  };
+
 
   const groupTransactionsByMonth = () => {
     const grouped: { [key: string]: Transaction[] } = {};
@@ -78,7 +107,11 @@ export default function FullTransactionList({ navigation }: Props) {
       grouped[monthKey].push(transaction);
     });
     
-    return grouped;
+    // Convert to sections format for SectionList
+    return Object.entries(grouped).map(([month, data]) => ({
+      title: month,
+      data
+    }));
   };
 
   const calculateMonthBalance = (monthTransactions: Transaction[]) => {
@@ -95,7 +128,7 @@ export default function FullTransactionList({ navigation }: Props) {
     return { income, expenses, balance };
   };
 
-  const groupedTransactions = groupTransactionsByMonth();
+  const sections = groupTransactionsByMonth();
 
   return (
     <View style={styles.container}>
@@ -124,49 +157,86 @@ export default function FullTransactionList({ navigation }: Props) {
           <Text style={styles.emptySubtext}>Start tracking your finances!</Text>
         </View>
       ) : (
-        <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
-          {Object.entries(groupedTransactions).map(([month, monthTransactions]) => {
-            const { income, expenses, balance } = calculateMonthBalance(monthTransactions);
+        <SectionList
+          sections={sections}
+          keyExtractor={(item) => item.id}
+          stickySectionHeadersEnabled={true}
+          renderSectionHeader={({ section }) => (
+            <View style={styles.sectionHeader}>
+              <Text style={styles.dateHeader}>{section.title}</Text>
+            </View>
+          )}
+          renderItem={({ item, index, section }) => {
+            const isFirst = index === 0;
+            const isLast = index === section.data.length - 1;
             
             return (
-              <View key={month} style={styles.dateGroup}>
-                <Text style={styles.dateHeader}>{month}</Text>
-                <View style={styles.transactionsList}>
-                  {monthTransactions.map((transaction) => (
-                    <TransactionListItem
-                      key={transaction.id}
-                      transaction={transaction}
-                      showCategory={true}
-                      showTime={false}
-                    />
-                  ))}
-                  
-                  {/* Month Balance Summary */}
-                  <View style={styles.monthSummary}>
-                    <View style={styles.summaryRow}>
-                      <Text style={styles.summaryLabel}>Income</Text>
-                      <Text style={styles.summaryIncome}>+${income.toFixed(2)}</Text>
-                    </View>
-                    <View style={styles.summaryRow}>
-                      <Text style={styles.summaryLabel}>Expenses</Text>
-                      <Text style={styles.summaryExpense}>-${expenses.toFixed(2)}</Text>
-                    </View>
-                    <View style={[styles.summaryRow, styles.summaryTotal]}>
-                      <Text style={styles.summaryTotalLabel}>Balance</Text>
-                      <Text style={[
-                        styles.summaryTotalAmount,
-                        { color: balance >= 0 ? '#4ecca3' : '#ff6b6b' }
-                      ]}>
-                        {balance >= 0 ? '+' : ''}${balance.toFixed(2)}
-                      </Text>
-                    </View>
-                  </View>
+              <SwipeRow
+                rightOpenValue={-75}
+                disableRightSwipe
+                friction={8}
+              >
+                {/* Hidden delete button */}
+                <View style={[
+                  styles.rowBack,
+                  isFirst && styles.rowBackFirst,
+                  isLast && styles.rowBackLast
+                ]}>
+                  <TouchableOpacity
+                    style={styles.deleteButton}
+                    onPress={() => handleDeleteTransaction(
+                      item.id,
+                      item.description || item.category
+                    )}
+                  >
+                    <Ionicons name="trash-outline" size={24} color="#ffffff" />
+                  </TouchableOpacity>
+                </View>
+                
+                {/* Visible transaction item */}
+                <View style={[
+                  styles.itemContainer,
+                  isFirst && styles.itemContainerFirst,
+                  isLast && styles.itemContainerLast
+                ]}>
+                  <TransactionListItem
+                    transaction={item}
+                    showCategory={true}
+                    showTime={false}
+                  />
+                </View>
+              </SwipeRow>
+            );
+          }}
+          renderSectionFooter={({ section }) => {
+            const { income, expenses, balance } = calculateMonthBalance(section.data);
+            
+            return (
+              <View style={styles.monthSummary}>
+                <View style={styles.summaryRow}>
+                  <Text style={styles.summaryLabel}>Income</Text>
+                  <Text style={styles.summaryIncome}>+${income.toFixed(2)}</Text>
+                </View>
+                <View style={styles.summaryRow}>
+                  <Text style={styles.summaryLabel}>Expenses</Text>
+                  <Text style={styles.summaryExpense}>-${expenses.toFixed(2)}</Text>
+                </View>
+                <View style={[styles.summaryRow, styles.summaryTotal]}>
+                  <Text style={styles.summaryTotalLabel}>Balance</Text>
+                  <Text style={[
+                    styles.summaryTotalAmount,
+                    { color: balance >= 0 ? '#4ecca3' : '#ff6b6b' }
+                  ]}>
+                    {balance >= 0 ? '+' : ''}${balance.toFixed(2)}
+                  </Text>
                 </View>
               </View>
             );
-          })}
-          <View style={styles.bottomSpacer} />
-        </ScrollView>
+          }}
+          style={styles.scrollView}
+          contentContainerStyle={styles.listContent}
+          showsVerticalScrollIndicator={false}
+        />
       )}
     </View>
   );
@@ -224,27 +294,62 @@ const styles = StyleSheet.create({
   },
   scrollView: {
     flex: 1,
+  },
+  listContent: {
     paddingHorizontal: 20,
   },
-  dateGroup: {
-    marginBottom: 24,
+  sectionHeader: {
+    backgroundColor: '#1a1a2e',
+    paddingVertical: 12,
+    paddingHorizontal: 20,
+    marginHorizontal: -20,
   },
   dateHeader: {
     fontSize: 16,
     fontWeight: 'bold',
     color: '#ffffff',
-    marginBottom: 12,
   },
-  transactionsList: {
+  itemContainer: {
     backgroundColor: '#2a2a3e',
-    borderRadius: 16,
-    padding: 12,
+    paddingHorizontal: 12,
+  },
+  itemContainerFirst: {
+    borderTopLeftRadius: 16,
+    borderTopRightRadius: 16,
+    paddingTop: 4,
+  },
+  itemContainerLast: {
+    borderBottomLeftRadius: 16,
+    borderBottomRightRadius: 16,
+    paddingBottom: 4,
+  },
+  rowBack: {
+    alignItems: 'center',
+    backgroundColor: '#ff6b6b',
+    flex: 1,
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+  },
+  rowBackFirst: {
+    borderTopLeftRadius: 16,
+    borderTopRightRadius: 16,
+  },
+  rowBackLast: {
+    borderBottomLeftRadius: 16,
+    borderBottomRightRadius: 16,
+  },
+  deleteButton: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: 75,
+    alignSelf: 'center',
   },
   monthSummary: {
-    marginTop: 16,
-    paddingTop: 16,
-    borderTopWidth: 1,
-    borderTopColor: '#3a3a4e',
+    backgroundColor: '#2a2a3e',
+    borderRadius: 16,
+    padding: 16,
+    marginTop: 12,
+    marginBottom: 24,
   },
   summaryRow: {
     flexDirection: 'row',
