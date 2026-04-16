@@ -1,13 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View, ScrollView, TouchableOpacity, Image } from 'react-native';
+import { StyleSheet, Text, View, ScrollView, TouchableOpacity, Image, ActivityIndicator } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
 import { useAuth } from '../context/AuthContext';
 import { getUserProfile } from '../services/userService';
+import { getUserTransactions } from '../services/transactionService';
 
 export default function Dashboard({ navigation }) {
   const { currentUser } = useAuth();
   const [userProfile, setUserProfile] = useState(null);
+  const [transactions, setTransactions] = useState([]);
+  const [loadingTransactions, setLoadingTransactions] = useState(true);
+  const [balance, setBalance] = useState({ total: 0, income: 0, expenses: 0 });
 
   const loadUserProfile = async () => {
     if (currentUser) {
@@ -20,10 +24,70 @@ export default function Dashboard({ navigation }) {
     }
   };
 
-  // Reload profile when screen comes into focus
+  const loadTransactions = async () => {
+    if (currentUser) {
+      try {
+        setLoadingTransactions(true);
+        const fetchedTransactions = await getUserTransactions(currentUser.uid);
+        
+        // Sort by createdAt (or date), newest first
+        const sorted = fetchedTransactions.sort((a, b) => {
+          const dateA = a.date?.toDate?.() || a.createdAt?.toDate?.() || new Date(0);
+          const dateB = b.date?.toDate?.() || b.createdAt?.toDate?.() || new Date(0);
+          return dateB - dateA;
+        });
+        setTransactions(sorted);
+
+        // Calculate balance
+        const totalIncome = fetchedTransactions
+          .filter(t => t.type === 'income')
+          .reduce((sum, t) => sum + t.amount, 0);
+        
+        const totalExpenses = fetchedTransactions
+          .filter(t => t.type === 'expense')
+          .reduce((sum, t) => sum + t.amount, 0);
+        
+        setBalance({
+          total: totalIncome - totalExpenses,
+          income: totalIncome,
+          expenses: totalExpenses
+        });
+      } catch (error) {
+        console.error('Error loading transactions:', error);
+      } finally {
+        setLoadingTransactions(false);
+      }
+    }
+  };
+
+  const formatTransactionDate = (transaction) => {
+    // Use transaction.date if available, fallback to createdAt
+    const timestampField = transaction.date || transaction.createdAt;
+    if (!timestampField) return 'Unknown date';
+    
+    const transactionDate = timestampField.toDate ? timestampField.toDate() : new Date(timestampField);
+    const today = new Date();
+    const yesterday = new Date(today);
+    yesterday.setDate(yesterday.getDate() - 1);
+
+    if (transactionDate.toDateString() === today.toDateString()) {
+      return `Today, ${transactionDate.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })}`;
+    } else if (transactionDate.toDateString() === yesterday.toDateString()) {
+      return 'Yesterday';
+    } else {
+      const daysDiff = Math.floor((today - transactionDate) / (1000 * 60 * 60 * 24));
+      if (daysDiff < 7) {
+        return `${daysDiff} days ago`;
+      }
+      return transactionDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+    }
+  };
+
+  // Reload profile and transactions when screen comes into focus
   useFocusEffect(
     React.useCallback(() => {
       loadUserProfile();
+      loadTransactions();
     }, [currentUser])
   );
   return (
@@ -55,16 +119,16 @@ export default function Dashboard({ navigation }) {
         {/* Balance Card */}
         <View style={styles.balanceCard}>
           <Text style={styles.balanceLabel}>Total Balance</Text>
-          <Text style={styles.balanceAmount}>$12,450.00</Text>
+          <Text style={styles.balanceAmount}>${balance.total.toFixed(2)}</Text>
           <View style={styles.balanceStats}>
             <View style={styles.statItem}>
               <Text style={styles.statLabel}>Income</Text>
-              <Text style={styles.statIncome}>+$5,200</Text>
+              <Text style={styles.statIncome}>+${balance.income.toFixed(2)}</Text>
             </View>
             <View style={styles.statDivider} />
             <View style={styles.statItem}>
               <Text style={styles.statLabel}>Expenses</Text>
-              <Text style={styles.statExpense}>-$2,890</Text>
+              <Text style={styles.statExpense}>-${balance.expenses.toFixed(2)}</Text>
             </View>
           </View>
         </View>
@@ -107,44 +171,38 @@ export default function Dashboard({ navigation }) {
           </View>
           
           <View style={styles.transactionsList}>
-            <View style={styles.transactionItem}>
-              <View style={styles.transactionLeft}>
-                <View style={[styles.transactionIconContainer, { backgroundColor: '#ff6b6b' }]}>
-                  <Text style={styles.transactionIcon}>🍔</Text>
-                </View>
-                <View>
-                  <Text style={styles.transactionTitle}>Restaurant</Text>
-                  <Text style={styles.transactionDate}>Today, 2:30 PM</Text>
-                </View>
+            {loadingTransactions ? (
+              <ActivityIndicator size="small" color="#4ecca3" style={{ marginVertical: 20 }} />
+            ) : transactions.length === 0 ? (
+              <View style={styles.emptyState}>
+                <Text style={styles.emptyStateText}>No transactions yet</Text>
+                <Text style={styles.emptyStateSubtext}>Start tracking your finances!</Text>
               </View>
-              <Text style={styles.transactionAmountNegative}>-$45.00</Text>
-            </View>
-
-            <View style={styles.transactionItem}>
-              <View style={styles.transactionLeft}>
-                <View style={[styles.transactionIconContainer, { backgroundColor: '#4ecca3' }]}>
-                  <Text style={styles.transactionIcon}>💼</Text>
+            ) : (
+              transactions.slice(0, 5).map((transaction) => (
+                <View key={transaction.id} style={styles.transactionItem}>
+                  <View style={styles.transactionLeft}>
+                    <View style={[
+                      styles.transactionIconContainer,
+                      { backgroundColor: transaction.type === 'income' ? '#4ecca3' : '#ff6b6b' }
+                    ]}>
+                      <Text style={styles.transactionIcon}>{transaction.icon}</Text>
+                    </View>
+                    <View>
+                      <Text style={styles.transactionTitle}>
+                        {transaction.description || transaction.category}
+                      </Text>
+                      <Text style={styles.transactionDate}>
+                        {formatTransactionDate(transaction)}
+                      </Text>
+                    </View>
+                  </View>
+                  <Text style={transaction.type === 'income' ? styles.transactionAmountPositive : styles.transactionAmountNegative}>
+                    {transaction.type === 'income' ? '+' : '-'}${transaction.amount.toFixed(2)}
+                  </Text>
                 </View>
-                <View>
-                  <Text style={styles.transactionTitle}>Salary</Text>
-                  <Text style={styles.transactionDate}>Yesterday</Text>
-                </View>
-              </View>
-              <Text style={styles.transactionAmountPositive}>+$5,200.00</Text>
-            </View>
-
-            <View style={styles.transactionItem}>
-              <View style={styles.transactionLeft}>
-                <View style={[styles.transactionIconContainer, { backgroundColor: '#ffd93d' }]}>
-                  <Text style={styles.transactionIcon}>🛒</Text>
-                </View>
-                <View>
-                  <Text style={styles.transactionTitle}>Groceries</Text>
-                  <Text style={styles.transactionDate}>2 days ago</Text>
-                </View>
-              </View>
-              <Text style={styles.transactionAmountNegative}>-$128.50</Text>
-            </View>
+              ))
+            )}
           </View>
         </View>
       </ScrollView>
@@ -328,5 +386,19 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: 'bold',
     color: '#4ecca3',
+  },
+  emptyState: {
+    alignItems: 'center',
+    paddingVertical: 30,
+  },
+  emptyStateText: {
+    fontSize: 16,
+    color: '#ffffff',
+    fontWeight: '600',
+    marginBottom: 4,
+  },
+  emptyStateSubtext: {
+    fontSize: 14,
+    color: '#a0a0a0',
   },
 });

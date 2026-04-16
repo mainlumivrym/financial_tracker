@@ -11,17 +11,45 @@ import {
   Timestamp
 } from 'firebase/firestore';
 import { db } from '../config/firebase';
+import { TransactionType } from '../types';
 
 const TRANSACTIONS_COLLECTION = 'transactions';
 
+interface Transaction {
+  id?: string;
+  userId: string;
+  type: TransactionType;
+  amount: number;
+  category: string;
+  description?: string;
+  icon: string;
+  date: Timestamp;
+  createdAt: Timestamp;
+}
+
+interface TransactionInput {
+  type: TransactionType;
+  amount: number;
+  category: string;
+  description?: string;
+  icon: string;
+  date: Date | Timestamp;
+}
+
 // Add a new transaction
-export const addTransaction = async (userId, transactionData) => {
+export const addTransaction = async (userId: string, transactionData: TransactionInput): Promise<Transaction> => {
   try {
-    const docRef = await addDoc(collection(db, TRANSACTIONS_COLLECTION), {
+    // Convert date to Timestamp if it's a Date object
+    const dataToSave = {
       userId,
       ...transactionData,
+      date: transactionData.date instanceof Date 
+        ? Timestamp.fromDate(transactionData.date) 
+        : transactionData.date,
       createdAt: Timestamp.now()
-    });
+    };
+    
+    const docRef = await addDoc(collection(db, TRANSACTIONS_COLLECTION), dataToSave);
     return { id: docRef.id, ...transactionData };
   } catch (error) {
     console.error('Error adding transaction:', error);
@@ -30,7 +58,7 @@ export const addTransaction = async (userId, transactionData) => {
 };
 
 // Get all transactions for a user
-export const getUserTransactions = async (userId) => {
+export const getUserTransactions = async (userId: string): Promise<Transaction[]> => {
   try {
     const q = query(
       collection(db, TRANSACTIONS_COLLECTION),
@@ -39,7 +67,7 @@ export const getUserTransactions = async (userId) => {
     );
     
     const querySnapshot = await getDocs(q);
-    const transactions = [];
+    const transactions: Transaction[] = [];
     
     querySnapshot.forEach((doc) => {
       transactions.push({
@@ -56,7 +84,7 @@ export const getUserTransactions = async (userId) => {
 };
 
 // Update a transaction
-export const updateTransaction = async (transactionId, updates) => {
+export const updateTransaction = async (transactionId: string, updates: Partial<TransactionInput>): Promise<{ id: string } & Partial<TransactionInput>> => {
   try {
     const transactionRef = doc(db, TRANSACTIONS_COLLECTION, transactionId);
     await updateDoc(transactionRef, updates);
@@ -68,7 +96,7 @@ export const updateTransaction = async (transactionId, updates) => {
 };
 
 // Delete a transaction
-export const deleteTransaction = async (transactionId) => {
+export const deleteTransaction = async (transactionId: string): Promise<string> => {
   try {
     await deleteDoc(doc(db, TRANSACTIONS_COLLECTION, transactionId));
     return transactionId;
@@ -79,7 +107,7 @@ export const deleteTransaction = async (transactionId) => {
 };
 
 // Get transactions for a specific date range
-export const getTransactionsByDateRange = async (userId, startDate, endDate) => {
+export const getTransactionsByDateRange = async (userId: string, startDate: Date, endDate: Date): Promise<Transaction[]> => {
   try {
     const q = query(
       collection(db, TRANSACTIONS_COLLECTION),
@@ -90,7 +118,7 @@ export const getTransactionsByDateRange = async (userId, startDate, endDate) => 
     );
     
     const querySnapshot = await getDocs(q);
-    const transactions = [];
+    const transactions: Transaction[] = [];
     
     querySnapshot.forEach((doc) => {
       transactions.push({
