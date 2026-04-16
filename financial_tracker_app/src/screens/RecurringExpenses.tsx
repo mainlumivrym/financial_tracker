@@ -134,12 +134,10 @@ export default function RecurringExpenses({ navigation }: Props) {
         // Mark as unpaid
         await markAsUnpaid(expense.id);
         loadData();
-        Alert.alert('Success', 'Marked as unpaid');
       } else {
         // Mark as paid
         await markAsPaid(expense.id, expense.frequency);
         loadData();
-        Alert.alert('Success', 'Marked as paid');
       }
     } catch (error) {
       Alert.alert('Error', 'Failed to update paid status');
@@ -184,13 +182,13 @@ export default function RecurringExpenses({ navigation }: Props) {
     return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
   };
 
-  const getFrequencyIcon = (freq: RecurringFrequency): string => {
+  const getFrequencyMonogram = (freq: RecurringFrequency): string => {
     switch (freq) {
-      case 'daily': return '📅';
-      case 'weekly': return '🗓️';
-      case 'monthly': return '📆';
-      case 'yearly': return '🗓';
-      default: return '📋';
+      case 'daily': return 'D';
+      case 'weekly': return 'W';
+      case 'monthly': return 'M';
+      case 'yearly': return 'Y';
+      default: return '?';
     }
   };
 
@@ -209,84 +207,68 @@ export default function RecurringExpenses({ navigation }: Props) {
   const renderExpenseCard = (
     expense: RecurringExpense,
     isOverdue: Boolean,
-    isDueSoon: Boolean
+    isDueSoon: Boolean,
+    daysUntil: number
   ) => (
 
-    <View key={expense.id} style={[
-      styles.expenseCard,
-      expense.isPaid && styles.expenseCardPaid
-    ]}>
-      <View style={styles.expenseHeader}>
-        <View style={styles.expenseIconContainer}>
-          <Text style={styles.expenseIcon}>{getFrequencyIcon(expense.frequency)}</Text>
-        </View>
-        <View style={styles.expenseInfo}>
-          <View style={styles.expenseNameRow}>
-            <Text style={[
-              styles.expenseName,
-              expense.isPaid && styles.expenseNamePaid
-            ]}>{expense.name}</Text>
-            {expense.isPaid && renderPaidBadge()}
+    <View key={expense.id} style={styles.expenseCard}>
+      {/* Status stripe */}
+      <View style={[
+        styles.statusStripe,
+        expense.isPaid && styles.statusStripePaid,
+        !expense.isPaid && isOverdue && styles.statusStripeOverdue,
+        !expense.isPaid && !isOverdue && isDueSoon && styles.statusStripeDueSoon
+      ]} />
+      <View style={styles.expenseContent}>
+        <View style={styles.expenseHeader}>
+          <View style={styles.expenseIconContainer}>
+            <Text style={styles.expenseIcon}>{getFrequencyMonogram(expense.frequency)}</Text>
           </View>
-          <Text style={[
-            styles.expenseCategory,
-            expense.isPaid && styles.expenseCategoryPaid
-          ]}>{expense.category}</Text>
+          <View style={styles.expenseInfo}>
+            <View style={styles.expenseNameRow}>
+              <Text style={styles.expenseName}>{expense.name}</Text>
+              {expense.isPaid && renderPaidBadge()}
+            </View>
+            <Text style={styles.expenseCategory}>{expense.category}</Text>
+          </View>
+          <Text style={styles.expenseAmount}>${expense.amount.toFixed(2)}</Text>
         </View>
-        <Text style={[
-          styles.expenseAmount,
-          expense.isPaid && styles.expenseAmountPaid
-        ]}>${expense.amount.toFixed(2)}</Text>
-      </View>
 
-      <View style={styles.expenseDetails}>
-        <View style={styles.detailRow}>
-          <Text style={[
-            styles.detailLabel,
-            expense.isPaid && styles.detailLabelPaid
-          ]}>Next Due:</Text>
-          <Text style={[
-            styles.detailValue,
-            expense.isPaid && styles.detailValuePaid,
-            isOverdue && !expense.isPaid && styles.overdueText,
-            isDueSoon && !expense.isPaid && styles.dueSoonText
-          ]}>
-            {formatDate(expense.nextDueDate)}
-            {isOverdue && ' (Overdue)'}
-            {isDueSoon && !isOverdue && ` (${daysUntil}d)`}
-          </Text>
-        </View>
-        <View style={styles.detailRow}>
-          <Text style={[
-            styles.detailLabel,
-            expense.isPaid && styles.detailLabelPaid
-          ]}>Frequency:</Text>
-          <Text style={[
-            styles.detailValue,
-            expense.isPaid && styles.detailValuePaid
-          ]}>{expense.frequency}</Text>
-        </View>
-        {expense.notificationEnabled && (
+        <View style={styles.expenseDetails}>
           <View style={styles.detailRow}>
-            <Ionicons name="notifications" size={14} color={expense.isPaid ? "#1a1a2e" : "#4ecca3"} />
+            <Text style={styles.detailLabel}>Next Due:</Text>
             <Text style={[
               styles.detailValue,
-              expense.isPaid && styles.detailValuePaid
+              isOverdue && !expense.isPaid && styles.overdueText,
+              isDueSoon && !expense.isPaid && styles.dueSoonText
             ]}>
-              Reminder at {expense.notificationTime}
+              {formatDate(expense.nextDueDate)}
+              {isOverdue && ' (Overdue)'}
+              {isDueSoon && !isOverdue && ` (${daysUntil}d)`}
             </Text>
           </View>
-        )}
+          <View style={styles.detailRow}>
+            <Text style={styles.detailLabel}>Frequency:</Text>
+            <Text style={styles.detailValue}>{expense.frequency}</Text>
+          </View>
+          {expense.notificationEnabled && (
+            <View style={styles.detailRow}>
+              <Ionicons name="notifications" size={14} color="#4ecca3" />
+              <Text style={styles.detailValue}>
+                Reminder at {expense.notificationTime}
+              </Text>
+            </View>
+          )}
+        </View>
+
+        {renderExpenseActions(expense)}
       </View>
-
-      {renderExpenseActions(expense)}
-
     </View>
   )
 
   const renderPaidBadge = () => (
     <View style={styles.paidBadge}>
-      <Ionicons name="checkmark-circle" size={16} color="#4ecca3" />
+      <Ionicons name="checkmark-circle" size={16} color="#1a1a2e" />
       <Text style={styles.paidBadgeText}>Paid</Text>
     </View>
   )
@@ -464,7 +446,8 @@ export default function RecurringExpenses({ navigation }: Props) {
               renderExpenseCard(
                 expense,
                 isOverdue,
-                isDueSoon
+                isDueSoon,
+                daysUntil
               )
             );
           }}
@@ -558,10 +541,31 @@ const styles = StyleSheet.create({
   expenseCard: {
     backgroundColor: '#2a2a3e',
     borderRadius: 16,
-    padding: 16,
+    overflow: 'hidden',
+    position: 'relative',
+    marginBottom: 8,
+    paddingHorizontal: 8,
   },
-  expenseCardPaid: {
+  expenseContent: {
+    padding: 16,
+    paddingLeft: 20,
+  },
+  statusStripe: {
+    position: 'absolute',
+    left: 0,
+    top: 0,
+    bottom: 0,
+    width: 8,
+    backgroundColor: '#3a3a4e',
+  },
+  statusStripePaid: {
     backgroundColor: '#4ecca3',
+  },
+  statusStripeOverdue: {
+    backgroundColor: '#ff6b6b',
+  },
+  statusStripeDueSoon: {
+    backgroundColor: '#ffd93d',
   },
   expenseHeader: {
     flexDirection: 'row',
@@ -578,7 +582,9 @@ const styles = StyleSheet.create({
     marginRight: 12,
   },
   expenseIcon: {
-    fontSize: 20,
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: '#4ecca3',
   },
   expenseInfo: {
     flex: 1,
@@ -601,11 +607,10 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 4,
-    backgroundColor: '#ffffff',
+    backgroundColor: '#4ecca3',
     paddingHorizontal: 8,
     paddingVertical: 2,
     borderRadius: 12,
-    opacity: 1,
   },
   paidBadgeText: {
     fontSize: 11,
@@ -632,13 +637,12 @@ const styles = StyleSheet.create({
     gap: 8,
     marginBottom: 12,
     paddingBottom: 12,
-    borderBottomWidth: 1,
-    borderBottomColor: '#3a3a4e',
   },
   detailRow: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 8,
+    height: 32
   },
   detailLabel: {
     fontSize: 14,
