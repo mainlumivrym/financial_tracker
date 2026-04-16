@@ -5,6 +5,7 @@ import { useFocusEffect } from '@react-navigation/native';
 import { useAuth } from '../context/AuthContext';
 import { getUserProfile } from '../services/userService';
 import { getUserTransactions } from '../services/transactionService';
+import { getBudget, getCurrentMonth } from '../services/budgetService';
 import TransactionListItem from '../components/TransactionListItem';
 
 export default function Dashboard({ navigation }) {
@@ -13,6 +14,7 @@ export default function Dashboard({ navigation }) {
   const [transactions, setTransactions] = useState([]);
   const [loadingTransactions, setLoadingTransactions] = useState(true);
   const [balance, setBalance] = useState({ total: 0, income: 0, expenses: 0 });
+  const [budgetAlerts, setBudgetAlerts] = useState([]);
 
   const loadUserProfile = async () => {
     if (currentUser) {
@@ -53,11 +55,69 @@ export default function Dashboard({ navigation }) {
           income: totalIncome,
           expenses: totalExpenses
         });
+
+        // Check budget and generate alerts
+        await checkBudgetAlerts(fetchedTransactions);
       } catch (error) {
         console.error('Error loading transactions:', error);
       } finally {
         setLoadingTransactions(false);
       }
+    }
+  };
+
+  const checkBudgetAlerts = async (transactions) => {
+    try {
+      const currentMonth = getCurrentMonth();
+      const budget = await getBudget(currentUser.uid, currentMonth);
+      
+      if (!budget || !budget.categoryBudgets.length) {
+        setBudgetAlerts([]);
+        return;
+      }
+
+      // Filter transactions for current month
+      const now = new Date();
+      const currentMonthTransactions = transactions.filter(t => {
+        const transactionDate = t.date?.toDate?.() || t.createdAt?.toDate?.();
+        return transactionDate && 
+               transactionDate.getMonth() === now.getMonth() &&
+               transactionDate.getFullYear() === now.getFullYear() &&
+               t.type === 'expense';
+      });
+
+      // Calculate spending per category
+      const categorySpending = {};
+      currentMonthTransactions.forEach(t => {
+        if (!categorySpending[t.category]) {
+          categorySpending[t.category] = 0;
+        }
+        categorySpending[t.category] += t.amount;
+      });
+
+      // Generate alerts only for categories over budget
+      const alerts = [];
+      budget.categoryBudgets.forEach(categoryBudget => {
+        const spent = categorySpending[categoryBudget.category] || 0;
+        const percentage = (spent / categoryBudget.limit) * 100;
+
+        // Only alert when over 100%
+        if (percentage > 100) {
+          alerts.push({
+            category: categoryBudget.category,
+            spent,
+            limit: categoryBudget.limit,
+            percentage,
+            status: 'over'
+          });
+        }
+      });
+
+      // Sort by percentage (highest first)
+      alerts.sort((a, b) => b.percentage - a.percentage);
+      setBudgetAlerts(alerts);
+    } catch (error) {
+      console.error('Error checking budget alerts:', error);
     }
   };
 
@@ -142,6 +202,34 @@ export default function Dashboard({ navigation }) {
             </TouchableOpacity>
           </View>
         </View>
+
+        {/* Budget Alerts */}
+        {budgetAlerts.length > 0 && (
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>Budget Alerts</Text>
+            <View style={styles.alertsList}>
+              {budgetAlerts.map((alert) => (
+                <View 
+                  key={alert.category}
+                  style={[styles.alertItem, styles.alertItemOver]}
+                >
+                  <View style={styles.alertLeft}>
+                    <Text style={styles.alertIcon}>🚨</Text>
+                    <View style={styles.alertInfo}>
+                      <Text style={styles.alertCategory}>{alert.category}</Text>
+                      <Text style={styles.alertText}>
+                        ${alert.spent.toFixed(2)} of ${alert.limit.toFixed(2)}
+                      </Text>
+                    </View>
+                  </View>
+                  <Text style={styles.alertPercentageOver}>
+                    {alert.percentage.toFixed(0)}%
+                  </Text>
+                </View>
+              ))}
+            </View>
+          </View>
+        )}
 
         {/* Recent Transactions */}
         <View style={styles.section}>
@@ -325,5 +413,54 @@ const styles = StyleSheet.create({
   emptyStateSubtext: {
     fontSize: 14,
     color: '#a0a0a0',
+  },
+  alertsList: {
+    gap: 12,
+  },
+  alertItem: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    padding: 16,
+    borderRadius: 12,
+    borderLeftWidth: 4,
+  },
+  alertItemWarning: {
+    backgroundColor: '#3a3a2e',
+    borderLeftColor: '#ffd93d',
+  },
+  alertItemOver: {
+    backgroundColor: '#3a2e2e',
+    borderLeftColor: '#ff6b6b',
+  },
+  alertLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flex: 1,
+  },
+  alertIcon: {
+    fontSize: 24,
+    marginRight: 12,
+  },
+  alertInfo: {
+    flex: 1,
+  },
+  alertCategory: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#ffffff',
+    marginBottom: 4,
+  },
+  alertText: {
+    fontSize: 14,
+    color: '#a0a0a0',
+  },
+  alertPercentage: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#ffd93d',
+  },
+  alertPercentageOver: {
+    color: '#ff6b6b',
   },
 });
