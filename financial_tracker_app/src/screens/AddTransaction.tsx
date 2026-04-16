@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { StatusBar } from 'expo-status-bar';
 import {
   StyleSheet,
@@ -15,30 +15,18 @@ import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '../context/AuthContext';
 import { addTransaction } from '../services/transactionService';
+import { getCategories, addCustomCategory } from '../services/categoryService';
 import { RootStackParamList, TransactionType } from '../types';
+import AddCategoryModal from '../components/AddCategoryModal';
 
 interface Category {
+  id?: string;
   name: string;
   icon: string;
+  type?: string;
+  isDefault?: boolean;
+  userId?: string;
 }
-
-const EXPENSE_CATEGORIES: Category[] = [
-  { name: 'Food', icon: '🍔' },
-  { name: 'Transport', icon: '🚗' },
-  { name: 'Shopping', icon: '🛍️' },
-  { name: 'Entertainment', icon: '🎬' },
-  { name: 'Bills', icon: '📄' },
-  { name: 'Health', icon: '🏥' },
-  { name: 'Other', icon: '📦' },
-];
-
-const INCOME_CATEGORIES: Category[] = [
-  { name: 'Salary', icon: '💼' },
-  { name: 'Freelance', icon: '💻' },
-  { name: 'Investment', icon: '📈' },
-  { name: 'Gift', icon: '🎁' },
-  { name: 'Other', icon: '💰' },
-];
 
 type Props = NativeStackScreenProps<RootStackParamList, 'AddTransaction'>;
 
@@ -53,12 +41,43 @@ export default function AddTransaction({ navigation, route }: Props) {
   const [date, setDate] = useState(new Date());
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [loadingCategories, setLoadingCategories] = useState(true);
+  const [showAddCategoryModal, setShowAddCategoryModal] = useState(false);
 
-  const categories = transactionType === 'expense' ? EXPENSE_CATEGORIES : INCOME_CATEGORIES;
+  // Load categories from Firebase
+  useEffect(() => {
+    loadCategories();
+  }, [transactionType]);
+
+  const loadCategories = async () => {
+    try {
+      setLoadingCategories(true);
+      const fetchedCategories = await getCategories(currentUser.uid, transactionType);
+      setCategories(fetchedCategories);
+    } catch (error) {
+      console.error('Error loading categories:', error);
+      Alert.alert('Error', 'Failed to load categories');
+    } finally {
+      setLoadingCategories(false);
+    }
+  };
 
   const handleCategorySelect = (cat: Category) => {
     setCategory(cat.name);
     setSelectedIcon(cat.icon);
+  };
+
+  const handleAddCategory = async (categoryData: { name: string; icon: string; type: string }) => {
+    try {
+      const newCategory = await addCustomCategory(currentUser.uid, categoryData);
+      setCategories([...categories, newCategory]);
+      setShowAddCategoryModal(false);
+      Alert.alert('Success', 'Custom category added!');
+    } catch (error) {
+      console.error('Error adding category:', error);
+      Alert.alert('Error', 'Failed to add category');
+    }
   };
 
   const showDateTimePicker = () => {
@@ -193,24 +212,38 @@ export default function AddTransaction({ navigation, route }: Props) {
   const renderCategoryPicker = () => (
     <View style={styles.section}>
       <View style={styles.categoriesGrid}>
-        {categories.map((cat) => (
-          <TouchableOpacity
-            key={cat.name}
-            style={[
-              styles.categoryButton,
-              category === cat.name && styles.categoryButtonSelected
-            ]}
-            onPress={() => handleCategorySelect(cat)}
-          >
-            <Text style={styles.categoryIcon}>{cat.icon}</Text>
-            <Text style={[
-              styles.categoryText,
-              category === cat.name && styles.categoryTextSelected
-            ]}>
-              {cat.name}
-            </Text>
-          </TouchableOpacity>
-        ))}
+        {loadingCategories ? (
+          <Text style={styles.loadingText}>Loading categories...</Text>
+        ) : (
+          <>
+            {categories.map((cat) => (
+              <TouchableOpacity
+                key={cat.id || cat.name}
+                style={[
+                  styles.categoryButton,
+                  category === cat.name && styles.categoryButtonSelected
+                ]}
+                onPress={() => handleCategorySelect(cat)}
+              >
+                <Text style={styles.categoryIcon}>{cat.icon}</Text>
+                <Text style={[
+                  styles.categoryText,
+                  category === cat.name && styles.categoryTextSelected
+                ]}>
+                  {cat.name}
+                </Text>
+              </TouchableOpacity>
+            ))}
+            {/* Add Custom Category Button */}
+            <TouchableOpacity
+              style={styles.addCategoryButton}
+              onPress={() => setShowAddCategoryModal(true)}
+            >
+              <Ionicons name="add-circle-outline" size={28} color="#4ecca3" />
+              <Text style={styles.addCategoryText}>Add</Text>
+            </TouchableOpacity>
+          </>
+        )}
       </View>
     </View>
   )
@@ -281,6 +314,14 @@ export default function AddTransaction({ navigation, route }: Props) {
 
         <View style={styles.bottomSpacer} />
       </ScrollView>
+
+      {/* Add Category Modal */}
+      <AddCategoryModal
+        visible={showAddCategoryModal}
+        onClose={() => setShowAddCategoryModal(false)}
+        onAdd={handleAddCategory}
+        type={transactionType}
+      />
     </View>
   );
 }
@@ -378,6 +419,28 @@ const styles = StyleSheet.create({
   categoryTextSelected: {
     color: '#4ecca3',
     fontWeight: '600',
+  },
+  addCategoryButton: {
+    width: '30%',
+    backgroundColor: '#2a2a3e',
+    borderRadius: 12,
+    padding: 16,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 2,
+    borderColor: '#4ecca3',
+    borderStyle: 'dashed',
+  },
+  addCategoryText: {
+    fontSize: 12,
+    color: '#4ecca3',
+    marginTop: 4,
+    fontWeight: '600',
+  },
+  loadingText: {
+    color: '#a0a0a0',
+    fontSize: 14,
+    padding: 16,
   },
   dateButton: {
     flexDirection: 'row',

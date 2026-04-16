@@ -14,5 +14,26 @@ service cloud.firestore {
       allow create: if request.auth != null 
         && request.auth.uid == request.resource.data.userId;
     }
+    
+    // Categories: All users can read all categories (default + their own custom)
+    // Users can only create/update/delete their own custom categories
+    match /categories/{category} {
+      // Anyone authenticated can read all categories
+      allow read: if request.auth != null;
+      
+      // Allow creating default categories (no userId field) OR custom categories for the user
+      allow create: if request.auth != null && (
+        // Default categories don't have a userId field
+        (request.resource.data.isDefault == true && !('userId' in request.resource.data))
+        ||
+        // Custom categories must belong to the authenticated user
+        (request.resource.data.userId == request.auth.uid && request.resource.data.isDefault == false)
+      );
+      
+      // Users can update/delete only their own custom categories
+      allow update, delete: if request.auth != null 
+        && resource.data.userId == request.auth.uid
+        && resource.data.isDefault == false;
+    }
   }
 }
