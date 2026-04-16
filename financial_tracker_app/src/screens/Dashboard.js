@@ -5,6 +5,7 @@ import { useFocusEffect } from '@react-navigation/native';
 import { useAuth } from '../context/AuthContext';
 import { getUserProfile } from '../services/userService';
 import { getUserTransactions } from '../services/transactionService';
+import TransactionListItem from '../components/TransactionListItem';
 
 export default function Dashboard({ navigation }) {
   const { currentUser } = useAuth();
@@ -60,28 +61,6 @@ export default function Dashboard({ navigation }) {
     }
   };
 
-  const formatTransactionDate = (transaction) => {
-    // Use transaction.date if available, fallback to createdAt
-    const timestampField = transaction.date || transaction.createdAt;
-    if (!timestampField) return 'Unknown date';
-    
-    const transactionDate = timestampField.toDate ? timestampField.toDate() : new Date(timestampField);
-    const today = new Date();
-    const yesterday = new Date(today);
-    yesterday.setDate(yesterday.getDate() - 1);
-
-    if (transactionDate.toDateString() === today.toDateString()) {
-      return `Today, ${transactionDate.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })}`;
-    } else if (transactionDate.toDateString() === yesterday.toDateString()) {
-      return 'Yesterday';
-    } else {
-      const daysDiff = Math.floor((today - transactionDate) / (1000 * 60 * 60 * 24));
-      if (daysDiff < 7) {
-        return `${daysDiff} days ago`;
-      }
-      return transactionDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-    }
-  };
 
   // Reload profile and transactions when screen comes into focus
   useFocusEffect(
@@ -165,7 +144,7 @@ export default function Dashboard({ navigation }) {
         <View style={styles.section}>
           <View style={styles.sectionHeader}>
             <Text style={styles.sectionTitle}>Recent Transactions</Text>
-            <TouchableOpacity>
+            <TouchableOpacity onPress={() => navigation.navigate('FullTransactionList')}>
               <Text style={styles.seeAllText}>See All</Text>
             </TouchableOpacity>
           </View>
@@ -180,27 +159,11 @@ export default function Dashboard({ navigation }) {
               </View>
             ) : (
               transactions.slice(0, 5).map((transaction) => (
-                <View key={transaction.id} style={styles.transactionItem}>
-                  <View style={styles.transactionLeft}>
-                    <View style={[
-                      styles.transactionIconContainer,
-                      { backgroundColor: transaction.type === 'income' ? '#4ecca3' : '#ff6b6b' }
-                    ]}>
-                      <Text style={styles.transactionIcon}>{transaction.icon}</Text>
-                    </View>
-                    <View>
-                      <Text style={styles.transactionTitle}>
-                        {transaction.description || transaction.category}
-                      </Text>
-                      <Text style={styles.transactionDate}>
-                        {formatTransactionDate(transaction)}
-                      </Text>
-                    </View>
-                  </View>
-                  <Text style={transaction.type === 'income' ? styles.transactionAmountPositive : styles.transactionAmountNegative}>
-                    {transaction.type === 'income' ? '+' : '-'}${transaction.amount.toFixed(2)}
-                  </Text>
-                </View>
+                <TransactionListItem 
+                  key={transaction.id} 
+                  transaction={transaction}
+                  showTime={false}
+                />
               ))
             )}
           </View>
@@ -345,47 +308,6 @@ const styles = StyleSheet.create({
     backgroundColor: '#2a2a3e',
     borderRadius: 16,
     padding: 16,
-  },
-  transactionItem: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingVertical: 12,
-  },
-  transactionLeft: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  transactionIconContainer: {
-    width: 44,
-    height: 44,
-    borderRadius: 12,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginRight: 12,
-  },
-  transactionIcon: {
-    fontSize: 20,
-  },
-  transactionTitle: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#ffffff',
-  },
-  transactionDate: {
-    fontSize: 12,
-    color: '#a0a0a0',
-    marginTop: 2,
-  },
-  transactionAmountNegative: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: '#ff6b6b',
-  },
-  transactionAmountPositive: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: '#4ecca3',
   },
   emptyState: {
     alignItems: 'center',

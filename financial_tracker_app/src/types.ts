@@ -31,6 +31,7 @@ export type RootStackParamList = {
   Dashboard: undefined;
   UserInfo: undefined;
   AddTransaction: { type: 'expense' | 'income' };
+  FullTransactionList: undefined;
 };
 
 // Auth Context Types
