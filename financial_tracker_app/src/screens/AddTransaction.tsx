@@ -83,24 +83,13 @@ export default function AddTransaction({ navigation, route }: Props) {
 
   const showDateTimePicker = () => {
     if (Platform.OS === 'android') {
-      // Use imperative API for Android
+      // Use imperative API for Android - date only
       DateTimePickerAndroid.open({
         value: date,
         mode: 'date',
-        is24Hour: true,
         onChange: (event, selectedDate) => {
           if (selectedDate) {
-            // After date is selected, show time picker
-            DateTimePickerAndroid.open({
-              value: selectedDate,
-              mode: 'time',
-              is24Hour: true,
-              onChange: (timeEvent, selectedTime) => {
-                if (selectedTime) {
-                  setDate(selectedTime);
-                }
-              },
-            });
+            setDate(selectedDate);
           }
         },
       });
@@ -123,15 +112,14 @@ export default function AddTransaction({ navigation, route }: Props) {
     yesterday.setDate(yesterday.getDate() - 1);
 
     if (date.toDateString() === today.toDateString()) {
-      return `Today, ${date.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })}`;
+      return 'Today';
     } else if (date.toDateString() === yesterday.toDateString()) {
-      return `Yesterday, ${date.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })}`;
+      return 'Yesterday';
     } else {
       return date.toLocaleDateString('en-US', {
         month: 'short',
         day: 'numeric',
-        hour: 'numeric',
-        minute: '2-digit'
+        year: date.getFullYear() !== today.getFullYear() ? 'numeric' : undefined
       });
     }
   };
@@ -194,7 +182,7 @@ export default function AddTransaction({ navigation, route }: Props) {
         <>
           <DateTimePicker
             value={date}
-            mode="datetime"
+            mode="date"
             display="spinner"
             onChange={onDateChange}
             textColor="#ffffff"

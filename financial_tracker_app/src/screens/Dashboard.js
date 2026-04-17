@@ -7,6 +7,8 @@ import { getUserProfile } from '../services/userService';
 import { getUserTransactions } from '../services/transactionService';
 import { getBudget, getCurrentMonth } from '../services/budgetService';
 import TransactionListItem from '../components/TransactionListItem';
+import { colors, globalStyles, spacing, borderRadius } from '../styles';
+import { formatCurrency } from '../utils/formatCurrency';
 
 export default function Dashboard({ navigation }) {
   const { currentUser } = useAuth();
@@ -177,16 +179,16 @@ export default function Dashboard({ navigation }) {
         {/* Balance Card */}
         <View style={styles.balanceCard}>
           <Text style={styles.balanceLabel}>Total Balance</Text>
-          <Text style={styles.balanceAmount}>${balance.total.toFixed(2)}</Text>
+          <Text style={styles.balanceAmount}>${formatCurrency(balance.total)}</Text>
           <View style={styles.balanceStats}>
             <View style={styles.statItem}>
               <Text style={styles.statLabel}>Income</Text>
-              <Text style={styles.statIncome}>+${balance.income.toFixed(2)}</Text>
+              <Text style={styles.statIncome}>+${formatCurrency(balance.income)}</Text>
             </View>
             <View style={styles.statDivider} />
             <View style={styles.statItem}>
               <Text style={styles.statLabel}>Expenses</Text>
-              <Text style={styles.statExpense}>-${balance.expenses.toFixed(2)}</Text>
+              <Text style={styles.statExpense}>-${formatCurrency(balance.expenses)}</Text>
             </View>
           </View>
         </View>
@@ -258,13 +260,13 @@ export default function Dashboard({ navigation }) {
               <View style={styles.budgetSummaryRow}>
                 <Text style={styles.budgetSummaryLabel}>Total Budget</Text>
                 <Text style={styles.budgetSummaryAmount}>
-                  ${budgetProgress.reduce((sum, item) => sum + item.limit, 0).toFixed(0)}
+                  ${formatCurrency(budgetProgress.reduce((sum, item) => sum + item.limit, 0), 0)}
                 </Text>
               </View>
               <View style={styles.budgetSummaryRow}>
                 <Text style={styles.budgetSummaryLabel}>Total Spent</Text>
                 <Text style={styles.budgetSummarySpent}>
-                  ${budgetProgress.reduce((sum, item) => sum + item.spent, 0).toFixed(0)}
+                  ${formatCurrency(budgetProgress.reduce((sum, item) => sum + item.spent, 0), 0)}
                 </Text>
               </View>
               <View style={styles.budgetSummaryDivider} />
@@ -274,7 +276,7 @@ export default function Dashboard({ navigation }) {
                   styles.budgetSummaryRemaining,
                   budgetProgress.reduce((sum, item) => sum + item.remaining, 0) < 0 && styles.budgetSummaryOverBudget
                 ]}>
-                  ${budgetProgress.reduce((sum, item) => sum + item.remaining, 0).toFixed(0)}
+                  ${formatCurrency(budgetProgress.reduce((sum, item) => sum + item.remaining, 0), 0)}
                 </Text>
               </View>
             </View>
@@ -289,7 +291,7 @@ export default function Dashboard({ navigation }) {
                     <View style={styles.budgetHeader}>
                       <Text style={styles.budgetCategory}>{item.category}</Text>
                       <Text style={styles.budgetAmount}>
-                        ${item.spent.toFixed(0)} / ${item.limit.toFixed(0)}
+                        ${formatCurrency(item.spent, 0)} / ${formatCurrency(item.limit, 0)}
                       </Text>
                     </View>
                     <View style={styles.progressBarContainer}>
@@ -306,8 +308,8 @@ export default function Dashboard({ navigation }) {
                       isOverBudget && styles.budgetOver
                     ]}>
                       {isOverBudget
-                        ? `Over by $${(item.spent - item.limit).toFixed(2)}`
-                        : `$${item.remaining.toFixed(2)} remaining`
+                        ? `Over by $${formatCurrency(item.spent - item.limit)}`
+                        : `$${formatCurrency(item.remaining)} remaining`
                       }
                     </Text>
                   </View>
@@ -356,7 +358,7 @@ export default function Dashboard({ navigation }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#1a1a2e',
+    backgroundColor: colors.background,
   },
   scrollView: {
     flex: 1,
@@ -371,19 +373,19 @@ const styles = StyleSheet.create({
   },
   greeting: {
     fontSize: 16,
-    color: '#a0a0a0',
+    color: colors.textSecondary,
   },
   userName: {
     fontSize: 24,
     fontWeight: 'bold',
-    color: '#ffffff',
+    color: colors.text,
     marginTop: 4,
   },
   avatarContainer: {
     width: 50,
     height: 50,
     borderRadius: 25,
-    backgroundColor: '#2a2a3e',
+    backgroundColor: colors.backgroundLight,
     alignItems: 'center',
     justifyContent: 'center',
     overflow: 'hidden',
@@ -396,20 +398,20 @@ const styles = StyleSheet.create({
     fontSize: 24,
   },
   balanceCard: {
-    backgroundColor: '#4ecca3',
+    backgroundColor: colors.primary,
     borderRadius: 20,
     padding: 24,
     marginBottom: 30,
   },
   balanceLabel: {
     fontSize: 16,
-    color: '#1a1a2e',
+    color: colors.textDark,
     opacity: 0.8,
   },
   balanceAmount: {
     fontSize: 36,
     fontWeight: 'bold',
-    color: '#1a1a2e',
+    color: colors.textDark,
     marginTop: 8,
     marginBottom: 20,
   },
@@ -423,23 +425,23 @@ const styles = StyleSheet.create({
   },
   statLabel: {
     fontSize: 14,
-    color: '#1a1a2e',
+    color: colors.textDark,
     opacity: 0.7,
     marginBottom: 4,
   },
   statIncome: {
     fontSize: 18,
     fontWeight: 'bold',
-    color: '#1a1a2e',
+    color: colors.textDark,
   },
   statExpense: {
     fontSize: 18,
     fontWeight: 'bold',
-    color: '#1a1a2e',
+    color: colors.textDark,
   },
   statDivider: {
     width: 1,
-    backgroundColor: '#1a1a2e',
+    backgroundColor: colors.background,
     opacity: 0.2,
     marginHorizontal: 20,
   },
@@ -456,12 +458,12 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 20,
     fontWeight: 'bold',
-    color: '#ffffff',
+    color: colors.text,
     marginBottom: 0,
   },
   seeAllText: {
     fontSize: 14,
-    color: '#4ecca3',
+    color: colors.primary,
   },
   actionsGrid: {
     flexDirection: 'row',
@@ -470,7 +472,7 @@ const styles = StyleSheet.create({
   },
   actionButton: {
     width: '48%',
-    backgroundColor: '#2a2a3e',
+    backgroundColor: colors.backgroundLight,
     borderRadius: 16,
     padding: 20,
     alignItems: 'center',
@@ -482,11 +484,11 @@ const styles = StyleSheet.create({
   },
   actionText: {
     fontSize: 14,
-    color: '#ffffff',
+    color: colors.text,
     textAlign: 'center',
   },
   transactionsList: {
-    backgroundColor: '#2a2a3e',
+    backgroundColor: colors.backgroundLight,
     borderRadius: 16,
     padding: 16,
   },
@@ -496,13 +498,13 @@ const styles = StyleSheet.create({
   },
   emptyStateText: {
     fontSize: 16,
-    color: '#ffffff',
+    color: colors.text,
     fontWeight: '600',
     marginBottom: 4,
   },
   emptyStateSubtext: {
     fontSize: 14,
-    color: '#a0a0a0',
+    color: colors.textSecondary,
   },
   alertsList: {
     gap: 12,
@@ -517,11 +519,11 @@ const styles = StyleSheet.create({
   },
   alertItemWarning: {
     backgroundColor: '#3a3a2e',
-    borderLeftColor: '#ffd93d',
+    borderLeftColor: colors.warning,
   },
   alertItemOver: {
     backgroundColor: '#3a2e2e',
-    borderLeftColor: '#ff6b6b',
+    borderLeftColor: colors.danger,
   },
   alertLeft: {
     flexDirection: 'row',
@@ -538,32 +540,30 @@ const styles = StyleSheet.create({
   alertCategory: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#ffffff',
+    color: colors.text,
     marginBottom: 4,
   },
   alertText: {
     fontSize: 14,
-    color: '#a0a0a0',
+    color: colors.textSecondary,
   },
   alertPercentage: {
     fontSize: 18,
     fontWeight: 'bold',
-    color: '#ffd93d',
+    color: colors.warning,
   },
   alertPercentageOver: {
-    color: '#ff6b6b',
+    color: colors.danger,
   },
   budgetSummaryCard: {
-    backgroundColor: '#2a3e3a',
+    backgroundColor: colors.backgroundLight,
     borderRadius: 16,
     padding: 16,
     paddingBottom: 8,
     marginBottom: 8,
-    borderWidth: 1,
-    borderColor: '#4ecca3',
   },
   budgetSummaryRow: {
-    height:32,
+    height:32 ,
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
@@ -571,7 +571,7 @@ const styles = StyleSheet.create({
   },
   budgetSummaryLabel: {
     fontSize: 14,
-    color: '#a0a0a0',
+    color: colors.textSecondary,
   },
   budgetSummaryLabelBold: {
     fontSize: 15,
@@ -585,24 +585,24 @@ const styles = StyleSheet.create({
   },
   budgetSummarySpent: {
     fontSize: 16,
-    color: '#ffd93d',
+    color: colors.warning,
     fontWeight: '600',
   },
   budgetSummaryRemaining: {
     fontSize: 18,
-    color: '#4ecca3',
+    color: colors.primary,
     fontWeight: 'bold',
   },
   budgetSummaryOverBudget: {
-    color: '#ff6b6b',
+    color: colors.danger,
   },
   budgetSummaryDivider: {
     height: 1,
-    backgroundColor: '#3a3a4e',
+    backgroundColor: colors.divider,
     marginVertical: 8,
   },
   budgetProgressList: {
-    backgroundColor: '#2a2a3e',
+    backgroundColor: colors.backgroundLight,
     borderRadius: 16,
     padding: 16,
     gap: 20,
@@ -618,16 +618,16 @@ const styles = StyleSheet.create({
   budgetCategory: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#ffffff',
+    color: colors.text,
   },
   budgetAmount: {
     fontSize: 14,
-    color: '#a0a0a0',
+    color: colors.textSecondary,
     fontWeight: '500',
   },
   progressBarContainer: {
     height: 8,
-    backgroundColor: '#1a1a2e',
+    backgroundColor: colors.background,
     borderRadius: 4,
     overflow: 'hidden',
   },
@@ -636,17 +636,17 @@ const styles = StyleSheet.create({
     borderRadius: 4,
   },
   progressBarNormal: {
-    backgroundColor: '#4ecca3',
+    backgroundColor: colors.primary,
   },
   progressBarOver: {
-    backgroundColor: '#ff6b6b',
+    backgroundColor: colors.danger,
   },
   budgetRemaining: {
     fontSize: 13,
-    color: '#a0a0a0',
+    color: colors.textSecondary,
   },
   budgetOver: {
-    color: '#ff6b6b',
+    color: colors.budgetOver,
     fontWeight: '600',
   },
 });

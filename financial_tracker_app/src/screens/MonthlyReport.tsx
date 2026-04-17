@@ -15,7 +15,10 @@ import DateTimePickerAndroid from '@react-native-community/datetimepicker';
 import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '../context/AuthContext';
 import { getUserTransactions } from '../services/transactionService';
+import { getCategories } from '../services/categoryService';
 import { RootStackParamList } from '../types';
+import { colors, spacing, borderRadius } from '../styles';
+import { formatCurrency } from '../utils/formatCurrency';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'MonthlyReport'>;
 
@@ -24,12 +27,12 @@ const SCREEN_WIDTH = Dimensions.get('window').width;
 export default function MonthlyReport({ navigation, route }: Props) {
   const { currentUser } = useAuth();
   const [loading, setLoading] = useState(true);
-  
+
   // If year and month are provided via route params, use them; otherwise use current date
   const initialDate = route.params?.year && route.params?.month !== undefined
     ? new Date(route.params.year, route.params.month, 1)
     : new Date();
-  
+
   const [selectedDate, setSelectedDate] = useState(initialDate);
   const isDateLocked = route.params?.year !== undefined && route.params?.month !== undefined;
   const [transactions, setTransactions] = useState<any[]>([]);
@@ -41,6 +44,8 @@ export default function MonthlyReport({ navigation, route }: Props) {
   });
   const [categoryBreakdown, setCategoryBreakdown] = useState<any[]>([]);
   const [topCategories, setTopCategories] = useState<any[]>([]);
+  const [expandedCategories, setExpandedCategories] = useState<Set<string>>(new Set());
+  const [categories, setCategories] = useState<any[]>([]);
 
   useEffect(() => {
     loadReportData();
@@ -49,14 +54,18 @@ export default function MonthlyReport({ navigation, route }: Props) {
   const loadReportData = async () => {
     try {
       setLoading(true);
-      const fetchedTransactions = await getUserTransactions(currentUser.uid);
-      
+      const [fetchedTransactions, fetchedCategories] = await Promise.all([
+        getUserTransactions(currentUser.uid),
+        getCategories(currentUser.uid, 'expense')
+      ]);
+      setCategories(fetchedCategories);
+
       // Filter for selected month
       const currentMonthTransactions = fetchedTransactions.filter(t => {
         const transactionDate = t.date?.toDate?.() || t.createdAt?.toDate?.();
-        return transactionDate && 
-               transactionDate.getMonth() === selectedDate.getMonth() &&
-               transactionDate.getFullYear() === selectedDate.getFullYear();
+        return transactionDate &&
+          transactionDate.getMonth() === selectedDate.getMonth() &&
+          transactionDate.getFullYear() === selectedDate.getFullYear();
       });
 
       setTransactions(currentMonthTransactions);
@@ -65,7 +74,7 @@ export default function MonthlyReport({ navigation, route }: Props) {
       const income = currentMonthTransactions
         .filter(t => t.type === 'income')
         .reduce((sum, t) => sum + t.amount, 0);
-      
+
       const expenses = currentMonthTransactions
         .filter(t => t.type === 'expense')
         .reduce((sum, t) => sum + t.amount, 0);
@@ -77,21 +86,27 @@ export default function MonthlyReport({ navigation, route }: Props) {
         transactionCount: currentMonthTransactions.length
       });
 
-      // Calculate category breakdown for expenses
-      const categoryTotals: { [key: string]: number } = {};
+      // Calculate category breakdown for expenses with transactions
+      const categoryTotals: { [key: string]: { amount: number; transactions: any[] } } = {};
       currentMonthTransactions
         .filter(t => t.type === 'expense')
         .forEach(t => {
           if (!categoryTotals[t.category]) {
-            categoryTotals[t.category] = 0;
+            categoryTotals[t.category] = { amount: 0, transactions: [] };
           }
-          categoryTotals[t.category] += t.amount;
+          categoryTotals[t.category].amount += t.amount;
+          categoryTotals[t.category].transactions.push(t);
         });
 
-      const breakdown = Object.entries(categoryTotals).map(([category, amount]) => ({
+      const breakdown = Object.entries(categoryTotals).map(([category, data]) => ({
         category,
-        amount,
-        percentage: (amount / expenses) * 100
+        amount: data.amount,
+        percentage: (data.amount / expenses) * 100,
+        transactions: data.transactions.sort((a, b) => {
+          const dateA = a.date?.toDate?.() || a.createdAt?.toDate?.() || new Date(0);
+          const dateB = b.date?.toDate?.() || b.createdAt?.toDate?.() || new Date(0);
+          return dateB - dateA;
+        })
       }));
 
       breakdown.sort((a, b) => b.amount - a.amount);
@@ -134,6 +149,174 @@ export default function MonthlyReport({ navigation, route }: Props) {
     setSelectedDate(newDate);
   };
 
+  const toggleCategory = (category: string) => {
+    setExpandedCategories(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(category)) {
+        newSet.delete(category);
+      } else {
+        newSet.add(category);
+      }
+      return newSet;
+    });
+  };
+
+  const formatTransactionDate = (date: any): string => {
+    const d = date?.toDate?.() || new Date(date);
+    return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+  };
+
+  const renderDatePicker = () => (
+    <View style={styles.monthPickerContainer}>
+      <TouchableOpacity
+        style={styles.monthNavButton}
+        onPress={() => navigateMonth('prev')}
+      >
+        <Ionicons name="chevron-back" size={24} color={colors.primary} />
+      </TouchableOpacity>
+      <TouchableOpacity
+        style={styles.monthDisplay}
+        onPress={showMonthPicker}
+      >
+        <Text style={styles.monthText}>{formatMonthYear(selectedDate)}</Text>
+        <Ionicons name="calendar-outline" size={20} color={colors.textSecondary} style={{ marginLeft: 8 }} />
+      </TouchableOpacity>
+      <TouchableOpacity
+        style={styles.monthNavButton}
+        onPress={() => navigateMonth('next')}
+      >
+        <Ionicons name="chevron-forward" size={24} color={colors.primary} />
+      </TouchableOpacity>
+    </View>
+  )
+
+  const renderSummaryCards = () => (
+    <View style={styles.summaryGrid}>
+      <View style={[styles.summaryCard, styles.incomeCard]}>
+        <Text style={styles.summaryIcon}>💰</Text>
+        <Text style={styles.summaryLabel}>Income</Text>
+        <Text style={styles.summaryAmount}>${formatCurrency(monthlyData.income)}</Text>
+      </View>
+      <View style={[styles.summaryCard, styles.expenseCard]}>
+        <Text style={styles.summaryIcon}>💸</Text>
+        <Text style={styles.summaryLabel}>Expenses</Text>
+        <Text style={styles.summaryAmount}>${formatCurrency(monthlyData.expenses)}</Text>
+      </View>
+    </View>
+  )
+
+  const renderBalanceCard = () => (
+    <View style={[styles.summaryCard, styles.balanceCard]}>
+      <Text style={styles.balanceLabel}>Net Balance</Text>
+      <Text style={[
+        styles.balanceAmount,
+        { color: monthlyData.balance >= 0 ? colors.income : colors.expense }
+      ]}>
+        {monthlyData.balance >= 0 ? '+' : ''}${formatCurrency(monthlyData.balance)}
+      </Text>
+      <Text style={styles.transactionCount}>
+        {monthlyData.transactionCount} transactions this month
+      </Text>
+    </View>
+  )
+
+  const renderCategoryBreakdown = () => (
+    <View style={styles.section}>
+      <Text style={styles.sectionTitle}>Expense Breakdown</Text>
+      <View style={styles.breakdownContainer}>
+        {categoryBreakdown.map((item) => (
+          renderCategoryBreakdownItem(item)
+        ))}
+      </View>
+    </View>
+  )
+
+  const renderCategoryBreakdownItem = (item: any) => {
+    const isExpanded = expandedCategories.has(item.category);
+    const categoryData = categories.find(cat => cat.name === item.category);
+    const categoryIcon = categoryData?.icon || item.transactions[0]?.icon || '💸';
+
+    return (
+
+      <View
+        style={{
+          flexDirection: 'row',
+          gap: 12,
+        }}
+      >
+
+        <View style={styles.categoryIconContainer}>
+          <Text style={styles.categoryIcon}>{categoryIcon}</Text>
+        </View>
+
+        <View key={item.category} style={styles.breakdownItem}>
+          <TouchableOpacity
+            onPress={() => toggleCategory(item.category)}
+            activeOpacity={0.7}
+            style={{ flex: 1 }}
+          >
+            <View style={styles.breakdownHeader}>
+              <View style={styles.breakdownLeftSection}>
+                <Text style={styles.breakdownCategory}>{item.category}</Text>
+              </View>
+              <Text style={styles.breakdownAmount}>
+                ${formatCurrency(item.amount)}
+              </Text>
+            </View>
+            <View style={styles.breakdownBarContainer}>
+              <View
+                style={[
+                  styles.breakdownBar,
+                  { width: `${item.percentage}%` }
+                ]}
+              />
+            </View>
+            <Text style={styles.breakdownPercentage}>
+              {item.percentage.toFixed(1)}%
+            </Text>
+          </TouchableOpacity>
+
+          {/* Transaction Subitems - Conditionally Visible */}
+          {isExpanded && (
+            <View style={styles.transactionsSublist}>
+              {item.transactions.map((transaction: any, index: number) => (
+                renderTransactionSubItem(transaction, index)
+              ))}
+            </View>
+          )}
+        </View>
+      </View>
+    );
+  }
+
+  const renderTransactionSubItem = (transaction: any, index: number) => (
+    <View key={transaction.id || index} style={styles.transactionSubitem}>
+      <View style={styles.transactionSubitemLeft}>
+        <View style={styles.transactionSubitemInfo}>
+          <Text style={styles.transactionSubitemDescription}>
+            {transaction.description || 'No description'}
+          </Text>
+          <Text style={styles.transactionSubitemDate}>
+            {formatTransactionDate(transaction.date || transaction.createdAt)}
+          </Text>
+        </View>
+      </View>
+      <Text style={styles.transactionSubitemAmount}>
+        ${formatCurrency(transaction.amount)}
+      </Text>
+    </View>
+  )
+
+  const renderEmptyState = () => (
+    <View style={styles.emptyState}>
+      <Text style={styles.emptyIcon}>📊</Text>
+      <Text style={styles.emptyText}>No data yet</Text>
+      <Text style={styles.emptySubtext}>
+        Start adding transactions to see your financial reports
+      </Text>
+    </View>
+  )
+
   return (
     <View style={styles.container}>
       <StatusBar style="light" />
@@ -144,7 +327,7 @@ export default function MonthlyReport({ navigation, route }: Props) {
           style={styles.backButton}
           onPress={() => navigation.goBack()}
         >
-          <Ionicons name="arrow-back" size={24} color="#ffffff" />
+          <Ionicons name="arrow-back" size={24} color={colors.text} />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Reports</Text>
         <View style={styles.backButton} />
@@ -152,29 +335,9 @@ export default function MonthlyReport({ navigation, route }: Props) {
 
       {/* Month Picker - only show if date is not locked */}
       {!isDateLocked && (
-        <View style={styles.monthPickerContainer}>
-          <TouchableOpacity
-            style={styles.monthNavButton}
-            onPress={() => navigateMonth('prev')}
-          >
-            <Ionicons name="chevron-back" size={24} color="#4ecca3" />
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={styles.monthDisplay}
-            onPress={showMonthPicker}
-          >
-            <Text style={styles.monthText}>{formatMonthYear(selectedDate)}</Text>
-            <Ionicons name="calendar-outline" size={20} color="#a0a0a0" style={{ marginLeft: 8 }} />
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={styles.monthNavButton}
-            onPress={() => navigateMonth('next')}
-          >
-            <Ionicons name="chevron-forward" size={24} color="#4ecca3" />
-          </TouchableOpacity>
-        </View>
+        renderDatePicker()
       )}
-      
+
       {/* Show month title when date is locked */}
       {isDateLocked && (
         <View style={styles.lockedMonthContainer}>
@@ -184,75 +347,21 @@ export default function MonthlyReport({ navigation, route }: Props) {
 
       {loading ? (
         <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color="#4ecca3" />
+          <ActivityIndicator size="large" color={colors.primary} />
         </View>
       ) : (
         <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
           {/* Summary Cards */}
-          <View style={styles.summaryGrid}>
-            <View style={[styles.summaryCard, styles.incomeCard]}>
-              <Text style={styles.summaryIcon}>💰</Text>
-              <Text style={styles.summaryLabel}>Income</Text>
-              <Text style={styles.summaryAmount}>${monthlyData.income.toFixed(2)}</Text>
-            </View>
-            <View style={[styles.summaryCard, styles.expenseCard]}>
-              <Text style={styles.summaryIcon}>💸</Text>
-              <Text style={styles.summaryLabel}>Expenses</Text>
-              <Text style={styles.summaryAmount}>${monthlyData.expenses.toFixed(2)}</Text>
-            </View>
-          </View>
-
-          <View style={[styles.summaryCard, styles.balanceCard]}>
-            <Text style={styles.balanceLabel}>Net Balance</Text>
-            <Text style={[
-              styles.balanceAmount,
-              { color: monthlyData.balance >= 0 ? '#4ecca3' : '#ff6b6b' }
-            ]}>
-              {monthlyData.balance >= 0 ? '+' : ''}${monthlyData.balance.toFixed(2)}
-            </Text>
-            <Text style={styles.transactionCount}>
-              {monthlyData.transactionCount} transactions this month
-            </Text>
-          </View>
+          {renderSummaryCards()}
+          {renderBalanceCard()}
 
           {/* Category Breakdown */}
           {categoryBreakdown.length > 0 && (
-            <View style={styles.section}>
-              <Text style={styles.sectionTitle}>Expense Breakdown</Text>
-              <View style={styles.breakdownContainer}>
-                {categoryBreakdown.map((item) => (
-                  <View key={item.category} style={styles.breakdownItem}>
-                    <View style={styles.breakdownHeader}>
-                      <Text style={styles.breakdownCategory}>{item.category}</Text>
-                      <Text style={styles.breakdownAmount}>
-                        ${item.amount.toFixed(2)}
-                      </Text>
-                    </View>
-                    <View style={styles.breakdownBarContainer}>
-                      <View 
-                        style={[
-                          styles.breakdownBar,
-                          { width: `${item.percentage}%` }
-                        ]} 
-                      />
-                    </View>
-                    <Text style={styles.breakdownPercentage}>
-                      {item.percentage.toFixed(1)}% of total expenses
-                    </Text>
-                  </View>
-                ))}
-              </View>
-            </View>
+            renderCategoryBreakdown()
           )}
 
           {categoryBreakdown.length === 0 && (
-            <View style={styles.emptyState}>
-              <Text style={styles.emptyIcon}>📊</Text>
-              <Text style={styles.emptyText}>No data yet</Text>
-              <Text style={styles.emptySubtext}>
-                Start adding transactions to see your financial reports
-              </Text>
-            </View>
+            renderEmptyState()
           )}
 
           <View style={styles.bottomSpacer} />
@@ -265,13 +374,13 @@ export default function MonthlyReport({ navigation, route }: Props) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#1a1a2e',
+    backgroundColor: colors.background,
   },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingHorizontal: 20,
+    paddingHorizontal: spacing.lg,
     paddingTop: 60,
     paddingBottom: 15,
   },
@@ -279,42 +388,42 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    paddingHorizontal: 20,
-    paddingBottom: 20,
-    gap: 12,
+    paddingHorizontal: spacing.lg,
+    paddingBottom: spacing.lg,
+    gap: spacing.sm,
   },
   monthNavButton: {
     width: 40,
     height: 40,
     alignItems: 'center',
     justifyContent: 'center',
-    borderRadius: 20,
-    backgroundColor: '#2a2a3e',
+    borderRadius: borderRadius.full,
+    backgroundColor: colors.backgroundLight,
   },
   monthDisplay: {
     flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#2a2a3e',
-    paddingVertical: 12,
-    paddingHorizontal: 20,
-    borderRadius: 12,
+    backgroundColor: colors.backgroundLight,
+    paddingVertical: spacing.sm,
+    paddingHorizontal: spacing.lg,
+    borderRadius: borderRadius.sm,
   },
   monthText: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#ffffff',
+    color: colors.text,
   },
   lockedMonthContainer: {
-    paddingHorizontal: 20,
-    paddingBottom: 20,
+    paddingHorizontal: spacing.lg,
+    paddingBottom: spacing.lg,
     alignItems: 'center',
   },
   lockedMonthText: {
     fontSize: 18,
     fontWeight: '600',
-    color: '#4ecca3',
+    color: colors.primary,
   },
   backButton: {
     width: 40,
@@ -325,7 +434,7 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontSize: 20,
     fontWeight: 'bold',
-    color: '#ffffff',
+    color: colors.text,
   },
   loadingContainer: {
     flex: 1,
@@ -334,89 +443,89 @@ const styles = StyleSheet.create({
   },
   scrollView: {
     flex: 1,
-    paddingHorizontal: 20,
+    paddingHorizontal: spacing.lg,
   },
   summaryGrid: {
     flexDirection: 'row',
-    gap: 12,
-    marginBottom: 12,
+    gap: spacing.sm,
+    marginBottom: spacing.sm,
   },
   summaryCard: {
     flex: 1,
-    borderRadius: 16,
-    padding: 20,
+    borderRadius: borderRadius.md,
+    padding: spacing.lg,
     alignItems: 'center',
   },
   incomeCard: {
-    backgroundColor: '#2a3e3a',
+    backgroundColor: colors.primaryDark,
   },
   expenseCard: {
     backgroundColor: '#3e2a2a',
   },
   summaryIcon: {
     fontSize: 32,
-    marginBottom: 8,
+    marginBottom: spacing.sm,
   },
   summaryLabel: {
     fontSize: 14,
-    color: '#a0a0a0',
-    marginBottom: 4,
+    color: colors.textSecondary,
+    marginBottom: spacing.xs,
   },
   summaryAmount: {
     fontSize: 20,
     fontWeight: 'bold',
-    color: '#ffffff',
+    color: colors.text,
   },
   balanceCard: {
-    backgroundColor: '#2a2a3e',
-    marginBottom: 30,
+    backgroundColor: colors.backgroundLight,
+    marginBottom: spacing.xl,
   },
   balanceLabel: {
     fontSize: 16,
-    color: '#a0a0a0',
-    marginBottom: 8,
+    color: colors.textSecondary,
+    marginBottom: spacing.sm,
   },
   balanceAmount: {
     fontSize: 36,
     fontWeight: 'bold',
-    marginBottom: 8,
+    marginBottom: spacing.sm,
   },
   transactionCount: {
     fontSize: 14,
-    color: '#a0a0a0',
+    color: colors.textSecondary,
   },
   section: {
-    marginBottom: 30,
+    marginBottom: spacing.xl,
   },
   sectionTitle: {
     fontSize: 20,
     fontWeight: 'bold',
-    color: '#ffffff',
-    marginBottom: 16,
+    color: colors.text,
+    marginBottom: spacing.md,
   },
   topCategoriesContainer: {
-    gap: 12,
+    gap: spacing.sm,
   },
   topCategoryItem: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#2a2a3e',
-    borderRadius: 12,
-    padding: 16,
+    backgroundColor: colors.backgroundLight,
+    borderRadius: borderRadius.sm,
+    padding: spacing.md,
   },
   rankBadge: {
     width: 32,
     height: 32,
-    borderRadius: 16,
-    backgroundColor: '#4ecca3',
+    borderRadius: borderRadius.md,
+    backgroundColor: colors.primary,
     alignItems: 'center',
     justifyContent: 'center',
-    marginRight: 12,
+    marginRight: spacing.sm,
   },
   rankText: {
     fontSize: 16,
     fontWeight: 'bold',
-    color: '#1a1a2e',
+    color: colors.background,
   },
   topCategoryInfo: {
     flex: 1,
@@ -424,56 +533,116 @@ const styles = StyleSheet.create({
   topCategoryName: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#ffffff',
-    marginBottom: 4,
+    color: colors.text,
+    marginBottom: spacing.xs,
   },
   topCategoryAmount: {
     fontSize: 14,
-    color: '#a0a0a0',
+    color: colors.textSecondary,
   },
   topCategoryPercentage: {
     fontSize: 18,
     fontWeight: 'bold',
-    color: '#4ecca3',
+    color: colors.primary,
   },
   breakdownContainer: {
-    backgroundColor: '#2a2a3e',
-    borderRadius: 16,
-    padding: 16,
-    gap: 20,
-  },
-  breakdownItem: {
+    backgroundColor: colors.backgroundLight,
+    borderRadius: borderRadius.md,
+    padding: spacing.md,
     gap: 8,
   },
+  breakdownItem: {
+    flex: 1,
+    gap: spacing.sm,
+  },
+  categoryIconContainer: {
+    width: 44,
+    height: 44,
+    borderRadius: borderRadius.sm,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop:8,
+  },
+  categoryIcon: {
+    fontSize: 20,
+  },
   breakdownHeader: {
+    height: 44,
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
   },
+  breakdownLeftSection: {
+    flex: 1,
+  },
   breakdownCategory: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#ffffff',
+    color: colors.text,
+  },
+  breakdownCount: {
+    fontSize: 12,
+    color: colors.textSecondary,
+    marginTop: 2,
   },
   breakdownAmount: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#ffffff',
+    color: colors.text,
   },
   breakdownBarContainer: {
     height: 8,
-    backgroundColor: '#1a1a2e',
+    backgroundColor: colors.background,
     borderRadius: 4,
     overflow: 'hidden',
   },
   breakdownBar: {
     height: '100%',
-    backgroundColor: '#4ecca3',
+    backgroundColor: colors.primary,
     borderRadius: 4,
   },
   breakdownPercentage: {
+    height: 32,
     fontSize: 12,
-    color: '#a0a0a0',
+    color: colors.textSecondary,
+    verticalAlign: 'middle',
+  },
+  transactionsSublist: {
+    paddingTop: spacing.sm,
+    gap: spacing.sm,
+  },
+  transactionSubitem: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    padding: spacing.sm,
+    marginLeft: 16,
+  },
+  transactionSubitemLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flex: 1,
+    gap: spacing.sm,
+  },
+  transactionSubitemIcon: {
+    fontSize: 20,
+  },
+  transactionSubitemInfo: {
+    flex: 1,
+  },
+  transactionSubitemDescription: {
+    fontSize: 14,
+    color: colors.text,
+    marginBottom: 2,
+  },
+  transactionSubitemDate: {
+    fontSize: 12,
+    color: colors.textSecondary,
+  },
+  transactionSubitemAmount: {
+    fontSize: 12,
+    color: colors.textSecondary,
+    marginLeft: spacing.sm,
   },
   emptyState: {
     alignItems: 'center',
@@ -481,21 +650,24 @@ const styles = StyleSheet.create({
   },
   emptyIcon: {
     fontSize: 64,
-    marginBottom: 16,
+    marginBottom: spacing.md,
   },
   emptyText: {
     fontSize: 20,
     fontWeight: 'bold',
-    color: '#ffffff',
-    marginBottom: 8,
+    color: colors.text,
+    marginBottom: spacing.sm,
   },
   emptySubtext: {
     fontSize: 16,
-    color: '#a0a0a0',
+    color: colors.textSecondary,
     textAlign: 'center',
-    paddingHorizontal: 40,
+    paddingHorizontal: spacing.xxl,
   },
   bottomSpacer: {
-    height: 40,
+    height: spacing.xxl,
+  },
+  transactionIcon: {
+    fontSize: 20,
   },
 });

@@ -11,6 +11,7 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { TransactionType } from '../types';
+import { colors } from '../styles';
 
 interface CategoryData {
   name: string;
@@ -34,7 +35,7 @@ const EMOJI_OPTIONS: string[] = [
   '🏥', '💊', '🩺', '🦷', '👓', '🧘', '💆', '🏃',
   '💼', '📊', '💰', '💵', '💸', '📈', '🎓', '🏆',
   '❤️', '🎂', '🌟', '🔥', '⭐', '🌈', '🎯', '📦',
-  '🦷','🐶','🐢','🏋️'
+  '🦷', '🐶', '🐢', '🏋️'
 ];
 
 export default function AddCategoryModal({ visible, onClose, onAdd, type }: AddCategoryModalProps) {
@@ -69,6 +70,63 @@ export default function AddCategoryModal({ visible, onClose, onAdd, type }: AddC
     onClose();
   };
 
+  const renderCategoryNameField = () => (
+    <View style={styles.section}>
+      <Text style={styles.label}>Category Name</Text>
+      <TextInput
+        style={styles.input}
+        placeholder="e.g., Coffee, Groceries"
+        placeholderTextColor="#a0a0a0"
+        value={name}
+        onChangeText={setName}
+        maxLength={20}
+      />
+    </View>
+  )
+
+  const renderEmojiPicker = () => (
+    <View style={styles.section}>
+      <Text style={styles.label}>Select Icon</Text>
+      <View style={styles.emojiGrid}>
+        {EMOJI_OPTIONS.map((emoji, index) => (
+          <TouchableOpacity
+            key={index}
+            style={[
+              styles.emojiButton,
+              selectedEmoji === emoji && styles.emojiButtonSelected
+            ]}
+            onPress={() => setSelectedEmoji(emoji)}
+          >
+            <Text style={styles.emoji}>{emoji}</Text>
+          </TouchableOpacity>
+        ))}
+      </View>
+    </View>
+  )
+
+  const renderPreview = () => (
+    <View style={styles.preview}>
+      <Text style={styles.previewLabel}>Preview</Text>
+      <View style={styles.previewBox}>
+        <Text style={styles.previewEmoji}>{selectedEmoji || '❓'}</Text>
+        <Text style={styles.previewName}>{name || 'Category Name'}</Text>
+      </View>
+    </View>
+  )
+
+  const renderAddButton = () => (
+    <TouchableOpacity
+      style={[
+        styles.addButton,
+        (!name.trim() || !selectedEmoji) && styles.addButtonDisabled
+      ]}
+      onPress={handleAdd}
+      disabled={!name.trim() || !selectedEmoji}
+    >
+      <Text style={styles.addButtonText}>Add Category</Text>
+    </TouchableOpacity>
+  )
+
   return (
     <Modal
       visible={visible}
@@ -88,60 +146,19 @@ export default function AddCategoryModal({ visible, onClose, onAdd, type }: AddC
 
           <ScrollView showsVerticalScrollIndicator={false}>
             {/* Category Name */}
-            <View style={styles.section}>
-              <Text style={styles.label}>Category Name</Text>
-              <TextInput
-                style={styles.input}
-                placeholder="e.g., Coffee, Groceries"
-                placeholderTextColor="#a0a0a0"
-                value={name}
-                onChangeText={setName}
-                maxLength={20}
-              />
-            </View>
+            {renderCategoryNameField()}
 
             {/* Emoji Picker */}
-            <View style={styles.section}>
-              <Text style={styles.label}>Select Icon</Text>
-              <View style={styles.emojiGrid}>
-                {EMOJI_OPTIONS.map((emoji, index) => (
-                  <TouchableOpacity
-                    key={index}
-                    style={[
-                      styles.emojiButton,
-                      selectedEmoji === emoji && styles.emojiButtonSelected
-                    ]}
-                    onPress={() => setSelectedEmoji(emoji)}
-                  >
-                    <Text style={styles.emoji}>{emoji}</Text>
-                  </TouchableOpacity>
-                ))}
-              </View>
-            </View>
+            {renderEmojiPicker()}
 
             {/* Preview */}
             {(name || selectedEmoji) && (
-              <View style={styles.preview}>
-                <Text style={styles.previewLabel}>Preview</Text>
-                <View style={styles.previewBox}>
-                  <Text style={styles.previewEmoji}>{selectedEmoji || '❓'}</Text>
-                  <Text style={styles.previewName}>{name || 'Category Name'}</Text>
-                </View>
-              </View>
+              renderPreview()
             )}
           </ScrollView>
 
           {/* Add Button */}
-          <TouchableOpacity
-            style={[
-              styles.addButton,
-              (!name.trim() || !selectedEmoji) && styles.addButtonDisabled
-            ]}
-            onPress={handleAdd}
-            disabled={!name.trim() || !selectedEmoji}
-          >
-            <Text style={styles.addButtonText}>Add Category</Text>
-          </TouchableOpacity>
+          {renderAddButton()}
         </View>
       </View>
     </Modal>
@@ -155,7 +172,7 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-end',
   },
   modalContent: {
-    backgroundColor: '#1a1a2e',
+    backgroundColor: colors.background,
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
     padding: 20,
@@ -170,7 +187,7 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 20,
     fontWeight: 'bold',
-    color: '#ffffff',
+    color: colors.text,
   },
   section: {
     marginBottom: 24,
@@ -178,17 +195,17 @@ const styles = StyleSheet.create({
   label: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#ffffff',
+    color: colors.text,
     marginBottom: 12,
   },
   input: {
-    backgroundColor: '#2a2a3e',
+    backgroundColor: colors.backgroundLight,
     borderRadius: 12,
     padding: 16,
     fontSize: 16,
-    color: '#ffffff',
+    color: colors.text,
     borderWidth: 1,
-    borderColor: '#3a3a4e',
+    borderColor: colors.border
   },
   emojiGrid: {
     flexDirection: 'row',
@@ -198,7 +215,7 @@ const styles = StyleSheet.create({
   emojiButton: {
     width: 48,
     height: 48,
-    backgroundColor: '#2a2a3e',
+    backgroundColor: colors.backgroundLight,
     borderRadius: 12,
     justifyContent: 'center',
     alignItems: 'center',
@@ -206,8 +223,8 @@ const styles = StyleSheet.create({
     borderColor: 'transparent',
   },
   emojiButtonSelected: {
-    borderColor: '#4ecca3',
-    backgroundColor: '#2a3e3a',
+    borderColor: colors.primary,
+    backgroundColor: colors.primaryDark,
   },
   emoji: {
     fontSize: 24,
@@ -218,17 +235,17 @@ const styles = StyleSheet.create({
   },
   previewLabel: {
     fontSize: 14,
-    color: '#a0a0a0',
+    color: colors.textSecondary,
     marginBottom: 8,
   },
   previewBox: {
-    backgroundColor: '#2a2a3e',
+    backgroundColor: colors.backgroundLight,
     borderRadius: 12,
     padding: 16,
     flexDirection: 'row',
     alignItems: 'center',
     borderWidth: 1,
-    borderColor: '#4ecca3',
+    borderColor: colors.primary,
   },
   previewEmoji: {
     fontSize: 32,
@@ -236,11 +253,11 @@ const styles = StyleSheet.create({
   },
   previewName: {
     fontSize: 16,
-    color: '#ffffff',
+    color: colors.text,
     fontWeight: '600',
   },
   addButton: {
-    backgroundColor: '#4ecca3',
+    backgroundColor: colors.primary,
     padding: 16,
     borderRadius: 12,
     alignItems: 'center',
@@ -250,7 +267,7 @@ const styles = StyleSheet.create({
     opacity: 0.5,
   },
   addButtonText: {
-    color: '#1a1a2e',
+    color: colors.textDark,
     fontSize: 16,
     fontWeight: '600',
   },
