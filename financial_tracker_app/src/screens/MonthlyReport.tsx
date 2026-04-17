@@ -15,6 +15,7 @@ import DateTimePickerAndroid from '@react-native-community/datetimepicker';
 import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '../context/AuthContext';
 import { getUserTransactions } from '../services/transactionService';
+import { getCategories } from '../services/categoryService';
 import { RootStackParamList } from '../types';
 import { colors, spacing, borderRadius } from '../styles';
 import { formatCurrency } from '../utils/formatCurrency';
@@ -44,6 +45,7 @@ export default function MonthlyReport({ navigation, route }: Props) {
   const [categoryBreakdown, setCategoryBreakdown] = useState<any[]>([]);
   const [topCategories, setTopCategories] = useState<any[]>([]);
   const [expandedCategories, setExpandedCategories] = useState<Set<string>>(new Set());
+  const [categories, setCategories] = useState<any[]>([]);
 
   useEffect(() => {
     loadReportData();
@@ -52,7 +54,11 @@ export default function MonthlyReport({ navigation, route }: Props) {
   const loadReportData = async () => {
     try {
       setLoading(true);
-      const fetchedTransactions = await getUserTransactions(currentUser.uid);
+      const [fetchedTransactions, fetchedCategories] = await Promise.all([
+        getUserTransactions(currentUser.uid),
+        getCategories(currentUser.uid, 'expense')
+      ]);
+      setCategories(fetchedCategories);
 
       // Filter for selected month
       const currentMonthTransactions = fetchedTransactions.filter(t => {
@@ -227,41 +233,58 @@ export default function MonthlyReport({ navigation, route }: Props) {
 
   const renderCategoryBreakdownItem = (item: any) => {
     const isExpanded = expandedCategories.has(item.category);
-    return (
-      <View key={item.category} style={styles.breakdownItem}>
-        <TouchableOpacity 
-          onPress={() => toggleCategory(item.category)}
-          activeOpacity={0.7}
-        >
-          <View style={styles.breakdownHeader}>
-            <View style={styles.breakdownLeftSection}>
-              <Text style={styles.breakdownCategory}>{item.category}</Text>
-            </View>
-            <Text style={styles.breakdownAmount}>
-              ${formatCurrency(item.amount)}
-            </Text>
-          </View>
-          <View style={styles.breakdownBarContainer}>
-            <View
-              style={[
-                styles.breakdownBar,
-                { width: `${item.percentage}%` }
-              ]}
-            />
-          </View>
-          <Text style={styles.breakdownPercentage}>
-            {item.percentage.toFixed(1)}% of total expenses
-          </Text>
-        </TouchableOpacity>
+    const categoryData = categories.find(cat => cat.name === item.category);
+    const categoryIcon = categoryData?.icon || item.transactions[0]?.icon || '💸';
 
-        {/* Transaction Subitems - Conditionally Visible */}
-        {isExpanded && (
-          <View style={styles.transactionsSublist}>
-            {item.transactions.map((transaction: any, index: number) => (
-              renderTransactionSubItem(transaction, index)
-            ))}
-          </View>
-        )}
+    return (
+
+      <View
+        style={{
+          flexDirection: 'row',
+          gap: 12,
+        }}
+      >
+
+        <View style={styles.categoryIconContainer}>
+          <Text style={styles.categoryIcon}>{categoryIcon}</Text>
+        </View>
+
+        <View key={item.category} style={styles.breakdownItem}>
+          <TouchableOpacity
+            onPress={() => toggleCategory(item.category)}
+            activeOpacity={0.7}
+            style={{ flex: 1 }}
+          >
+            <View style={styles.breakdownHeader}>
+              <View style={styles.breakdownLeftSection}>
+                <Text style={styles.breakdownCategory}>{item.category}</Text>
+              </View>
+              <Text style={styles.breakdownAmount}>
+                ${formatCurrency(item.amount)}
+              </Text>
+            </View>
+            <View style={styles.breakdownBarContainer}>
+              <View
+                style={[
+                  styles.breakdownBar,
+                  { width: `${item.percentage}%` }
+                ]}
+              />
+            </View>
+            <Text style={styles.breakdownPercentage}>
+              {item.percentage.toFixed(1)}%
+            </Text>
+          </TouchableOpacity>
+
+          {/* Transaction Subitems - Conditionally Visible */}
+          {isExpanded && (
+            <View style={styles.transactionsSublist}>
+              {item.transactions.map((transaction: any, index: number) => (
+                renderTransactionSubItem(transaction, index)
+              ))}
+            </View>
+          )}
+        </View>
       </View>
     );
   }
@@ -526,10 +549,22 @@ const styles = StyleSheet.create({
     backgroundColor: colors.backgroundLight,
     borderRadius: borderRadius.md,
     padding: spacing.md,
-    gap: spacing.lg,
+    gap: 8,
   },
   breakdownItem: {
+    flex: 1,
     gap: spacing.sm,
+  },
+  categoryIconContainer: {
+    width: 44,
+    height: 44,
+    borderRadius: borderRadius.sm,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop:8,
+  },
+  categoryIcon: {
+    fontSize: 20,
   },
   breakdownHeader: {
     height: 44,
@@ -631,5 +666,8 @@ const styles = StyleSheet.create({
   },
   bottomSpacer: {
     height: spacing.xxl,
+  },
+  transactionIcon: {
+    fontSize: 20,
   },
 });
