@@ -252,6 +252,33 @@ export default function Dashboard({ navigation }) {
                 <Text style={styles.seeAllText}>Set budget</Text>
               </TouchableOpacity>
             </View>
+            
+            {/* Budget Total Summary */}
+            <View style={styles.budgetSummaryCard}>
+              <View style={styles.budgetSummaryRow}>
+                <Text style={styles.budgetSummaryLabel}>Total Budget</Text>
+                <Text style={styles.budgetSummaryAmount}>
+                  ${budgetProgress.reduce((sum, item) => sum + item.limit, 0).toFixed(0)}
+                </Text>
+              </View>
+              <View style={styles.budgetSummaryRow}>
+                <Text style={styles.budgetSummaryLabel}>Total Spent</Text>
+                <Text style={styles.budgetSummarySpent}>
+                  ${budgetProgress.reduce((sum, item) => sum + item.spent, 0).toFixed(0)}
+                </Text>
+              </View>
+              <View style={styles.budgetSummaryDivider} />
+              <View style={styles.budgetSummaryRow}>
+                <Text style={styles.budgetSummaryLabelBold}>Remaining</Text>
+                <Text style={[
+                  styles.budgetSummaryRemaining,
+                  budgetProgress.reduce((sum, item) => sum + item.remaining, 0) < 0 && styles.budgetSummaryOverBudget
+                ]}>
+                  ${budgetProgress.reduce((sum, item) => sum + item.remaining, 0).toFixed(0)}
+                </Text>
+              </View>
+            </View>
+            
             <View style={styles.budgetProgressList}>
               {budgetProgress.slice(0, 5).map((item) => {
                 const isOverBudget = item.spent > item.limit;
@@ -525,6 +552,54 @@ const styles = StyleSheet.create({
   },
   alertPercentageOver: {
     color: '#ff6b6b',
+  },
+  budgetSummaryCard: {
+    backgroundColor: '#2a3e3a',
+    borderRadius: 16,
+    padding: 16,
+    paddingBottom: 8,
+    marginBottom: 8,
+    borderWidth: 1,
+    borderColor: '#4ecca3',
+  },
+  budgetSummaryRow: {
+    height:32,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 8,
+  },
+  budgetSummaryLabel: {
+    fontSize: 14,
+    color: '#a0a0a0',
+  },
+  budgetSummaryLabelBold: {
+    fontSize: 15,
+    color: '#ffffff',
+    fontWeight: '600',
+  },
+  budgetSummaryAmount: {
+    fontSize: 16,
+    color: '#ffffff',
+    fontWeight: '600',
+  },
+  budgetSummarySpent: {
+    fontSize: 16,
+    color: '#ffd93d',
+    fontWeight: '600',
+  },
+  budgetSummaryRemaining: {
+    fontSize: 18,
+    color: '#4ecca3',
+    fontWeight: 'bold',
+  },
+  budgetSummaryOverBudget: {
+    color: '#ff6b6b',
+  },
+  budgetSummaryDivider: {
+    height: 1,
+    backgroundColor: '#3a3a4e',
+    marginVertical: 8,
   },
   budgetProgressList: {
     backgroundColor: '#2a2a3e',

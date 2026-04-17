@@ -211,42 +211,47 @@ export default function AddTransaction({ navigation, route }: Props) {
   )
 
   const renderCategoryPicker = () => (
-    <View style={styles.section}>
-      <View style={styles.categoriesGrid}>
-        {loadingCategories ? (
-          <Text style={styles.loadingText}>Loading categories...</Text>
-        ) : (
-          <>
-            {categories.map((cat) => (
-              <TouchableOpacity
-                key={cat.id || cat.name}
-                style={[
-                  styles.categoryButton,
-                  category === cat.name && styles.categoryButtonSelected
-                ]}
-                onPress={() => handleCategorySelect(cat)}
-              >
-                <Text style={styles.categoryIcon}>{cat.icon}</Text>
-                <Text style={[
-                  styles.categoryText,
-                  category === cat.name && styles.categoryTextSelected
-                ]}>
-                  {cat.name}
-                </Text>
-              </TouchableOpacity>
-            ))}
-            {/* Add Custom Category Button */}
+    <ScrollView 
+      style={styles.categoriesScroll}
+      showsVerticalScrollIndicator={false}
+      contentContainerStyle={styles.categoriesScrollContent}
+    >
+      {loadingCategories ? (
+        <Text style={styles.loadingText}>Loading...</Text>
+      ) : (
+        <>
+          {categories.map((cat) => (
             <TouchableOpacity
-              style={styles.addCategoryButton}
-              onPress={() => setShowAddCategoryModal(true)}
+              key={cat.id || cat.name}
+              style={[
+                styles.categoryItem,
+                category === cat.name && styles.categoryItemSelected
+              ]}
+              onPress={() => handleCategorySelect(cat)}
             >
-              <Ionicons name="add-circle-outline" size={28} color="#4ecca3" />
-              <Text style={styles.addCategoryText}>Add</Text>
+              <Text style={styles.categoryItemIcon}>{cat.icon}</Text>
+              <Text style={[
+                styles.categoryItemText,
+                category === cat.name && styles.categoryItemTextSelected
+              ]}>
+                {cat.name}
+              </Text>
+              {category === cat.name && (
+                <Ionicons name="checkmark-circle" size={20} color="#4ecca3" style={styles.checkmark} />
+              )}
             </TouchableOpacity>
-          </>
-        )}
-      </View>
-    </View>
+          ))}
+          {/* Add Custom Category Button */}
+          <TouchableOpacity
+            style={styles.addCategoryItem}
+            onPress={() => setShowAddCategoryModal(true)}
+          >
+            <Ionicons name="add-circle-outline" size={24} color="#4ecca3" />
+            <Text style={styles.addCategoryItemText}>Add</Text>
+          </TouchableOpacity>
+        </>
+      )}
+    </ScrollView>
   )
 
   return (
@@ -282,43 +287,48 @@ export default function AddTransaction({ navigation, route }: Props) {
         </TouchableOpacity>
       </View>
 
-      <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
-        {/* Amount Input */}
-        <View style={styles.amountSection}>
-          <Text style={styles.currencySymbol}>$</Text>
-          <TextInput
-            style={styles.amountInput}
-            placeholder="0.00"
-            placeholderTextColor="#a0a0a0"
-            value={amount}
-            onChangeText={setAmount}
-            keyboardType="decimal-pad"
-            autoFocus
-          />
+      <View style={styles.mainContent}>
+        {/* Left Column - Input Fields */}
+        <ScrollView style={styles.leftColumn} showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
+          {/* Amount Input */}
+          <View style={styles.amountSection}>
+            <Text style={styles.currencySymbol}>$</Text>
+            <TextInput
+              style={styles.amountInput}
+              placeholder="0.00"
+              placeholderTextColor="#a0a0a0"
+              value={amount}
+              onChangeText={setAmount}
+              keyboardType="decimal-pad"
+              autoFocus
+            />
+          </View>
+
+          {/* Date & Time */}
+          {renderDatePicker()}
+
+          {/* Description */}
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>Description</Text>
+            <TextInput
+              style={styles.descriptionInput}
+              placeholder="What was this for?"
+              placeholderTextColor="#a0a0a0"
+              value={description}
+              onChangeText={setDescription}
+              multiline
+              numberOfLines={4}
+            />
+          </View>
+
+          <View style={styles.bottomSpacer} />
+        </ScrollView>
+
+        {/* Right Column - Categories */}
+        <View style={styles.rightColumn}>
+          {renderCategoryPicker()}
         </View>
-
-        {/* Date & Time */}
-        {renderDatePicker()}
-
-        {/* Category Selection */}
-        {renderCategoryPicker()}
-
-        {/* Description */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Description (Optional)</Text>
-          <TextInput
-            style={styles.descriptionInput}
-            placeholder="What was this for?"
-            placeholderTextColor="#a0a0a0"
-            value={description}
-            onChangeText={setDescription}
-            multiline
-            numberOfLines={3}
-          />
-        </View>
-
-        <View style={styles.bottomSpacer} />
-      </ScrollView>
+      </View>
 
       {/* Add Category Modal */}
       <AddCategoryModal
@@ -363,83 +373,111 @@ const styles = StyleSheet.create({
   saveHeaderButtonDisabled: {
     opacity: 0.5,
   },
-  scrollView: {
+  mainContent: {
+    flex: 1,
+    flexDirection: 'row',
+  },
+  leftColumn: {
     flex: 1,
     paddingHorizontal: 20,
+  },
+  rightColumn: {
+    width: 132,
+    backgroundColor: '#16162a',
+    paddingVertical: 20,
+    paddingHorizontal: 12,
+    borderLeftWidth: 1,
+    borderLeftColor: '#2a2a3e',
+  },
+  categoriesTitle: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#a0a0a0',
+    marginBottom: 12,
+    textAlign: 'center',
   },
   amountSection: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    marginVertical: 40,
+    marginVertical: 30,
   },
   currencySymbol: {
-    fontSize: 48,
+    fontSize: 40,
     fontWeight: 'bold',
     color: '#4ecca3',
-    marginRight: 10,
+    marginRight: 8,
   },
   amountInput: {
-    fontSize: 56,
+    fontSize: 48,
     fontWeight: 'bold',
     color: '#ffffff',
-    minWidth: 150,
+    minWidth: 120,
   },
   section: {
-    marginBottom: 30,
+    marginBottom: 24,
   },
   sectionTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
+    fontSize: 16,
+    fontWeight: '600',
     color: '#ffffff',
-    marginBottom: 16,
+    marginBottom: 12,
   },
-  categoriesGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 12,
+  categoriesScroll: {
+    flex: 1,
   },
-  categoryButton: {
-    width: '30%',
+  categoriesScrollContent: {
+    paddingBottom: 20,
+  },
+  categoryItem: {
     backgroundColor: '#2a2a3e',
     borderRadius: 12,
-    padding: 16,
+    padding: 12,
+    marginBottom: 10,
     alignItems: 'center',
     borderWidth: 2,
     borderColor: 'transparent',
+    position: 'relative',
   },
-  categoryButtonSelected: {
+  categoryItemSelected: {
     borderColor: '#4ecca3',
     backgroundColor: '#2a3e3a',
   },
-  categoryIcon: {
+  categoryItemIcon: {
     fontSize: 32,
-    marginBottom: 8,
+    marginBottom: 6,
   },
-  categoryText: {
-    fontSize: 12,
+  categoryItemText: {
+    fontSize: 11,
     color: '#a0a0a0',
     textAlign: 'center',
+    fontWeight: '500',
   },
-  categoryTextSelected: {
+  categoryItemTextSelected: {
     color: '#4ecca3',
     fontWeight: '600',
   },
-  addCategoryButton: {
-    width: '30%',
+  checkmark: {
+    position: 'absolute',
+    top: 6,
+    right: 6,
+  },
+  addCategoryItem: {
     backgroundColor: '#2a2a3e',
     borderRadius: 12,
-    padding: 16,
+    padding: 12,
+    marginBottom: 10,
     alignItems: 'center',
-    justifyContent: 'center',
-    borderWidth: 2,
+    borderWidth: 0,
     borderColor: '#4ecca3',
-    borderStyle: 'dashed',
+    borderStyle: 'solid',
+    flexDirection: 'row',
+    justifyContent: 'center',
+    gap: 6,
   },
-  addCategoryText: {
-    fontSize: 12,
+  addCategoryItemText: {
+    fontSize: 11,
     color: '#4ecca3',
-    marginTop: 4,
     fontWeight: '600',
   },
   loadingText: {
@@ -477,15 +515,15 @@ const styles = StyleSheet.create({
   descriptionInput: {
     backgroundColor: '#2a2a3e',
     borderRadius: 12,
-    padding: 16,
-    fontSize: 16,
+    padding: 14,
+    fontSize: 15,
     color: '#ffffff',
     borderWidth: 1,
     borderColor: '#3a3a4e',
-    minHeight: 100,
+    minHeight: 110,
     textAlignVertical: 'top',
   },
   bottomSpacer: {
-    height: 40,
+    height: 20,
   },
 });
