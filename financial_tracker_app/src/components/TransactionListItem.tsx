@@ -1,5 +1,6 @@
 import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
+import { colors } from '../styles';
 
 interface Transaction {
   id: string;
@@ -52,7 +53,7 @@ export default function TransactionListItem({
         <View
           style={[
             styles.transactionIconContainer,
-            { backgroundColor: transaction.type === 'income' ? '#4ecca3' : '#ff6b6b' },
+            { backgroundColor: colors.backgroundDark },
           ]}
         >
           <Text style={styles.transactionIcon}>{transaction.icon}</Text>
@@ -116,16 +117,16 @@ const styles = StyleSheet.create({
   transactionTitle: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#ffffff',
+    color: colors.text,
     marginBottom: 2,
   },
   transactionCategory: {
     fontSize: 12,
-    color: '#a0a0a0',
+    color: colors.textSecondary,
   },
   transactionDate: {
     fontSize: 12,
-    color: '#a0a0a0',
+    color: colors.textSecondary,
     marginTop: 2,
   },
   transactionRight: {
@@ -134,17 +135,17 @@ const styles = StyleSheet.create({
   transactionAmountNegative: {
     fontSize: 16,
     fontWeight: 'bold',
-    color: '#ff6b6b',
+    color: colors.expense,
     marginBottom: 2,
   },
   transactionAmountPositive: {
     fontSize: 16,
     fontWeight: 'bold',
-    color: '#4ecca3',
+    color: colors.income,
     marginBottom: 2,
   },
   transactionTime: {
     fontSize: 12,
-    color: '#a0a0a0',
+    color: colors.textSecondary,
   },
 });
