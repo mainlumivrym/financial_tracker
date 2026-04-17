@@ -32,6 +32,7 @@ import {
   requestNotificationPermissions,
 } from '../services/notificationService';
 import { getCategories } from '../services/categoryService';
+import { formatCurrency } from '../utils/formatCurrency';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'RecurringExpenses'>;
 
@@ -231,7 +232,7 @@ export default function RecurringExpenses({ navigation }: Props) {
             </View>
             <Text style={styles.expenseCategory}>{expense.category}</Text>
           </View>
-          <Text style={styles.expenseAmount}>${expense.amount.toFixed(2)}</Text>
+          <Text style={styles.expenseAmount}>${formatCurrency(expense.amount)}</Text>
         </View>
 
         <View style={styles.expenseDetails}>

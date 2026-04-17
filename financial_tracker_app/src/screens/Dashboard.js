@@ -7,7 +7,8 @@ import { getUserProfile } from '../services/userService';
 import { getUserTransactions } from '../services/transactionService';
 import { getBudget, getCurrentMonth } from '../services/budgetService';
 import TransactionListItem from '../components/TransactionListItem';
-import { colors } from '../styles';
+import { colors, globalStyles, spacing, borderRadius } from '../styles';
+import { formatCurrency } from '../utils/formatCurrency';
 
 export default function Dashboard({ navigation }) {
   const { currentUser } = useAuth();
@@ -178,16 +179,16 @@ export default function Dashboard({ navigation }) {
         {/* Balance Card */}
         <View style={styles.balanceCard}>
           <Text style={styles.balanceLabel}>Total Balance</Text>
-          <Text style={styles.balanceAmount}>${balance.total.toFixed(2)}</Text>
+          <Text style={styles.balanceAmount}>${formatCurrency(balance.total)}</Text>
           <View style={styles.balanceStats}>
             <View style={styles.statItem}>
               <Text style={styles.statLabel}>Income</Text>
-              <Text style={styles.statIncome}>+${balance.income.toFixed(2)}</Text>
+              <Text style={styles.statIncome}>+${formatCurrency(balance.income)}</Text>
             </View>
             <View style={styles.statDivider} />
             <View style={styles.statItem}>
               <Text style={styles.statLabel}>Expenses</Text>
-              <Text style={styles.statExpense}>-${balance.expenses.toFixed(2)}</Text>
+              <Text style={styles.statExpense}>-${formatCurrency(balance.expenses)}</Text>
             </View>
           </View>
         </View>
@@ -259,13 +260,13 @@ export default function Dashboard({ navigation }) {
               <View style={styles.budgetSummaryRow}>
                 <Text style={styles.budgetSummaryLabel}>Total Budget</Text>
                 <Text style={styles.budgetSummaryAmount}>
-                  ${budgetProgress.reduce((sum, item) => sum + item.limit, 0).toFixed(0)}
+                  ${formatCurrency(budgetProgress.reduce((sum, item) => sum + item.limit, 0), 0)}
                 </Text>
               </View>
               <View style={styles.budgetSummaryRow}>
                 <Text style={styles.budgetSummaryLabel}>Total Spent</Text>
                 <Text style={styles.budgetSummarySpent}>
-                  ${budgetProgress.reduce((sum, item) => sum + item.spent, 0).toFixed(0)}
+                  ${formatCurrency(budgetProgress.reduce((sum, item) => sum + item.spent, 0), 0)}
                 </Text>
               </View>
               <View style={styles.budgetSummaryDivider} />
@@ -275,7 +276,7 @@ export default function Dashboard({ navigation }) {
                   styles.budgetSummaryRemaining,
                   budgetProgress.reduce((sum, item) => sum + item.remaining, 0) < 0 && styles.budgetSummaryOverBudget
                 ]}>
-                  ${budgetProgress.reduce((sum, item) => sum + item.remaining, 0).toFixed(0)}
+                  ${formatCurrency(budgetProgress.reduce((sum, item) => sum + item.remaining, 0), 0)}
                 </Text>
               </View>
             </View>
@@ -290,7 +291,7 @@ export default function Dashboard({ navigation }) {
                     <View style={styles.budgetHeader}>
                       <Text style={styles.budgetCategory}>{item.category}</Text>
                       <Text style={styles.budgetAmount}>
-                        ${item.spent.toFixed(0)} / ${item.limit.toFixed(0)}
+                        ${formatCurrency(item.spent, 0)} / ${formatCurrency(item.limit, 0)}
                       </Text>
                     </View>
                     <View style={styles.progressBarContainer}>
@@ -307,8 +308,8 @@ export default function Dashboard({ navigation }) {
                       isOverBudget && styles.budgetOver
                     ]}>
                       {isOverBudget
-                        ? `Over by $${(item.spent - item.limit).toFixed(2)}`
-                        : `$${item.remaining.toFixed(2)} remaining`
+                        ? `Over by $${formatCurrency(item.spent - item.limit)}`
+                        : `$${formatCurrency(item.remaining)} remaining`
                       }
                     </Text>
                   </View>

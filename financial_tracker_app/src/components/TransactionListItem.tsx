@@ -1,6 +1,7 @@
 import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { colors } from '../styles';
+import { formatCurrency } from '../utils/formatCurrency';
 
 interface Transaction {
   id: string;
@@ -80,7 +81,7 @@ export default function TransactionListItem({
           : styles.transactionAmountNegative
       }
     >
-      {transaction.type === 'income' ? '+' : '-'}${transaction.amount.toFixed(2)}
+      {transaction.type === 'income' ? '+' : '-'}${formatCurrency(transaction.amount)}
     </Text>
   )
 
