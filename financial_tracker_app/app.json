@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "financial_tracker_app",
-    "slug": "financial_tracker_app",
+    "slug": "financial-tracker",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -20,7 +20,7 @@
     "backgroundColor": "#1a1a2e",
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.yourcompany.financialtracker",
+      "bundleIdentifier": "com.lumivrym.financialtracker",
       "googleServicesFile": "./GoogleService-Info.plist"
     },
     "android": {
@@ -30,7 +30,7 @@
       },
       "edgeToEdgeEnabled": true,
       "googleServicesFile": "./google-services.json",
-      "package": "com.yourcompany.financialtracker"
+      "package": "com.lumivrym.financial_tracker"
     },
     "web": {
       "favicon": "./assets/favicon.png"
@@ -40,11 +40,10 @@
       [
         "expo-notifications",
         {
-          "icon": "./assets/notification-icon.png",
-          "color": "#4ecca3",
-          "sounds": ["./assets/notification.wav"]
+          "color": "#4ecca3"
         }
-      ]
+      ],
+      "expo-font"
     ]
   }
 }
