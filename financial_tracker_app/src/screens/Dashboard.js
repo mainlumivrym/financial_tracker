@@ -554,16 +554,14 @@ const styles = StyleSheet.create({
     color: '#ff6b6b',
   },
   budgetSummaryCard: {
-    backgroundColor: '#2a3e3a',
+    backgroundColor: '#2a2a3e',
     borderRadius: 16,
     padding: 16,
     paddingBottom: 8,
     marginBottom: 8,
-    borderWidth: 1,
-    borderColor: '#4ecca3',
   },
   budgetSummaryRow: {
-    height:32,
+    height:32 ,
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
