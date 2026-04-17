@@ -19,16 +19,16 @@ interface TransactionListItemProps {
   showTime?: boolean;
 }
 
-export default function TransactionListItem({ 
-  transaction, 
+export default function TransactionListItem({
+  transaction,
   showCategory = false,
-  showTime = true 
+  showTime = true
 }: TransactionListItemProps) {
-  
+
   const formatTransactionDate = () => {
     const timestampField = transaction.date || transaction.createdAt;
     if (!timestampField) return 'Unknown date';
-    
+
     const transactionDate = timestampField.toDate ? timestampField.toDate() : new Date(timestampField);
     const today = new Date();
     const yesterday = new Date(today);
@@ -39,47 +39,59 @@ export default function TransactionListItem({
     } else if (transactionDate.toDateString() === yesterday.toDateString()) {
       return 'Yesterday';
     } else {
-      return transactionDate.toLocaleDateString('en-US', { 
-        month: 'short', 
+      return transactionDate.toLocaleDateString('en-US', {
+        month: 'short',
         day: 'numeric',
         year: transactionDate.getFullYear() !== today.getFullYear() ? 'numeric' : undefined
       });
     }
   };
 
+  const renderTransactionIcon = () => (
+    <View
+      style={[
+        styles.transactionIconContainer,
+        { backgroundColor: colors.backgroundDark },
+      ]}
+    >
+      <Text style={styles.transactionIcon}>{transaction.icon}</Text>
+    </View>
+  )
+
+  const renderTransactionInfo = () => (
+    <View style={styles.transactionInfo}>
+      <Text style={styles.transactionTitle}>
+        {transaction.description || transaction.category}
+      </Text>
+      {transaction.description && (
+        <Text style={styles.transactionCategory}>{transaction.category}</Text>
+      )}
+      {!showTime && (
+        <Text style={styles.transactionDate}>{formatTransactionDate()}</Text>
+      )}
+    </View>
+  )
+
+  const renderTransactionAmount = () => (
+    <Text
+      style={
+        transaction.type === 'income'
+          ? styles.transactionAmountPositive
+          : styles.transactionAmountNegative
+      }
+    >
+      {transaction.type === 'income' ? '+' : '-'}${transaction.amount.toFixed(2)}
+    </Text>
+  )
+
   return (
     <View style={styles.transactionItem}>
       <View style={styles.transactionLeft}>
-        <View
-          style={[
-            styles.transactionIconContainer,
-            { backgroundColor: colors.backgroundDark },
-          ]}
-        >
-          <Text style={styles.transactionIcon}>{transaction.icon}</Text>
-        </View>
-        <View style={styles.transactionInfo}>
-          <Text style={styles.transactionTitle}>
-            {transaction.description || transaction.category}
-          </Text>
-          {transaction.description && (
-            <Text style={styles.transactionCategory}>{transaction.category}</Text>
-          )}
-          {!showTime && (
-            <Text style={styles.transactionDate}>{formatTransactionDate()}</Text>
-          )}
-        </View>
+        {renderTransactionIcon()}
+        {renderTransactionInfo()}
       </View>
       <View style={styles.transactionRight}>
-        <Text
-          style={
-            transaction.type === 'income'
-              ? styles.transactionAmountPositive
-              : styles.transactionAmountNegative
-          }
-        >
-          {transaction.type === 'income' ? '+' : '-'}${transaction.amount.toFixed(2)}
-        </Text>
+        {renderTransactionAmount()}
         {showTime && (
           <Text style={styles.transactionTime}>{formatTransactionDate()}</Text>
         )}
