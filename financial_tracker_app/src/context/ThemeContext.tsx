@@ -3,6 +3,12 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const THEME_STORAGE_KEY = '@chanch_theme';
 
+export interface SelectableTheme {
+  themeName: ThemeName
+  icon: string
+  displayName: string
+}
+
 interface ThemeColors {
   primary: string;
   primaryDark: string;
@@ -11,9 +17,19 @@ interface ThemeColors {
   backgroundDark: string;
   text: string;
   textSecondary: string;
+  textDark: string;
   income: string;
   expense: string;
   divider: string;
+  success: string;
+  warning: string;
+  danger: string;
+  info: string;
+  budgetNormal: string;
+  budgetWarning: string;
+  budgetOver: string;
+  greenCardBackground: string;
+  greenCardText: string;
 }
 
 interface ThemeSpacing {
@@ -38,12 +54,13 @@ interface Theme {
   borderRadius: ThemeBorderRadius;
 }
 
-type ThemeName = 'farmland' | 'dark';
+type ThemeName = 'farmland' | 'dark' | 'lavender' | 'deepSea';
 
 interface ThemeContextType {
   theme: Theme;
   themeName: ThemeName;
   setTheme: (theme: ThemeName) => Promise<void>;
+  selectableThemes: SelectableTheme[];
 }
 
 interface ThemeProviderProps {
@@ -62,7 +79,7 @@ const farmlandTheme: Theme = {
     textSecondary: '#6B655C',
     textDark: '#1a1a2e',
     income: '#7BA05B',
-    expense: '#C17B5B',
+    expense: '#D66B5B',
     divider: '#D4CFC4',
     success: '#4ecca3',        // Success/positive (green)
     warning: '#ffd93d',        // Warning/caution (yellow)
@@ -71,6 +88,88 @@ const farmlandTheme: Theme = {
     budgetNormal: '#4ecca3',   // Within budget (green)
     budgetWarning: '#ffd93d',  // Approaching limit (yellow)
     budgetOver: '#ff6b6b',     // Over budget (red)
+    greenCardBackground: '#7BA05B',
+    greenCardText: '#E8E4DB',
+  },
+  spacing: {
+    xs: 4,
+    sm: 8,
+    md: 16,
+    lg: 24,
+    xl: 32,
+    xxl: 48,
+  },
+  borderRadius: {
+    sm: 8,
+    md: 12,
+    lg: 16,
+    full: 999,
+  },
+};
+
+// Lavender Theme - Soft purple and pink palette
+const lavenderTheme: Theme = {
+  colors: {
+    primary: '#B8A5D6',
+    primaryDark: '#9B86BD',
+    background: '#F8F5FC',
+    backgroundLight: '#FFFFFF',
+    backgroundDark: '#EFE9F7',
+    text: '#4A3F5C',
+    textSecondary: '#8B7FA3',
+    textDark: '#2D2438',
+    income: '#8BC88B',
+    expense: '#E89FA3',
+    divider: '#E0D5ED',
+    success: '#8BC88B',
+    warning: '#F3C969',
+    danger: '#E89FA3',
+    info: '#9BA8D6',
+    budgetNormal: '#8BC88B',
+    budgetWarning: '#F3C969',
+    budgetOver: '#E89FA3',
+    greenCardBackground: '#B8A5D6',
+    greenCardText: '#FFFFFF',
+  },
+  spacing: {
+    xs: 4,
+    sm: 8,
+    md: 16,
+    lg: 24,
+    xl: 32,
+    xxl: 48,
+  },
+  borderRadius: {
+    sm: 8,
+    md: 12,
+    lg: 16,
+    full: 999,
+  },
+};
+
+// Deep Sea Theme - Ocean-inspired blues and teals
+const deepSeaTheme: Theme = {
+  colors: {
+    primary: '#5DADE2',
+    primaryDark: '#2980B9',
+    background: '#0B1C2E',
+    backgroundLight: '#1A3A52',
+    backgroundDark: '#051525',
+    text: '#E8F4F8',
+    textSecondary: '#85C1E2',
+    textDark: '#0B1C2E',
+    income: '#58D68D',
+    expense: '#EC7063',
+    divider: '#2C5F7E',
+    success: '#58D68D',
+    warning: '#F7DC6F',
+    danger: '#EC7063',
+    info: '#5DADE2',
+    budgetNormal: '#58D68D',
+    budgetWarning: '#F7DC6F',
+    budgetOver: '#EC7063',
+    greenCardBackground: '#2980B9',
+    greenCardText: '#E8F4F8',
   },
   spacing: {
     xs: 4,
@@ -109,6 +208,8 @@ const darkTheme: Theme = {
     budgetNormal: '#4ecca3',   // Within budget (green)
     budgetWarning: '#ffd93d',  // Approaching limit (yellow)
     budgetOver: '#ff6b6b',     // Over budget (red)
+    greenCardBackground: '#4ecca3',
+    greenCardText: '#2a2a3e',
   },
   spacing: {
     xs: 4,
@@ -129,12 +230,38 @@ const darkTheme: Theme = {
 const themes: Record<ThemeName, Theme> = {
   farmland: farmlandTheme,
   dark: darkTheme,
+  lavender: lavenderTheme,
+  deepSea: deepSeaTheme,
 };
+
+const selectableThemes: SelectableTheme[] = [
+  {
+    themeName: 'farmland',
+    displayName: 'Farmland',
+    icon: '🌾',
+  },
+  {
+    themeName: 'dark',
+    displayName: 'Dark',
+    icon: '🌙',
+  },
+  {
+    themeName: 'lavender',
+    displayName: 'Lavender',
+    icon: '🌸',
+  },
+  {
+    themeName: 'deepSea',
+    displayName: 'Deep Sea',
+    icon: '🌊',
+  },
+];
 
 const ThemeContext = createContext<ThemeContextType>({
   theme: farmlandTheme,
   themeName: 'farmland',
-  setTheme: async () => {},
+  setTheme: async () => { },
+  selectableThemes: selectableThemes,
 });
 
 export const ThemeProvider = ({ children }: ThemeProviderProps) => {
@@ -147,8 +274,8 @@ export const ThemeProvider = ({ children }: ThemeProviderProps) => {
   const loadTheme = async () => {
     try {
       const savedTheme = await AsyncStorage.getItem(THEME_STORAGE_KEY);
-      if (savedTheme && themes[savedTheme]) {
-        setThemeName(savedTheme);
+      if (savedTheme && (savedTheme === 'farmland' || savedTheme === 'dark' || savedTheme === 'lavender' || savedTheme === 'deepSea')) {
+        setThemeName(savedTheme as ThemeName);
       }
     } catch (error) {
       console.error('Failed to load theme:', error);
@@ -170,6 +297,7 @@ export const ThemeProvider = ({ children }: ThemeProviderProps) => {
     theme: themes[themeName],
     themeName,
     setTheme,
+    selectableThemes,
   };
 
   return (

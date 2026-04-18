@@ -49,20 +49,20 @@ export default function useDashboardStyles() {
             fontSize: 24,
         },
         balanceCard: {
-            backgroundColor: theme.colors.primary,
+            backgroundColor: theme.colors.greenCardBackground,
             borderRadius: 20,
             padding: 24,
             marginBottom: 30,
         },
         balanceLabel: {
             fontSize: 16,
-            color: theme.colors.textSecondary,
+            color: theme.colors.greenCardText,
             opacity: 0.8,
         },
         balanceAmount: {
             fontSize: 36,
             fontWeight: 'bold',
-            color: theme.colors.text,
+            color: theme.colors.greenCardText,
             marginTop: 8,
             marginBottom: 20,
         },
@@ -76,19 +76,19 @@ export default function useDashboardStyles() {
         },
         statLabel: {
             fontSize: 14,
-            color: theme.colors.textSecondary,
+            color: theme.colors.greenCardText,
             opacity: 0.7,
             marginBottom: 4,
         },
         statIncome: {
             fontSize: 18,
             fontWeight: 'bold',
-            color: theme.colors.income,
+            color: theme.colors.greenCardText,
         },
         statExpense: {
             fontSize: 18,
             fontWeight: 'bold',
-            color: theme.colors.expense,
+            color: theme.colors.greenCardText,
         },
         statDivider: {
             width: 1,
@@ -113,8 +113,9 @@ export default function useDashboardStyles() {
             marginBottom: 0,
         },
         seeAllText: {
-            fontSize: 14,
+            fontSize: 16,
             color: theme.colors.primary,
+            fontWeight: '400',
         },
         actionsGrid: {
             flexDirection: 'row',
