@@ -92,7 +92,7 @@ export default function useMonthlyReportStyles() {
                 alignItems: 'center',
             },
             incomeCard: {
-                backgroundColor: theme.colors.greenCardBackground,
+                backgroundColor: theme.colors.primaryDark,
             },
             expenseCard: {
                 backgroundColor: theme.colors.expenseDark,

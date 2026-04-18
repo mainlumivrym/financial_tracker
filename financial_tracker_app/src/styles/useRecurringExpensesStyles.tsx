@@ -128,7 +128,7 @@ export default function useRecurringExpensesStyles() {
             expenseName: {
                 fontSize: 16,
                 fontWeight: 'bold',
-                color: '#ffffff',
+                color: theme.colors.text,
             },
             expenseNamePaid: {
                 color: theme.colors.textDark,
