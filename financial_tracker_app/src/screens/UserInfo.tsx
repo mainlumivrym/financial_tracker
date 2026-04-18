@@ -23,8 +23,7 @@ type Props = NativeStackScreenProps<RootStackParamList, 'UserInfo'>;
 
 export default function UserInfo({ navigation }: Props) {
   const { currentUser, logout } = useAuth();
-  const userInfoStyles = useUserInfoStyles();
-  const styles = userInfoStyles;
+  const styles = useUserInfoStyles();
   const [username, setUsername] = useState<string>('');
   const [email, setEmail] = useState<string>(currentUser?.email || '');
   const [phone, setPhone] = useState<string>('');

@@ -1,7 +1,6 @@
 import { useMemo } from "react";
 import { useTheme } from '../context/ThemeContext';
 import { StyleSheet } from 'react-native';
-import colors from "./colors";
 
 export default function useAddTransactionsStyles() {
     const { theme } = useTheme();
