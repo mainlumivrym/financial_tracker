@@ -20,11 +20,12 @@ import { colors } from '../styles';
 import { formatCurrency } from '../utils/formatCurrency';
 import useMonthlyReportStyles from '@/styles/useMonthlyReportStyles';
 import ScreenHeader from '@/components/ScreenHeader';
+import { useTheme } from '../context/ThemeContext';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'MonthlyReport'>;
 
 export default function MonthlyReport({ navigation, route }: Props) {
-
+  const { theme } = useTheme();
   const styles = useMonthlyReportStyles();
 
   const { currentUser } = useAuth();
@@ -174,7 +175,7 @@ export default function MonthlyReport({ navigation, route }: Props) {
         style={styles.monthNavButton}
         onPress={() => navigateMonth('prev')}
       >
-        <Ionicons name="chevron-back" size={24} color={colors.primary} />
+        <Ionicons name="chevron-back" size={24} color={theme.colors.primary} />
       </TouchableOpacity>
       <TouchableOpacity
         style={styles.monthDisplay}
@@ -187,7 +188,7 @@ export default function MonthlyReport({ navigation, route }: Props) {
         style={styles.monthNavButton}
         onPress={() => navigateMonth('next')}
       >
-        <Ionicons name="chevron-forward" size={24} color={colors.primary} />
+        <Ionicons name="chevron-forward" size={24} color={theme.colors.primary} />
       </TouchableOpacity>
     </View>
   )
@@ -212,7 +213,7 @@ export default function MonthlyReport({ navigation, route }: Props) {
       <Text style={styles.balanceLabel}>Net Balance</Text>
       <Text style={[
         styles.balanceAmount,
-        { color: monthlyData.balance >= 0 ? colors.income : colors.expense }
+        { color: monthlyData.balance >= 0 ? theme.colors.income : theme.colors.expense }
       ]}>
         {monthlyData.balance >= 0 ? '+' : ''}${formatCurrency(monthlyData.balance)}
       </Text>
@@ -319,11 +320,10 @@ export default function MonthlyReport({ navigation, route }: Props) {
   )
 
   const renderHeader = () => (
-
     <ScreenHeader
       title={'Monthly Report'}
       onBackPress={() => navigation.goBack()}
-      backButtonColor="#4ecca3"
+
     />
   )
 

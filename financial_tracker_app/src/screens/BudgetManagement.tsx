@@ -148,7 +148,6 @@ export default function BudgetManagement({ navigation }: Props) {
         onPress: handleSave,
         disabled: saving
       }}
-      backButtonColor="#ffffff"
     />
   )
 

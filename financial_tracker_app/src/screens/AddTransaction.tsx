@@ -21,7 +21,7 @@ import { RootStackParamList, TransactionType } from '../types';
 import AddCategoryModal from '../components/AddCategoryModal';
 import useAddTransactionsStyles from '@/styles/useAddTransactionsStyles';
 import ScreenHeader from '@/components/ScreenHeader';
-import { formatMonth } from '@/services/budgetService';
+import { useTheme } from '../context/ThemeContext';
 import React from 'react';
 
 interface Category {
@@ -36,6 +36,9 @@ interface Category {
 type Props = NativeStackScreenProps<RootStackParamList, 'AddTransaction'>;
 
 export default function AddTransaction({ navigation, route }: Props) {
+  const { theme } = useTheme();
+  const styles = useAddTransactionsStyles();
+
   const { currentUser } = useAuth();
   const transactionType: TransactionType = route?.params?.type || 'expense';
 
@@ -49,7 +52,6 @@ export default function AddTransaction({ navigation, route }: Props) {
   const [categories, setCategories] = useState<Category[]>([]);
   const [loadingCategories, setLoadingCategories] = useState(true);
   const [showAddCategoryModal, setShowAddCategoryModal] = useState(false);
-  const styles = useAddTransactionsStyles();
 
   // Load categories from Firebase
   useEffect(() => {
@@ -177,7 +179,7 @@ export default function AddTransaction({ navigation, route }: Props) {
         style={styles.dateButton}
         onPress={showDateTimePicker}
       >
-        <Ionicons name="calendar-outline" size={20} color="#4ecca3" />
+        <Ionicons name="calendar-outline" size={20} color={theme.colors.primary} />
         <Text style={styles.dateText}>{formatDate(date)}</Text>
         <Ionicons name="chevron-forward" size={20} color="#a0a0a0" />
       </TouchableOpacity>
@@ -218,7 +220,8 @@ export default function AddTransaction({ navigation, route }: Props) {
               key={cat.id || cat.name}
               style={[
                 styles.categoryItem,
-                category === cat.name && styles.categoryItemSelected
+                category === cat.name && styles.categoryItemSelected,
+                category && category !== cat.name && { opacity: 0.9 }
               ]}
               onPress={() => handleCategorySelect(cat)}
             >
@@ -230,7 +233,7 @@ export default function AddTransaction({ navigation, route }: Props) {
                 {cat.name}
               </Text>
               {category === cat.name && (
-                <Ionicons name="checkmark-circle" size={20} color="#4ecca3" style={styles.checkmark} />
+                <Ionicons name="checkmark-circle" size={24} color="#4ecca3" style={styles.checkmark} />
               )}
             </TouchableOpacity>
           ))}
@@ -239,7 +242,7 @@ export default function AddTransaction({ navigation, route }: Props) {
             style={styles.addCategoryItem}
             onPress={() => setShowAddCategoryModal(true)}
           >
-            <Ionicons name="add-circle-outline" size={24} color="#4ecca3" />
+            <Ionicons name="add-circle-outline" size={24} color={theme.colors.primary} />
             <Text style={styles.addCategoryItemText}>Add</Text>
           </TouchableOpacity>
         </>
@@ -256,7 +259,6 @@ export default function AddTransaction({ navigation, route }: Props) {
         onPress: handleSave,
         disabled: loading
       }}
-      backButtonColor="#4ecca3"
     />
   )
 

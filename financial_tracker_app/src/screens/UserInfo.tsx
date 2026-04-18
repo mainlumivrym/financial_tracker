@@ -120,7 +120,6 @@ export default function UserInfo({ navigation }: Props) {
         text: isEditing ? 'Save' : 'Edit',
         onPress: () => isEditing ? handleSave() : setIsEditing(true),
       }}
-      backButtonColor="#4ecca3"
     />
   );
 

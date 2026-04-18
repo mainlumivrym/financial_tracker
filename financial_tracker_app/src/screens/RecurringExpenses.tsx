@@ -35,10 +35,13 @@ import { getCategories } from '../services/categoryService';
 import { formatCurrency } from '../utils/formatCurrency';
 import useRecurringExpensesStyles from '@/styles/useRecurringExpensesStyles';
 import ScreenHeader from '@/components/ScreenHeader';
+import { useTheme } from '../context/ThemeContext';
+
 
 type Props = NativeStackScreenProps<RootStackParamList, 'RecurringExpenses'>;
 
 export default function RecurringExpenses({ navigation }: Props) {
+  const { theme } = useTheme();
   const styles = useRecurringExpensesStyles();
 
   const { currentUser } = useAuth();
@@ -205,7 +208,6 @@ export default function RecurringExpenses({ navigation }: Props) {
         text: loading ? 'Saving...' : 'Save',
         onPress: () => setModalVisible(true),
       }}
-      backButtonColor="#4ecca3"
     />
   )
 

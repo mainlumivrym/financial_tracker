@@ -32,8 +32,8 @@ export default function ScreenHeader({
       >
         <Ionicons 
           name="arrow-back" 
-          size={24} 
-          color={backButtonColor || theme.colors.text} 
+          size={28} 
+          color={backButtonColor || '#4ecca3'} 
         />
       </TouchableOpacity>
       
@@ -57,7 +57,7 @@ export default function ScreenHeader({
           <Text 
             style={[
               styles.rightButtonText,
-              { color: theme.colors.primary },
+              { color: '#4ecca3' },
               rightButton.disabled && styles.rightButtonDisabled
             ]}
           >
@@ -103,7 +103,7 @@ const styles = StyleSheet.create({
     alignItems: 'flex-end',
   },
   rightButtonText: {
-    fontSize: 16,
+    fontSize: 18,
     fontWeight: '600',
   },
   rightButtonDisabled: {

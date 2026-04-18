@@ -105,21 +105,21 @@ export default function useAddTransactionsStyles() {
                 position: 'relative',
             },
             categoryItemSelected: {
-                borderColor: theme.colors.primary,
-                backgroundColor: theme.colors.primaryDark,
+                borderColor: '#4ecca3',
+                backgroundColor: theme.colors.backgroundLight,
             },
             categoryItemIcon: {
                 fontSize: 32,
                 marginBottom: 6,
             },
             categoryItemText: {
-                fontSize: 11,
+                fontSize: 14,
                 color: theme.colors.textSecondary,
                 textAlign: 'center',
                 fontWeight: '500',
             },
             categoryItemTextSelected: {
-                color: theme.colors.primary,
+                color: '#4ecca3',
                 fontWeight: '600',
             },
             checkmark: {

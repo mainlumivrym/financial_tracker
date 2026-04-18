@@ -159,7 +159,6 @@ export default function YearlyReport({ navigation }: Props) {
     <ScreenHeader
       title={'Yearly Report'}
       onBackPress={() => navigation.goBack()}
-      backButtonColor="#4ecca3"
     />
   )
 
