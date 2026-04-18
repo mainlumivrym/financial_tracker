@@ -19,6 +19,7 @@ import { RootStackParamList } from '../types';
 import { colors } from '../styles';
 import { formatCurrency } from '../utils/formatCurrency';
 import useMonthlyReportStyles from '@/styles/useMonthlyReportStyles';
+import ScreenHeader from '@/components/ScreenHeader';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'MonthlyReport'>;
 
@@ -245,7 +246,6 @@ export default function MonthlyReport({ navigation, route }: Props) {
           gap: 12,
         }}
       >
-
         <View style={styles.categoryIconContainer}>
           <Text style={styles.categoryIcon}>{categoryIcon}</Text>
         </View>
@@ -318,21 +318,21 @@ export default function MonthlyReport({ navigation, route }: Props) {
     </View>
   )
 
+  const renderHeader = () => (
+
+    <ScreenHeader
+      title={'Monthly Report'}
+      onBackPress={() => navigation.goBack()}
+      backButtonColor="#4ecca3"
+    />
+  )
+
   return (
     <View style={styles.container}>
       <StatusBar style="light" />
 
       {/* Header */}
-      <View style={styles.header}>
-        <TouchableOpacity
-          style={styles.backButton}
-          onPress={() => navigation.goBack()}
-        >
-          <Ionicons name="arrow-back" size={24} color={colors.text} />
-        </TouchableOpacity>
-        <Text style={styles.headerTitle}>Reports</Text>
-        <View style={styles.backButton} />
-      </View>
+      {renderHeader()}
 
       {/* Month Picker - only show if date is not locked */}
       {!isDateLocked && (

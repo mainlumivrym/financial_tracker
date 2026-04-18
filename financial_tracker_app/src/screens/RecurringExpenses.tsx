@@ -34,6 +34,7 @@ import {
 import { getCategories } from '../services/categoryService';
 import { formatCurrency } from '../utils/formatCurrency';
 import useRecurringExpensesStyles from '@/styles/useRecurringExpensesStyles';
+import ScreenHeader from '@/components/ScreenHeader';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'RecurringExpenses'>;
 
@@ -197,15 +198,15 @@ export default function RecurringExpenses({ navigation }: Props) {
   };
 
   const renderHeader = () => (
-    <View style={styles.header}>
-      <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
-        <Ionicons name="arrow-back" size={24} color="#4ecca3" />
-      </TouchableOpacity>
-      <Text style={styles.headerTitle}>Recurring Expenses</Text>
-      <TouchableOpacity style={styles.addButton} onPress={() => setModalVisible(true)}>
-        <Ionicons name="add" size={28} color="#4ecca3" />
-      </TouchableOpacity>
-    </View>
+   <ScreenHeader
+      title={'Recurring Expenses'}
+      onBackPress={() => navigation.goBack()}
+      rightButton={{
+        text: loading ? 'Saving...' : 'Save',
+        onPress: () => setModalVisible(true),
+      }}
+      backButtonColor="#4ecca3"
+    />
   )
 
   const renderExpenseCard = (

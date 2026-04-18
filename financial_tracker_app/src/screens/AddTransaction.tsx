@@ -20,6 +20,9 @@ import { getCategories, addCustomCategory } from '../services/categoryService';
 import { RootStackParamList, TransactionType } from '../types';
 import AddCategoryModal from '../components/AddCategoryModal';
 import useAddTransactionsStyles from '@/styles/useAddTransactionsStyles';
+import ScreenHeader from '@/components/ScreenHeader';
+import { formatMonth } from '@/services/budgetService';
+import React from 'react';
 
 interface Category {
   id?: string;
@@ -178,7 +181,7 @@ export default function AddTransaction({ navigation, route }: Props) {
         <Text style={styles.dateText}>{formatDate(date)}</Text>
         <Ionicons name="chevron-forward" size={20} color="#a0a0a0" />
       </TouchableOpacity>
-      
+
       {/* iOS only - Android uses imperative API */}
       {Platform.OS === 'ios' && showDatePicker && (
         <>
@@ -201,7 +204,7 @@ export default function AddTransaction({ navigation, route }: Props) {
   )
 
   const renderCategoryPicker = () => (
-    <ScrollView 
+    <ScrollView
       style={styles.categoriesScroll}
       showsVerticalScrollIndicator={false}
       contentContainerStyle={styles.categoriesScrollContent}
@@ -245,29 +248,16 @@ export default function AddTransaction({ navigation, route }: Props) {
   )
 
   const renderHeader = () => (
-    <View style={styles.header}>
-      <TouchableOpacity
-        style={styles.backButton}
-        onPress={() => navigation.goBack()}
-      >
-        <Ionicons name="arrow-back" size={24} color="#4ecca3" />
-      </TouchableOpacity>
-      <Text style={styles.headerTitle}>
-        Add {transactionType === 'expense' ? 'Expense' : 'Income'}
-      </Text>
-      <TouchableOpacity
-        style={styles.saveHeaderButton}
-        onPress={handleSave}
-        disabled={loading}
-      >
-        <Text style={[
-          styles.saveHeaderButtonText,
-          loading && styles.saveHeaderButtonDisabled
-        ]}>
-          {loading ? 'Saving...' : 'Save'}
-        </Text>
-      </TouchableOpacity>
-    </View>
+    <ScreenHeader
+      title={`Add ${transactionType === 'expense' ? 'Expense' : 'Income'}`}
+      onBackPress={() => navigation.goBack()}
+      rightButton={{
+        text: loading ? 'Saving...' : 'Save',
+        onPress: handleSave,
+        disabled: loading
+      }}
+      backButtonColor="#4ecca3"
+    />
   )
 
   const renderLeftColumn = () => (
@@ -323,7 +313,7 @@ export default function AddTransaction({ navigation, route }: Props) {
   )
 
   return (
-    <KeyboardAvoidingView 
+    <KeyboardAvoidingView
       style={styles.container}
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       keyboardVerticalOffset={0}

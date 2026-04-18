@@ -11,8 +11,8 @@ import {
   Alert
 } from 'react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
-import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '../context/AuthContext';
+import ScreenHeader from '../components/ScreenHeader';
 import { getCategories } from '../services/categoryService';
 import { formatCurrency } from '../utils/formatCurrency';
 import {
@@ -139,27 +139,17 @@ export default function BudgetManagement({ navigation }: Props) {
   const totalBudget = calculateTotal();
 
   const renderHeader = () => (
-    <View style={styles.header}>
-      <TouchableOpacity
-        style={styles.backButton}
-        onPress={() => navigation.goBack()}
-      >
-        <Ionicons name="arrow-back" size={24} color="#ffffff" />
-      </TouchableOpacity>
-      <View style={styles.headerCenter}>
-        <Text style={styles.headerTitle}>Set Budget</Text>
-        <Text style={styles.headerSubtitle}>{formatMonth(currentMonth)}</Text>
-      </View>
-      <TouchableOpacity
-        style={styles.saveButton}
-        onPress={handleSave}
-        disabled={saving}
-      >
-        <Text style={[styles.saveButtonText, saving && styles.saveButtonDisabled]}>
-          {saving ? 'Saving...' : 'Save'}
-        </Text>
-      </TouchableOpacity>
-    </View>
+    <ScreenHeader
+      title="Set Budget"
+      subtitle={formatMonth(currentMonth)}
+      onBackPress={() => navigation.goBack()}
+      rightButton={{
+        text: saving ? 'Saving...' : 'Save',
+        onPress: handleSave,
+        disabled: saving
+      }}
+      backButtonColor="#ffffff"
+    />
   )
 
   const renderTotalBudgetCard = () => (

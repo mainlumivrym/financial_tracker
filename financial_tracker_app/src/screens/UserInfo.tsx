@@ -18,6 +18,7 @@ import { getUserProfile, updateUserProfile } from '../services/userService';
 import ThemeSwitcher from '../components/ThemeSwitcher';
 import { RootStackParamList } from '../types';
 import useUserInfoStyles from '@/styles/useUserInfoStyles';
+import ScreenHeader from '@/components/ScreenHeader';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'UserInfo'>;
 
@@ -112,23 +113,15 @@ export default function UserInfo({ navigation }: Props) {
   };
 
   const renderHeader = () => (
-    <View style={styles.header}>
-      <TouchableOpacity
-        style={styles.backButton}
-        onPress={() => navigation.goBack()}
-      >
-        <Ionicons name="arrow-back" size={24} color="#4ecca3" />
-      </TouchableOpacity>
-      <Text style={styles.headerTitle}>Profile</Text>
-      <TouchableOpacity
-        style={styles.editButton}
-        onPress={() => isEditing ? handleSave() : setIsEditing(true)}
-      >
-        <Text style={styles.editButtonText}>
-          {isEditing ? 'Save' : 'Edit'}
-        </Text>
-      </TouchableOpacity>
-    </View>
+    <ScreenHeader
+      title={'Profile'}
+      onBackPress={() => navigation.goBack()}
+      rightButton={{
+        text: isEditing ? 'Save' : 'Edit',
+        onPress: () => isEditing ? handleSave() : setIsEditing(true),
+      }}
+      backButtonColor="#4ecca3"
+    />
   );
 
   const renderAvatarSection = () => (
