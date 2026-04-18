@@ -1,3 +1,5 @@
+import RecurringExpenses from "@/screens/RecurringExpenses";
+
 export default {
   // Common
   common: {
@@ -38,16 +40,24 @@ export default {
   // Dashboard
   dashboard: {
     title: 'Panel',
-    balance: 'Balance',
+    welcome: '¡Bienvenido de nuevo!',
+    balance: 'Balance Total',
     income: 'Ingreso',
     expense: 'Gasto',
     expenses: 'Gastos',
+    recurringExpenses: 'Gastos Recurrentes',
+    monthlyReport: 'Reporte Mensual',
+    yearlyReport: 'Reporte Anual',
     thisMonth: 'Este Mes',
     addIncome: 'Agregar Ingreso',
     addExpense: 'Agregar Gasto',
     recentTransactions: 'Transacciones Recientes',
     viewAll: 'Ver Todo',
     budgetOverview: 'Resumen de Presupuesto',
+    totalBudget: 'Presupuesto Total',
+    totalSpent: 'Total Gastado',
+    remaining: 'Restante',
+    overBy: 'Excedido por',
     noBudgetSet: 'Sin presupuesto establecido',
     setBudget: 'Establecer Presupuesto',
     noTransactions: 'No hay transacciones aún',
@@ -133,11 +143,12 @@ export default {
     privacyAndSecurity: 'Privacidad y Seguridad',
     privacyPolicy: 'Política de Privacidad',
     termsOfService: 'Términos de Servicio',
-    profileUpdated: 'Perfil actualizado exitosamente',
     permissionDenied: 'Permiso Denegado',
     cameraPermission: 'Necesitamos permisos de la galería para cambiar tu foto de perfil.',
     language: 'Idioma',
     settings: 'Configuraciones',
+    profileUpdated: 'Perfil actualizado exitosamente',
+    failedToUpdate: 'Error al actualizar el perfil',
   },
 
   // Themes

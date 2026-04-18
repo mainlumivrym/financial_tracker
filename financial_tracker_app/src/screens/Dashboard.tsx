@@ -11,6 +11,7 @@ import TransactionListItem from '../components/TransactionListItem';
 import { formatCurrency } from '../utils/formatCurrency';
 import useDashboardStyles from '../styles/useDashboardStyles';
 import { RootStackParamList } from '../types';
+import { useLocalization } from '@/context/LocalizationContext';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Dashboard'>;
 
@@ -54,6 +55,9 @@ interface BudgetProgress {
 }
 
 export default function Dashboard({ navigation }: Props) {
+  const styles = useDashboardStyles();
+  const { t } = useLocalization();
+
   const { currentUser } = useAuth();
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const [transactions, setTransactions] = useState<Transaction[]>([]);
@@ -61,7 +65,6 @@ export default function Dashboard({ navigation }: Props) {
   const [balance, setBalance] = useState<Balance>({ total: 0, income: 0, expenses: 0 });
   const [budgetAlerts, setBudgetAlerts] = useState<BudgetAlert[]>([]);
   const [budgetProgress, setBudgetProgress] = useState<BudgetProgress[]>([]);
-  const styles = useDashboardStyles();
 
   const loadUserProfile = async () => {
     if (currentUser) {
@@ -194,206 +197,205 @@ export default function Dashboard({ navigation }: Props) {
       loadTransactions();
     }, [currentUser])
   );
+
+  const renderHeader = () => (
+    <View style={styles.header}>
+      <View>
+        <Text style={styles.greeting}>{t('dashboard.welcome')}</Text>
+        <Text style={styles.userName}>{userProfile?.username || 'User'}</Text>
+      </View>
+      <TouchableOpacity
+        style={styles.avatarContainer}
+        onPress={() => navigation.navigate('UserInfo')}
+      >
+        {userProfile?.profilePicture ? (
+          <Image
+            source={{ uri: userProfile.profilePicture }}
+            style={styles.profileImage}
+          />
+        ) : (
+          <Text style={styles.avatar}>👤</Text>
+        )}
+      </TouchableOpacity>
+    </View>
+  )
+
+  const renderBalanceCard = () => (
+    <View style={styles.balanceCard}>
+      <Text style={styles.balanceLabel}>{t('dashboard.balance')}</Text>
+      <Text style={styles.balanceAmount}>${formatCurrency(balance.total)}</Text>
+      <View style={styles.balanceStats}>
+        <View style={styles.statItem}>
+          <Text style={styles.statLabel}>{t('dashboard.income')}</Text>
+          <Text style={styles.statIncome}>+${formatCurrency(balance.income)}</Text>
+        </View>
+        <View style={styles.statDivider} />
+        <View style={styles.statItem}>
+          <Text style={styles.statLabel}>{t('dashboard.expense')}</Text>
+          <Text style={styles.statExpense}>-${formatCurrency(balance.expenses)}</Text>
+        </View>
+      </View>
+    </View>
+  )
+  const renderQuickActionsItem = (
+    icon: string,
+    text: string,
+    onPress: () => void
+  ) => (
+
+    <TouchableOpacity
+      style={styles.actionButton}
+      onPress={onPress}
+    >
+      <Text style={styles.actionIcon}>{icon}</Text>
+      <Text style={styles.actionText}>{text}</Text>
+    </TouchableOpacity>
+  )
+
+  const renderQuickActions = () => (
+    <View style={styles.section}>
+      <View style={styles.actionsGrid}>
+
+        {renderQuickActionsItem('💸', t('dashboard.addExpense'), () => navigation.navigate('AddTransaction', { type: 'expense' }))}
+        {renderQuickActionsItem('💰', t('dashboard.addIncome'), () => navigation.navigate('AddTransaction', { type: 'income' }))}
+        {renderQuickActionsItem('🎯', t('dashboard.setBudget'), () => navigation.navigate('BudgetManagement'))}
+        {renderQuickActionsItem('🔁', t('dashboard.recurringExpenses'), () => navigation.navigate('RecurringExpenses'))}
+        {renderQuickActionsItem('📊', t('dashboard.monthlyReport'), () => navigation.navigate('MonthlyReport'))}
+        {renderQuickActionsItem('📈', t('dashboard.yearlyReport'), () => navigation.navigate('YearlyReport'))}
+
+      </View>
+    </View>
+  )
+
+  const renderBudgetOverview = () => (
+    <View style={styles.section}>
+      <View style={styles.sectionHeader}>
+        <Text style={styles.sectionTitle}>{t('dashboard.budgetOverview')}</Text>
+      </View>
+
+      {/* Budget Total Summary */}
+      <View style={styles.budgetSummaryCard}>
+        <View style={styles.budgetSummaryRow}>
+          <Text style={styles.budgetSummaryLabel}>{t('dashboard.totalBudget')}</Text>
+          <Text style={styles.budgetSummaryAmount}>
+            ${formatCurrency(budgetProgress.reduce((sum, item) => sum + item.limit, 0), 0)}
+          </Text>
+        </View>
+        <View style={styles.budgetSummaryRow}>
+          <Text style={styles.budgetSummaryLabel}>{t('dashboard.totalSpent')}</Text>
+          <Text style={styles.budgetSummarySpent}>
+            ${formatCurrency(budgetProgress.reduce((sum, item) => sum + item.spent, 0), 0)}
+          </Text>
+        </View>
+        <View style={styles.budgetSummaryDivider} />
+        <View style={styles.budgetSummaryRow}>
+          <Text style={styles.budgetSummaryLabelBold}>{t('dashboard.remaining')}</Text>
+          <Text style={[
+            styles.budgetSummaryRemaining,
+            budgetProgress.reduce((sum, item) => sum + item.remaining, 0) < 0 && styles.budgetSummaryOverBudget
+          ]}>
+            ${formatCurrency(budgetProgress.reduce((sum, item) => sum + item.remaining, 0), 0)}
+          </Text>
+        </View>
+      </View>
+
+      {renderBudgetProgress()}
+    </View>
+  )
+
+  const renderBudgetProgress = () => (
+
+    <View style={styles.budgetProgressList}>
+      {budgetProgress.slice(0, 5).map((item) => {
+        const isOverBudget = item.spent > item.limit;
+        const progressPercentage = isOverBudget ? 100 : item.percentage;
+
+        return (
+          <View key={item.category} style={styles.budgetItem}>
+            <View style={styles.budgetHeader}>
+              <Text style={styles.budgetCategory}>{item.category}</Text>
+              <Text style={styles.budgetAmount}>
+                ${formatCurrency(item.spent, 0)} / ${formatCurrency(item.limit, 0)}
+              </Text>
+            </View>
+            <View style={styles.progressBarContainer}>
+              <View
+                style={[
+                  styles.progressBar,
+                  { width: `${progressPercentage}%` },
+                  isOverBudget ? styles.progressBarOver : styles.progressBarNormal
+                ]}
+              />
+            </View>
+            <Text style={[
+              styles.budgetRemaining,
+              isOverBudget && styles.budgetOver
+            ]}>
+              {isOverBudget
+                ? `${t('dashboard.overBy')} $${formatCurrency(item.spent - item.limit)}`
+                : `$${formatCurrency(item.remaining)} ${t('dashboard.remaining')}`
+              }
+            </Text>
+          </View>
+        );
+      })}
+    </View>
+  )
+
+  const renderRecentTransactions = () => (
+    <View style={styles.section}>
+      <View style={styles.sectionHeader}>
+        <Text style={styles.sectionTitle}>{t('dashboard.recentTransactions')}</Text>
+        <TouchableOpacity style={{
+          height: '100%',
+          justifyContent: 'center'
+        }} onPress={() => navigation.navigate('FullTransactionList')}>
+          <Text style={styles.seeAllText}>{t('dashboard.viewAll')}</Text>
+        </TouchableOpacity>
+      </View>
+
+      <View style={styles.transactionsList}>
+        {loadingTransactions ? (
+          <ActivityIndicator size="small" color="#4ecca3" style={{ marginVertical: 20 }} />
+        ) : transactions.length === 0 ? (
+          <View style={styles.emptyState}>
+            <Text style={styles.emptyStateText}>{t('transactions.noTransactions')}</Text>
+            <Text style={styles.emptyStateSubtext}>{t('transactions.startTracking')}</Text>
+          </View>
+        ) : (
+          transactions.slice(0, 5).map((transaction) => (
+            <TransactionListItem
+              key={transaction.id}
+              transaction={transaction}
+              showTime={false}
+            />
+          ))
+        )}
+      </View>
+    </View>
+  )
+
   return (
     <View style={styles.container}>
       <StatusBar style='light' />
 
       <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
         {/* Header */}
-        <View style={styles.header}>
-          <View>
-            <Text style={styles.greeting}>Welcome back!</Text>
-            <Text style={styles.userName}>{userProfile?.username || 'User'}</Text>
-          </View>
-          <TouchableOpacity
-            style={styles.avatarContainer}
-            onPress={() => navigation.navigate('UserInfo')}
-          >
-            {userProfile?.profilePicture ? (
-              <Image
-                source={{ uri: userProfile.profilePicture }}
-                style={styles.profileImage}
-              />
-            ) : (
-              <Text style={styles.avatar}>👤</Text>
-            )}
-          </TouchableOpacity>
-        </View>
+        {renderHeader()}
 
         {/* Balance Card */}
-        <View style={styles.balanceCard}>
-          <Text style={styles.balanceLabel}>Total Balance</Text>
-          <Text style={styles.balanceAmount}>${formatCurrency(balance.total)}</Text>
-          <View style={styles.balanceStats}>
-            <View style={styles.statItem}>
-              <Text style={styles.statLabel}>Income</Text>
-              <Text style={styles.statIncome}>+${formatCurrency(balance.income)}</Text>
-            </View>
-            <View style={styles.statDivider} />
-            <View style={styles.statItem}>
-              <Text style={styles.statLabel}>Expenses</Text>
-              <Text style={styles.statExpense}>-${formatCurrency(balance.expenses)}</Text>
-            </View>
-          </View>
-        </View>
-
+        {renderBalanceCard()}
 
         {/* Quick Actions */}
-        <View style={styles.section}>
-          <View style={styles.actionsGrid}>
-            <TouchableOpacity
-              style={styles.actionButton}
-              onPress={() => navigation.navigate('AddTransaction', { type: 'expense' })}
-            >
-              <Text style={styles.actionIcon}>💸</Text>
-              <Text style={styles.actionText}>Add Expense</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={styles.actionButton}
-              onPress={() => navigation.navigate('AddTransaction', { type: 'income' })}
-            >
-              <Text style={styles.actionIcon}>💰</Text>
-              <Text style={styles.actionText}>Add Income</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={styles.actionButton}
-              onPress={() => navigation.navigate('BudgetManagement')}
-            >
-              <Text style={styles.actionIcon}>🎯</Text>
-              <Text style={styles.actionText}>Set Budget</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={styles.actionButton}
-              onPress={() => navigation.navigate('RecurringExpenses')}
-            >
-              <Text style={styles.actionIcon}>🔁</Text>
-              <Text style={styles.actionText}>Recurring Expenses</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={styles.actionButton}
-              onPress={() => navigation.navigate('MonthlyReport')}
-            >
-              <Text style={styles.actionIcon}>📊</Text>
-              <Text style={styles.actionText}>Monthly Report</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={styles.actionButton}
-              onPress={() => navigation.navigate('YearlyReport')}
-            >
-              <Text style={styles.actionIcon}>📈</Text>
-              <Text style={styles.actionText}>Yearly Report</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
+        {renderQuickActions()}
 
         {/* Budget Progress */}
         {budgetProgress.length > 0 && (
-          <View style={styles.section}>
-            <View style={styles.sectionHeader}>
-              <Text style={styles.sectionTitle}>Budget Overview</Text>
-              <TouchableOpacity style={{
-                height: '100%',
-                justifyContent: 'center'
-              }} onPress={() => navigation.navigate('BudgetManagement')}>
-                <Text style={styles.seeAllText}>Set budget</Text>
-              </TouchableOpacity>
-            </View>
-            
-            {/* Budget Total Summary */}
-            <View style={styles.budgetSummaryCard}>
-              <View style={styles.budgetSummaryRow}>
-                <Text style={styles.budgetSummaryLabel}>Total Budget</Text>
-                <Text style={styles.budgetSummaryAmount}>
-                  ${formatCurrency(budgetProgress.reduce((sum, item) => sum + item.limit, 0), 0)}
-                </Text>
-              </View>
-              <View style={styles.budgetSummaryRow}>
-                <Text style={styles.budgetSummaryLabel}>Total Spent</Text>
-                <Text style={styles.budgetSummarySpent}>
-                  ${formatCurrency(budgetProgress.reduce((sum, item) => sum + item.spent, 0), 0)}
-                </Text>
-              </View>
-              <View style={styles.budgetSummaryDivider} />
-              <View style={styles.budgetSummaryRow}>
-                <Text style={styles.budgetSummaryLabelBold}>Remaining</Text>
-                <Text style={[
-                  styles.budgetSummaryRemaining,
-                  budgetProgress.reduce((sum, item) => sum + item.remaining, 0) < 0 && styles.budgetSummaryOverBudget
-                ]}>
-                  ${formatCurrency(budgetProgress.reduce((sum, item) => sum + item.remaining, 0), 0)}
-                </Text>
-              </View>
-            </View>
-            
-            <View style={styles.budgetProgressList}>
-              {budgetProgress.slice(0, 5).map((item) => {
-                const isOverBudget = item.spent > item.limit;
-                const progressPercentage = isOverBudget ? 100 : item.percentage;
-
-                return (
-                  <View key={item.category} style={styles.budgetItem}>
-                    <View style={styles.budgetHeader}>
-                      <Text style={styles.budgetCategory}>{item.category}</Text>
-                      <Text style={styles.budgetAmount}>
-                        ${formatCurrency(item.spent, 0)} / ${formatCurrency(item.limit, 0)}
-                      </Text>
-                    </View>
-                    <View style={styles.progressBarContainer}>
-                      <View
-                        style={[
-                          styles.progressBar,
-                          { width: `${progressPercentage}%` },
-                          isOverBudget ? styles.progressBarOver : styles.progressBarNormal
-                        ]}
-                      />
-                    </View>
-                    <Text style={[
-                      styles.budgetRemaining,
-                      isOverBudget && styles.budgetOver
-                    ]}>
-                      {isOverBudget
-                        ? `Over by $${formatCurrency(item.spent - item.limit)}`
-                        : `$${formatCurrency(item.remaining)} remaining`
-                      }
-                    </Text>
-                  </View>
-                );
-              })}
-            </View>
-          </View>
+          renderBudgetOverview()
         )}
 
         {/* Recent Transactions */}
-        <View style={styles.section}>
-          <View style={styles.sectionHeader}>
-            <Text style={styles.sectionTitle}>Recent Transactions</Text>
-            <TouchableOpacity style={{
-              height: '100%',
-              justifyContent: 'center'
-            }} onPress={() => navigation.navigate('FullTransactionList')}>
-              <Text style={styles.seeAllText}>See All</Text>
-            </TouchableOpacity>
-          </View>
-
-          <View style={styles.transactionsList}>
-            {loadingTransactions ? (
-              <ActivityIndicator size="small" color="#4ecca3" style={{ marginVertical: 20 }} />
-            ) : transactions.length === 0 ? (
-              <View style={styles.emptyState}>
-                <Text style={styles.emptyStateText}>No transactions yet</Text>
-                <Text style={styles.emptyStateSubtext}>Start tracking your finances!</Text>
-              </View>
-            ) : (
-              transactions.slice(0, 5).map((transaction) => (
-                <TransactionListItem
-                  key={transaction.id}
-                  transaction={transaction}
-                  showTime={false}
-                />
-              ))
-            )}
-          </View>
-        </View>
+        {renderRecentTransactions()}
       </ScrollView>
     </View>
   );

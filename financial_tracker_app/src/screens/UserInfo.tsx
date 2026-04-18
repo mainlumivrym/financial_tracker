@@ -109,9 +109,9 @@ export default function UserInfo({ navigation }: Props) {
         profilePicture
       });
       setIsEditing(false);
-      Alert.alert('Success', 'Profile updated successfully');
+      Alert.alert(t('common.success'), t('profile.profileUpdated'));
     } catch (error) {
-      Alert.alert('Error', 'Failed to update profile');
+      Alert.alert(t('common.error'), t('profile.failedToUpdate'));
       console.error('Error updating profile:', error);
     }
   };
@@ -170,24 +170,6 @@ export default function UserInfo({ navigation }: Props) {
         <Text style={styles.label}>{t('profile.email')}</Text>
         <Text style={styles.value}>{email}</Text>
         <Text style={styles.helperText}>{t('profile.emailCannotBeChanged')}</Text>
-      </View>
-
-      <View style={styles.divider} />
-
-      <View style={styles.infoItem}>
-        <Text style={styles.label}>{t('profile.phoneNumber')}</Text>
-        {isEditing ? (
-          <TextInput
-            style={styles.input}
-            value={phone}
-            onChangeText={setPhone}
-            placeholder={t('profile.phoneNumber')}
-            placeholderTextColor="#a0a0a0"
-            keyboardType="phone-pad"
-          />
-        ) : (
-          <Text style={styles.value}>{phone || t('profile.notSet')}</Text>
-        )}
       </View>
     </View>
   );
