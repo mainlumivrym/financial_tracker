@@ -19,12 +19,16 @@ import ThemeSwitcher from '../components/ThemeSwitcher';
 import { RootStackParamList } from '../types';
 import useUserInfoStyles from '@/styles/useUserInfoStyles';
 import ScreenHeader from '@/components/ScreenHeader';
+import { useLocalization } from '@/context/LocalizationContext';
+import LanguageSwitcher from '@/components/LanguageSwitcher';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'UserInfo'>;
 
 export default function UserInfo({ navigation }: Props) {
-  const { currentUser, logout } = useAuth();
   const styles = useUserInfoStyles();
+  const { t } = useLocalization();
+
+  const { currentUser, logout } = useAuth();
   const [username, setUsername] = useState<string>('');
   const [email, setEmail] = useState<string>(currentUser?.email || '');
   const [phone, setPhone] = useState<string>('');
@@ -80,7 +84,7 @@ export default function UserInfo({ navigation }: Props) {
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
 
     if (status !== 'granted') {
-      Alert.alert('Permission Denied', 'We need camera roll permissions to change your profile picture.');
+      Alert.alert(t('common.permissionDenied'), t('profile.cameraRollPermission'));
       return;
     }
 
@@ -114,10 +118,10 @@ export default function UserInfo({ navigation }: Props) {
 
   const renderHeader = () => (
     <ScreenHeader
-      title={'Profile'}
+      title={t('profile.profile')}
       onBackPress={() => navigation.goBack()}
       rightButton={{
-        text: isEditing ? 'Save' : 'Edit',
+        text: isEditing ? t('common.save') : t('common.edit'),
         onPress: () => isEditing ? handleSave() : setIsEditing(true),
       }}
     />
@@ -137,7 +141,7 @@ export default function UserInfo({ navigation }: Props) {
           style={styles.changePhotoButton}
           onPress={pickImage}
         >
-          <Text style={styles.changePhotoText}>Change Photo</Text>
+          <Text style={styles.changePhotoText}>{t('profile.changePhoto')}</Text>
         </TouchableOpacity>
       )}
     </View>
@@ -146,7 +150,7 @@ export default function UserInfo({ navigation }: Props) {
   const renderAccountInfo = () => (
     <View style={styles.infoCard}>
       <View style={styles.infoItem}>
-        <Text style={styles.label}>Username</Text>
+        <Text style={styles.label}>{t('profile.username')}</Text>
         {isEditing ? (
           <TextInput
             style={styles.input}
@@ -163,26 +167,26 @@ export default function UserInfo({ navigation }: Props) {
       <View style={styles.divider} />
 
       <View style={styles.infoItem}>
-        <Text style={styles.label}>Email</Text>
+        <Text style={styles.label}>{t('profile.email')}</Text>
         <Text style={styles.value}>{email}</Text>
-        <Text style={styles.helperText}>Email cannot be changed</Text>
+        <Text style={styles.helperText}>{t('profile.emailCannotBeChanged')}</Text>
       </View>
 
       <View style={styles.divider} />
 
       <View style={styles.infoItem}>
-        <Text style={styles.label}>Phone Number</Text>
+        <Text style={styles.label}>{t('profile.phoneNumber')}</Text>
         {isEditing ? (
           <TextInput
             style={styles.input}
             value={phone}
             onChangeText={setPhone}
-            placeholder="Enter your phone number"
+            placeholder={t('profile.phoneNumber')}
             placeholderTextColor="#a0a0a0"
             keyboardType="phone-pad"
           />
         ) : (
-          <Text style={styles.value}>{phone || 'Not set'}</Text>
+          <Text style={styles.value}>{phone || t('profile.notSet')}</Text>
         )}
       </View>
     </View>
@@ -190,10 +194,20 @@ export default function UserInfo({ navigation }: Props) {
 
   const renderAppearanceSettings = () => (
     <View style={styles.section}>
-      <Text style={styles.sectionTitle}>Appearance</Text>
+      <Text style={styles.sectionTitle}>{t('profile.appearance')}</Text>
 
       <View style={styles.infoCard}>
         <ThemeSwitcher />
+      </View>
+    </View>
+  );
+
+  const renderLanguageSwitcher = () => (
+    <View style={styles.section}>
+      <Text style={styles.sectionTitle}>{t('profile.language')}</Text>
+
+      <View style={styles.infoCard}>
+        <LanguageSwitcher />
       </View>
     </View>
   );
@@ -204,7 +218,7 @@ export default function UserInfo({ navigation }: Props) {
       <TouchableOpacity style={styles.settingItem}>
         <View style={styles.settingLeft}>
           <Ionicons name="lock-closed-outline" size={24} color="#4ecca3" />
-          <Text style={styles.settingText}>Change Password</Text>
+          <Text style={styles.settingText}>{t('profile.changePassword')}</Text>
         </View>
         <Ionicons name="chevron-forward" size={24} color="#a0a0a0" />
       </TouchableOpacity>
@@ -214,7 +228,7 @@ export default function UserInfo({ navigation }: Props) {
       <TouchableOpacity style={styles.settingItem}>
         <View style={styles.settingLeft}>
           <Ionicons name="notifications-outline" size={24} color="#4ecca3" />
-          <Text style={styles.settingText}>Notifications</Text>
+          <Text style={styles.settingText}>{t('profile.notifications')}</Text>
         </View>
         <Ionicons name="chevron-forward" size={24} color="#a0a0a0" />
       </TouchableOpacity>
@@ -224,7 +238,7 @@ export default function UserInfo({ navigation }: Props) {
       <TouchableOpacity style={styles.settingItem}>
         <View style={styles.settingLeft}>
           <Ionicons name="shield-checkmark-outline" size={24} color="#4ecca3" />
-          <Text style={styles.settingText}>Privacy & Security</Text>
+          <Text style={styles.settingText}>{t('profile.privacyAndSecurity')}</Text>
         </View>
         <Ionicons name="chevron-forward" size={24} color="#a0a0a0" />
       </TouchableOpacity>
@@ -237,7 +251,7 @@ export default function UserInfo({ navigation }: Props) {
       onPress={handleLogout}
     >
       <Ionicons name="log-out-outline" size={24} color="#ff6b6b" />
-      <Text style={styles.logoutText}>Logout</Text>
+      <Text style={styles.logoutText}>{t('profile.logout')}</Text>
     </TouchableOpacity>
   );
 
@@ -254,16 +268,19 @@ export default function UserInfo({ navigation }: Props) {
 
         {/* Account Info */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Account Information</Text>
+          <Text style={styles.sectionTitle}>{t('profile.accountInfo')}</Text>
           {renderAccountInfo()}
         </View>
 
         {/* Appearance Settings */}
         {renderAppearanceSettings()}
 
+        {/* Language Settings */}
+        {renderLanguageSwitcher()}
+
         {/* Account Settings */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Settings</Text>
+          <Text style={styles.sectionTitle}>{t('profile.settings')}</Text>
           {renderAccountSettings()}
         </View>
 

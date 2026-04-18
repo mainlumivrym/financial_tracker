@@ -1,0 +1,175 @@
+export default {
+  // Common
+  common: {
+    save: 'Save',
+    cancel: 'Cancel',
+    delete: 'Delete',
+    edit: 'Edit',
+    done: 'Done',
+    add: 'Add',
+    back: 'Back',
+    ok: 'OK',
+    yes: 'Yes',
+    no: 'No',
+    loading: 'Loading...',
+    saving: 'Saving...',
+    today: 'Today',
+    yesterday: 'Yesterday',
+    success: 'Success',
+    error: 'Error',
+  },
+
+  // Authentication
+  auth: {
+    login: 'Login',
+    signup: 'Sign Up',
+    logout: 'Logout',
+    email: 'Email',
+    password: 'Password',
+    confirmPassword: 'Confirm Password',
+    username: 'Username',
+    forgotPassword: 'Forgot Password?',
+    noAccount: "Don't have an account?",
+    hasAccount: 'Already have an account?',
+    createAccount: 'Create Account',
+    logoutConfirm: 'Are you sure you want to logout?',
+  },
+
+  // Dashboard
+  dashboard: {
+    title: 'Dashboard',
+    balance: 'Balance',
+    income: 'Income',
+    expense: 'Expense',
+    expenses: 'Expenses',
+    thisMonth: 'This Month',
+    addIncome: 'Add Income',
+    addExpense: 'Add Expense',
+    recentTransactions: 'Recent Transactions',
+    viewAll: 'View All',
+    budgetOverview: 'Budget Overview',
+    noBudgetSet: 'No budget set',
+    setBudget: 'Set Budget',
+    noTransactions: 'No transactions yet',
+    startTracking: 'Start tracking your finances!',
+  },
+
+  // Transactions
+  transactions: {
+    addTransaction: 'Add Transaction',
+    addIncome: 'Add Income',
+    addExpense: 'Add Expense',
+    allTransactions: 'All Transactions',
+    amount: 'Amount',
+    category: 'Category',
+    description: 'Description',
+    date: 'Date',
+    time: 'Time',
+    deleteTransaction: 'Delete Transaction',
+    deleteConfirm: 'Are you sure you want to delete',
+    transactionAdded: 'Transaction added successfully',
+    transactionDeleted: 'Transaction deleted',
+    whatWasThisFor: 'What was this for?',
+    selectCategory: 'Please select a category',
+    enterValidAmount: 'Please enter a valid amount',
+  },
+
+  // Categories
+  categories: {
+    category: 'Category',
+    categories: 'Categories',
+    addCategory: 'Add Category',
+    customCategory: 'Custom Category',
+    categoryName: 'Category Name',
+    selectIcon: 'Select Icon',
+    addCustomCategory: 'Add Custom Category',
+    categoryAdded: 'Custom category added!',
+  },
+
+  // Budget
+  budget: {
+    budget: 'Budget',
+    setBudget: 'Set Budget',
+    totalMonthlyBudget: 'Total Monthly Budget',
+    budgetSaved: 'Budget saved successfully',
+    setAtLeastOne: 'Please set at least one category budget',
+    remaining: 'Remaining',
+    spent: 'Spent',
+    over: 'Over',
+    onTrack: 'On Track',
+    approaching: 'Approaching Limit',
+    exceeded: 'Budget Exceeded',
+  },
+
+  // Reports
+  reports: {
+    monthlyReport: 'Monthly Report',
+    yearlyReport: 'Yearly Report',
+    netBalance: 'Net Balance',
+    totalIncome: 'Total Income',
+    totalExpenses: 'Total Expenses',
+    expenseBreakdown: 'Expense Breakdown',
+    expenseDistribution: 'Expense Distribution',
+    monthlyOverview: 'Monthly Overview',
+    transactions: 'transactions',
+    transactionsThisMonth: 'transactions this month',
+  },
+
+  // Profile
+  profile: {
+    profile: 'Profile',
+    accountInfo: 'Account Information',
+    username: 'Username',
+    email: 'Email',
+    appearance: 'Appearance',
+    theme: 'Theme',
+    phone: 'Phone Number',
+    phoneNumber: 'Phone Number',
+    emailCannotBeChanged: 'Email cannot be changed',
+    notSet: 'Not set',
+    changePhoto: 'Change Photo',
+    changePassword: 'Change Password',
+    notifications: 'Notifications',
+    privacyAndSecurity: 'Privacy & Security',
+    privacyPolicy: 'Privacy Policy',
+    termsOfService: 'Terms of Service',
+    profileUpdated: 'Profile updated successfully',
+    permissionDenied: 'Permission Denied',
+    cameraPermission: 'We need camera roll permissions to change your profile picture.',
+    language: 'Language',
+    settings: 'Settings',
+  },
+
+  // Themes
+  themes: {
+    farmland: 'Farmland',
+    dark: 'Dark',
+    lavender: 'Lavender',
+    deepSea: 'Deep Sea',
+    valley: 'Valley',
+    sakura: 'Sakura',
+    frogPond: 'Frog Pond',
+  },
+
+  // Recurring Expenses
+  recurring: {
+    recurringExpenses: 'Recurring Expenses',
+    addRecurring: 'Add Recurring',
+    frequency: 'Frequency',
+    nextPayment: 'Next Payment',
+    daily: 'Daily',
+    weekly: 'Weekly',
+    monthly: 'Monthly',
+    yearly: 'Yearly',
+  },
+
+  // Errors
+  errors: {
+    generic: 'Something went wrong',
+    loadingFailed: 'Failed to load data',
+    saveFailed: 'Failed to save',
+    deleteFailed: 'Failed to delete',
+    updateFailed: 'Failed to update',
+    networkError: 'Network error. Please check your connection.',
+  },
+};

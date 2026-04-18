@@ -1,0 +1,175 @@
+export default {
+  // Common
+  common: {
+    save: 'Guardar',
+    cancel: 'Cancelar',
+    delete: 'Eliminar',
+    edit: 'Editar',
+    done: 'Listo',
+    add: 'Agregar',
+    back: 'Atrás',
+    ok: 'OK',
+    yes: 'Sí',
+    no: 'No',
+    loading: 'Cargando...',
+    saving: 'Guardando...',
+    today: 'Hoy',
+    yesterday: 'Ayer',
+    success: 'Éxito',
+    error: 'Error',
+  },
+
+  // Authentication
+  auth: {
+    login: 'Iniciar Sesión',
+    signup: 'Registrarse',
+    logout: 'Cerrar Sesión',
+    email: 'Correo Electrónico',
+    password: 'Contraseña',
+    confirmPassword: 'Confirmar Contraseña',
+    username: 'Nombre de Usuario',
+    forgotPassword: '¿Olvidaste tu contraseña?',
+    noAccount: '¿No tienes una cuenta?',
+    hasAccount: '¿Ya tienes una cuenta?',
+    createAccount: 'Crear Cuenta',
+    logoutConfirm: '¿Estás seguro que deseas cerrar sesión?',
+  },
+
+  // Dashboard
+  dashboard: {
+    title: 'Panel',
+    balance: 'Balance',
+    income: 'Ingreso',
+    expense: 'Gasto',
+    expenses: 'Gastos',
+    thisMonth: 'Este Mes',
+    addIncome: 'Agregar Ingreso',
+    addExpense: 'Agregar Gasto',
+    recentTransactions: 'Transacciones Recientes',
+    viewAll: 'Ver Todo',
+    budgetOverview: 'Resumen de Presupuesto',
+    noBudgetSet: 'Sin presupuesto establecido',
+    setBudget: 'Establecer Presupuesto',
+    noTransactions: 'No hay transacciones aún',
+    startTracking: '¡Comienza a rastrear tus finanzas!',
+  },
+
+  // Transactions
+  transactions: {
+    addTransaction: 'Agregar Transacción',
+    addIncome: 'Agregar Ingreso',
+    addExpense: 'Agregar Gasto',
+    allTransactions: 'Todas las Transacciones',
+    amount: 'Monto',
+    category: 'Categoría',
+    description: 'Descripción',
+    date: 'Fecha',
+    time: 'Hora',
+    deleteTransaction: 'Eliminar Transacción',
+    deleteConfirm: '¿Estás seguro que deseas eliminar',
+    transactionAdded: 'Transacción agregada exitosamente',
+    transactionDeleted: 'Transacción eliminada',
+    whatWasThisFor: '¿Para qué fue esto?',
+    selectCategory: 'Por favor selecciona una categoría',
+    enterValidAmount: 'Por favor ingresa un monto válido',
+  },
+
+  // Categories
+  categories: {
+    category: 'Categoría',
+    categories: 'Categorías',
+    addCategory: 'Agregar Categoría',
+    customCategory: 'Categoría Personalizada',
+    categoryName: 'Nombre de Categoría',
+    selectIcon: 'Seleccionar Ícono',
+    addCustomCategory: 'Agregar Categoría Personalizada',
+    categoryAdded: '¡Categoría personalizada agregada!',
+  },
+
+  // Budget
+  budget: {
+    budget: 'Presupuesto',
+    setBudget: 'Establecer Presupuesto',
+    totalMonthlyBudget: 'Presupuesto Mensual Total',
+    budgetSaved: 'Presupuesto guardado exitosamente',
+    setAtLeastOne: 'Por favor establece al menos un presupuesto de categoría',
+    remaining: 'Restante',
+    spent: 'Gastado',
+    over: 'Excedido',
+    onTrack: 'En Camino',
+    approaching: 'Acercándose al Límite',
+    exceeded: 'Presupuesto Excedido',
+  },
+
+  // Reports
+  reports: {
+    monthlyReport: 'Reporte Mensual',
+    yearlyReport: 'Reporte Anual',
+    netBalance: 'Balance Neto',
+    totalIncome: 'Ingreso Total',
+    totalExpenses: 'Gastos Totales',
+    expenseBreakdown: 'Desglose de Gastos',
+    expenseDistribution: 'Distribución de Gastos',
+    monthlyOverview: 'Resumen Mensual',
+    transactions: 'transacciones',
+    transactionsThisMonth: 'transacciones este mes',
+  },
+
+  // Profile
+  profile: {
+    profile: 'Perfil',
+    accountInfo: 'Información de Cuenta',
+    username: 'Nombre de Usuario',
+    email: 'Correo Electrónico',
+    appearance: 'Apariencia',
+    theme: 'Tema',
+    phone: 'Número de Teléfono',
+    phoneNumber: 'Número de Teléfono',
+    emailCannotBeChanged: 'El correo no puede ser cambiado',
+    notSet: 'No establecido',
+    changePhoto: 'Cambiar Foto',
+    changePassword: 'Cambiar Contraseña',
+    notifications: 'Notificaciones',
+    privacyAndSecurity: 'Privacidad y Seguridad',
+    privacyPolicy: 'Política de Privacidad',
+    termsOfService: 'Términos de Servicio',
+    profileUpdated: 'Perfil actualizado exitosamente',
+    permissionDenied: 'Permiso Denegado',
+    cameraPermission: 'Necesitamos permisos de la galería para cambiar tu foto de perfil.',
+    language: 'Idioma',
+    settings: 'Configuraciones',
+  },
+
+  // Themes
+  themes: {
+    farmland: 'Granja',
+    dark: 'Oscuro',
+    lavender: 'Lavanda',
+    deepSea: 'Mar Profundo',
+    valley: 'Valle',
+    sakura: 'Sakura',
+    frogPond: 'Estanque de Ranas',
+  },
+
+  // Recurring Expenses
+  recurring: {
+    recurringExpenses: 'Gastos Recurrentes',
+    addRecurring: 'Agregar Recurrente',
+    frequency: 'Frecuencia',
+    nextPayment: 'Próximo Pago',
+    daily: 'Diario',
+    weekly: 'Semanal',
+    monthly: 'Mensual',
+    yearly: 'Anual',
+  },
+
+  // Errors
+  errors: {
+    generic: 'Algo salió mal',
+    loadingFailed: 'Error al cargar datos',
+    saveFailed: 'Error al guardar',
+    deleteFailed: 'Error al eliminar',
+    updateFailed: 'Error al actualizar',
+    networkError: 'Error de red. Por favor verifica tu conexión.',
+  },
+};
