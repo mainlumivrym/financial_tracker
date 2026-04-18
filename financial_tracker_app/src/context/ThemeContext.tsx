@@ -54,7 +54,7 @@ interface Theme {
   borderRadius: ThemeBorderRadius;
 }
 
-type ThemeName = 'farmland' | 'dark' | 'lavender' | 'deepSea' | 'valley' | 'sakura';
+type ThemeName = 'farmland' | 'dark' | 'lavender' | 'deepSea' | 'valley' | 'sakura' | 'frogPond';
 
 interface ThemeContextType {
   theme: Theme;
@@ -130,6 +130,46 @@ const lavenderTheme: Theme = {
     budgetOver: '#E89FA3',
     greenCardBackground: '#B8A5D6',
     greenCardText: '#FFFFFF',
+  },
+  spacing: {
+    xs: 4,
+    sm: 8,
+    md: 16,
+    lg: 24,
+    xl: 32,
+    xxl: 48,
+  },
+  borderRadius: {
+    sm: 8,
+    md: 12,
+    lg: 16,
+    full: 999,
+  },
+};
+
+// Frog Pond Theme - Mossy greens and pond blues
+const frogPondTheme: Theme = {
+  colors: {
+    primary: '#4DB8A8',
+    primaryDark: '#3A9688',
+    background: '#E6F7F4',
+    backgroundLight: '#F3FCFA',
+    backgroundDark: '#D4EFE9',
+    text: '#1F3D3A',
+    textSecondary: '#4A807A',
+    textDark: '#0F2622',
+    income: '#5FC9A8',
+    expense: '#E87A5C',
+    divider: '#B8E5DD',
+    success: '#5FC9A8',
+    warning: '#FFD166',
+    danger: '#E87A5C',
+    info: '#5DADE2',
+    budgetNormal: '#5FC9A8',
+    budgetWarning: '#FFD166',
+    budgetOver: '#E87A5C',
+    greenCardBackground: '#4DB8A8',
+    greenCardText: '#F3FCFA',
   },
   spacing: {
     xs: 4,
@@ -314,6 +354,7 @@ const themes: Record<ThemeName, Theme> = {
   deepSea: deepSeaTheme,
   valley: valleyTheme,
   sakura: sakuraTheme,
+  frogPond: frogPondTheme,
 };
 
 const selectableThemes: SelectableTheme[] = [
@@ -347,6 +388,11 @@ const selectableThemes: SelectableTheme[] = [
     displayName: 'Sakura',
     icon: '🌸',
   },
+  {
+    themeName: 'frogPond',
+    displayName: 'Frog Pond',
+    icon: '🐸',
+  },
 ];
 
 const ThemeContext = createContext<ThemeContextType>({
@@ -366,7 +412,7 @@ export const ThemeProvider = ({ children }: ThemeProviderProps) => {
   const loadTheme = async () => {
     try {
       const savedTheme = await AsyncStorage.getItem(THEME_STORAGE_KEY);
-      if (savedTheme && (savedTheme === 'farmland' || savedTheme === 'dark' || savedTheme === 'lavender' || savedTheme === 'deepSea' || savedTheme === 'valley' || savedTheme === 'sakura')) {
+      if (savedTheme && (savedTheme === 'farmland' || savedTheme === 'dark' || savedTheme === 'lavender' || savedTheme === 'deepSea' || savedTheme === 'valley' || savedTheme === 'sakura' || savedTheme === 'frogPond')) {
         setThemeName(savedTheme as ThemeName);
       }
     } catch (error) {

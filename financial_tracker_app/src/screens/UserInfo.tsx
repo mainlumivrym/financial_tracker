@@ -17,11 +17,14 @@ import { useAuth } from '../context/AuthContext';
 import { getUserProfile, updateUserProfile } from '../services/userService';
 import ThemeSwitcher from '../components/ThemeSwitcher';
 import { RootStackParamList } from '../types';
+import useUserInfoStyles from '@/styles/useUserInfoStyles';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'UserInfo'>;
 
 export default function UserInfo({ navigation }: Props) {
   const { currentUser, logout } = useAuth();
+  const userInfoStyles = useUserInfoStyles();
+  const styles = userInfoStyles;
   const [username, setUsername] = useState<string>('');
   const [email, setEmail] = useState<string>(currentUser?.email || '');
   const [phone, setPhone] = useState<string>('');
@@ -258,148 +261,3 @@ export default function UserInfo({ navigation }: Props) {
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#1a1a2e',
-  },
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingHorizontal: 20,
-    paddingTop: 60,
-    paddingBottom: 20,
-  },
-  backButton: {
-    padding: 8,
-  },
-  headerTitle: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: '#ffffff',
-  },
-  editButton: {
-    padding: 8,
-  },
-  editButtonText: {
-    fontSize: 16,
-    color: '#4ecca3',
-    fontWeight: '600',
-  },
-  scrollView: {
-    flex: 1,
-    paddingHorizontal: 20,
-  },
-  avatarSection: {
-    alignItems: 'center',
-    marginBottom: 30,
-  },
-  avatarContainer: {
-    width: 120,
-    height: 120,
-    borderRadius: 60,
-    backgroundColor: '#2a2a3e',
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderWidth: 3,
-    borderColor: '#4ecca3',
-    overflow: 'hidden',
-  },
-  profileImage: {
-    width: '100%',
-    height: '100%',
-    borderRadius: 60,
-  },
-  changePhotoButton: {
-    marginTop: 12,
-  },
-  changePhotoText: {
-    color: '#4ecca3',
-    fontSize: 16,
-    fontWeight: '600',
-  },
-  section: {
-    marginBottom: 30,
-  },
-  sectionTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: '#ffffff',
-    marginBottom: 16,
-  },
-  infoCard: {
-    backgroundColor: '#2a2a3e',
-    borderRadius: 16,
-    padding: 20,
-  },
-  infoItem: {
-    paddingVertical: 8,
-  },
-  label: {
-    fontSize: 14,
-    color: '#a0a0a0',
-    marginBottom: 8,
-  },
-  value: {
-    fontSize: 16,
-    color: '#ffffff',
-    fontWeight: '500',
-  },
-  input: {
-    fontSize: 16,
-    color: '#ffffff',
-    fontWeight: '500',
-    backgroundColor: '#1a1a2e',
-    borderRadius: 8,
-    padding: 12,
-    borderWidth: 1,
-    borderColor: '#3a3a4e',
-  },
-  helperText: {
-    fontSize: 12,
-    color: '#a0a0a0',
-    marginTop: 4,
-    fontStyle: 'italic',
-  },
-  divider: {
-    height: 1,
-    backgroundColor: '#3a3a4e',
-    marginVertical: 16,
-  },
-  settingItem: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingVertical: 12,
-  },
-  settingLeft: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  settingText: {
-    fontSize: 16,
-    color: '#ffffff',
-    marginLeft: 16,
-  },
-  logoutButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: '#2a2a3e',
-    borderRadius: 16,
-    padding: 18,
-    borderWidth: 1,
-    borderColor: '#ff6b6b',
-  },
-  logoutText: {
-    fontSize: 16,
-    color: '#ff6b6b',
-    fontWeight: '600',
-    marginLeft: 12,
-  },
-  bottomSpacer: {
-    height: 40,
-  },
-});
