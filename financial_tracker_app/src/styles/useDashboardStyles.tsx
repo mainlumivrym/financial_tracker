@@ -114,7 +114,7 @@ export default function useDashboardStyles() {
         },
         seeAllText: {
             fontSize: 16,
-            color: theme.colors.primary,
+            color: theme.colors.highlight,
             fontWeight: '400',
         },
         actionsGrid: {

@@ -32,6 +32,7 @@ interface ThemeColors {
   budgetOver: string;
   greenCardBackground: string;
   greenCardText: string;
+  highlight: string;
 }
 
 interface ThemeSpacing {
@@ -94,6 +95,7 @@ const farmlandTheme: Theme = {
     budgetOver: '#ff6b6b',     // Over budget (red)
     greenCardBackground: '#7BA05B',
     greenCardText: '#E8E4DB',
+    highlight: '#FF5A8A',
   },
   spacing: {
     xs: 4,
@@ -136,6 +138,7 @@ const lavenderTheme: Theme = {
     budgetOver: '#E89FA3',
     greenCardBackground: '#B8A5D6',
     greenCardText: '#FFFFFF',
+    highlight: '#7B9BFF',
   },
   spacing: {
     xs: 4,
@@ -178,6 +181,7 @@ const frogPondTheme: Theme = {
     budgetOver: '#E87A5C',
     greenCardBackground: '#4DB8A8',
     greenCardText: '#F3FCFA',
+    highlight: '#FF6B9D',
   },
   spacing: {
     xs: 4,
@@ -220,6 +224,7 @@ const sakuraTheme: Theme = {
     budgetOver: '#FF8FA3',
     greenCardBackground: '#FFB7C5',
     greenCardText: '#5D3A47',
+    highlight: '#7B9BFF',
   },
   spacing: {
     xs: 4,
@@ -262,6 +267,7 @@ const valleyTheme: Theme = {
     budgetOver: '#D97642',
     greenCardBackground: '#6FA842',
     greenCardText: '#F0F5E8',
+    highlight: '#FF4DB8',
   },
   spacing: {
     xs: 4,
@@ -304,6 +310,7 @@ const deepSeaTheme: Theme = {
     budgetOver: '#EC7063',
     greenCardBackground: '#2980B9',
     greenCardText: '#E8F4F8',
+    highlight: '#FF8542',
   },
   spacing: {
     xs: 4,
@@ -346,6 +353,7 @@ const darkTheme: Theme = {
     budgetOver: '#ff6b6b',     // Over budget (red)
     greenCardBackground: '#4ecca3',
     greenCardText: '#2a2a3e',
+    highlight: '#4ecca3',
   },
   spacing: {
     xs: 4,

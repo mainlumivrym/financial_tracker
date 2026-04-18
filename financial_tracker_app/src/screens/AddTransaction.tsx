@@ -233,7 +233,7 @@ export default function AddTransaction({ navigation, route }: Props) {
                 {cat.name}
               </Text>
               {category === cat.name && (
-                <Ionicons name="checkmark-circle" size={24} color="#4ecca3" style={styles.checkmark} />
+                <Ionicons name="checkmark-circle" size={24} color={theme.colors.highlight} style={styles.checkmark} />
               )}
             </TouchableOpacity>
           ))}

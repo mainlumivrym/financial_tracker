@@ -105,7 +105,7 @@ export default function useAddTransactionsStyles() {
                 position: 'relative',
             },
             categoryItemSelected: {
-                borderColor: '#4ecca3',
+                borderColor: theme.colors.highlight,
                 backgroundColor: theme.colors.backgroundLight,
             },
             categoryItemIcon: {
@@ -119,7 +119,7 @@ export default function useAddTransactionsStyles() {
                 fontWeight: '500',
             },
             categoryItemTextSelected: {
-                color: '#4ecca3',
+                color: theme.colors.highlight,
                 fontWeight: '600',
             },
             checkmark: {
