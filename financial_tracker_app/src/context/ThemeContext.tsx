@@ -19,7 +19,9 @@ interface ThemeColors {
   textSecondary: string;
   textDark: string;
   income: string;
+  incomeDark: string;
   expense: string;
+  expenseDark: string;
   divider: string;
   success: string;
   warning: string;
@@ -79,7 +81,9 @@ const farmlandTheme: Theme = {
     textSecondary: '#6B655C',
     textDark: '#1a1a2e',
     income: '#7BA05B',
+    incomeDark: '#5A7D44',
     expense: '#D66B5B',
+    expenseDark: '#B5543D',
     divider: '#D4CFC4',
     success: '#4ecca3',        // Success/positive (green)
     warning: '#ffd93d',        // Warning/caution (yellow)
@@ -119,7 +123,9 @@ const lavenderTheme: Theme = {
     textSecondary: '#8B7FA3',
     textDark: '#2D2438',
     income: '#8BC88B',
+    incomeDark: '#6AA56A',
     expense: '#E89FA3',
+    expenseDark: '#C7787D',
     divider: '#E0D5ED',
     success: '#8BC88B',
     warning: '#F3C969',
@@ -159,7 +165,9 @@ const frogPondTheme: Theme = {
     textSecondary: '#4A807A',
     textDark: '#0F2622',
     income: '#5FC9A8',
+    incomeDark: '#3FA888',
     expense: '#E87A5C',
+    expenseDark: '#C25D42',
     divider: '#B8E5DD',
     success: '#5FC9A8',
     warning: '#FFD166',
@@ -199,7 +207,9 @@ const sakuraTheme: Theme = {
     textSecondary: '#A8748A',
     textDark: '#3D1F2E',
     income: '#A8D8A8',
+    incomeDark: '#7FB87F',
     expense: '#FF8FA3',
+    expenseDark: '#E06D82',
     divider: '#FFD6E0',
     success: '#A8D8A8',
     warning: '#FFD27F',
@@ -239,7 +249,9 @@ const valleyTheme: Theme = {
     textSecondary: '#5C6E4A',
     textDark: '#1C2614',
     income: '#6FA842',
+    incomeDark: '#567F30',
     expense: '#D97642',
+    expenseDark: '#B25D2F',
     divider: '#D4E0C4',
     success: '#6FA842',
     warning: '#E8B740',
@@ -279,7 +291,9 @@ const deepSeaTheme: Theme = {
     textSecondary: '#85C1E2',
     textDark: '#0B1C2E',
     income: '#58D68D',
+    incomeDark: '#3FB36B',
     expense: '#EC7063',
+    expenseDark: '#C5584A',
     divider: '#2C5F7E',
     success: '#58D68D',
     warning: '#F7DC6F',
@@ -319,7 +333,9 @@ const darkTheme: Theme = {
     textSecondary: '#a0a0a0',
     textDark: '#1a1a2e',
     income: '#4ecca3',
+    incomeDark: '#3BA884',
     expense: '#ff6b6b',
+    expenseDark: '#CC5555',
     divider: '#3a3a4e',
     success: '#4ecca3',        // Success/positive (green)
     warning: '#ffd93d',        // Warning/caution (yellow)
