@@ -54,7 +54,7 @@ interface Theme {
   borderRadius: ThemeBorderRadius;
 }
 
-type ThemeName = 'farmland' | 'dark' | 'lavender' | 'deepSea';
+type ThemeName = 'farmland' | 'dark' | 'lavender' | 'deepSea' | 'valley' | 'sakura';
 
 interface ThemeContextType {
   theme: Theme;
@@ -130,6 +130,86 @@ const lavenderTheme: Theme = {
     budgetOver: '#E89FA3',
     greenCardBackground: '#B8A5D6',
     greenCardText: '#FFFFFF',
+  },
+  spacing: {
+    xs: 4,
+    sm: 8,
+    md: 16,
+    lg: 24,
+    xl: 32,
+    xxl: 48,
+  },
+  borderRadius: {
+    sm: 8,
+    md: 12,
+    lg: 16,
+    full: 999,
+  },
+};
+
+// Sakura Theme - Cherry blossom-inspired soft pinks
+const sakuraTheme: Theme = {
+  colors: {
+    primary: '#FFB7C5',
+    primaryDark: '#E89AAB',
+    background: '#FFF5F7',
+    backgroundLight: '#FFFFFF',
+    backgroundDark: '#FFE8ED',
+    text: '#5D3A47',
+    textSecondary: '#A8748A',
+    textDark: '#3D1F2E',
+    income: '#A8D8A8',
+    expense: '#FF8FA3',
+    divider: '#FFD6E0',
+    success: '#A8D8A8',
+    warning: '#FFD27F',
+    danger: '#FF8FA3',
+    info: '#B8C9E8',
+    budgetNormal: '#A8D8A8',
+    budgetWarning: '#FFD27F',
+    budgetOver: '#FF8FA3',
+    greenCardBackground: '#FFB7C5',
+    greenCardText: '#5D3A47',
+  },
+  spacing: {
+    xs: 4,
+    sm: 8,
+    md: 16,
+    lg: 24,
+    xl: 32,
+    xxl: 48,
+  },
+  borderRadius: {
+    sm: 8,
+    md: 12,
+    lg: 16,
+    full: 999,
+  },
+};
+
+// Valley Theme - Nature-inspired grassy greens
+const valleyTheme: Theme = {
+  colors: {
+    primary: '#6FA842',
+    primaryDark: '#5A8835',
+    background: '#F0F5E8',
+    backgroundLight: '#FAFCF5',
+    backgroundDark: '#E5EDDB',
+    text: '#2D3E1F',
+    textSecondary: '#5C6E4A',
+    textDark: '#1C2614',
+    income: '#6FA842',
+    expense: '#D97642',
+    divider: '#D4E0C4',
+    success: '#6FA842',
+    warning: '#E8B740',
+    danger: '#D97642',
+    info: '#7EB8A8',
+    budgetNormal: '#6FA842',
+    budgetWarning: '#E8B740',
+    budgetOver: '#D97642',
+    greenCardBackground: '#6FA842',
+    greenCardText: '#F0F5E8',
   },
   spacing: {
     xs: 4,
@@ -232,6 +312,8 @@ const themes: Record<ThemeName, Theme> = {
   dark: darkTheme,
   lavender: lavenderTheme,
   deepSea: deepSeaTheme,
+  valley: valleyTheme,
+  sakura: sakuraTheme,
 };
 
 const selectableThemes: SelectableTheme[] = [
@@ -255,6 +337,16 @@ const selectableThemes: SelectableTheme[] = [
     displayName: 'Deep Sea',
     icon: '🌊',
   },
+  {
+    themeName: 'valley',
+    displayName: 'Valley',
+    icon: '🌿',
+  },
+  {
+    themeName: 'sakura',
+    displayName: 'Sakura',
+    icon: '🌸',
+  },
 ];
 
 const ThemeContext = createContext<ThemeContextType>({
@@ -274,7 +366,7 @@ export const ThemeProvider = ({ children }: ThemeProviderProps) => {
   const loadTheme = async () => {
     try {
       const savedTheme = await AsyncStorage.getItem(THEME_STORAGE_KEY);
-      if (savedTheme && (savedTheme === 'farmland' || savedTheme === 'dark' || savedTheme === 'lavender' || savedTheme === 'deepSea')) {
+      if (savedTheme && (savedTheme === 'farmland' || savedTheme === 'dark' || savedTheme === 'lavender' || savedTheme === 'deepSea' || savedTheme === 'valley' || savedTheme === 'sakura')) {
         setThemeName(savedTheme as ThemeName);
       }
     } catch (error) {
