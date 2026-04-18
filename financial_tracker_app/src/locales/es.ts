@@ -1,5 +1,3 @@
-import RecurringExpenses from "@/screens/RecurringExpenses";
-
 export default {
   // Common
   common: {
@@ -22,6 +20,12 @@ export default {
     income: 'Ingreso',
     expense: 'Gasto',
     addedSuccessfully: 'agregado exitosamente',
+    name: 'Nombre',
+    amount: 'Monto',
+    category: 'Categoría',
+    description: 'Descripción',
+    optional: 'Opcional',
+    additionalNotes: 'Notas Adicionales',
   },
 
   // Authentication
@@ -180,6 +184,25 @@ export default {
     weekly: 'Semanal',
     monthly: 'Mensual',
     yearly: 'Anual',
+    failedToLoad: 'Error al cargar gastos recurrentes',
+    fillAllFields: 'Por favor completa todos los campos requeridos',
+    addedSuccessfully: 'Gasto recurrente agregado exitosamente',
+    failedToAdd: 'Error al agregar gasto recurrente',
+    deleteConfirm: 'Eliminar Gasto Recurrente',
+    areYouSureYouWantToDelete: '¿Estás seguro que deseas eliminar este gasto recurrente?',
+    deletedSuccessfully: 'Gasto recurrente eliminado exitosamente',
+    failedToDelete: 'Error al eliminar gasto recurrente',
+    failedToUpdatePaidStatus: 'Error al actualizar el estado de pago',
+    nextDue: 'Próximo Vencimiento',
+    overdue: 'Vencido',
+    reminderAt: 'Recordatorio en',
+    paid: 'Pagado',
+    startDate: 'Fecha de Inicio',
+    enableNotifications: 'Habilitar Notificaciones',
+    markUnpaid: 'Marcar como No Pagado',
+    markPaid: 'Marcar como Pagado',
+    noExpenses: 'No hay gastos recurrentes aún',
+    addInstructions: 'Agrega gastos recurrentes para recibir recordatorios',
   },
 
   // Errors

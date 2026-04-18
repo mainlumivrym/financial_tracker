@@ -20,6 +20,12 @@ export default {
     income: 'Income',
     expense: 'Expense',
     addedSuccessfully: 'added successfully',
+    name: 'Name',
+    amount: 'Amount',
+    category: 'Category',
+    description: 'Description',
+    optional: 'Optional',
+    additionalNotes: 'Additional Notes',
   },
 
   // Authentication
@@ -114,6 +120,7 @@ export default {
     approaching: 'Approaching Limit',
     exceeded: 'Budget Exceeded',
     failedToLoad: 'Failed to load budget',
+    failedToSave: 'Failed to save budget',
   },
 
   // Reports
@@ -170,13 +177,32 @@ export default {
   // Recurring Expenses
   recurring: {
     recurringExpenses: 'Recurring Expenses',
-    addRecurring: 'Add Recurring',
+    addRecurring: 'Add Recurring Expense',
     frequency: 'Frequency',
     nextPayment: 'Next Payment',
     daily: 'Daily',
     weekly: 'Weekly',
     monthly: 'Monthly',
     yearly: 'Yearly',
+    failedToLoad: 'Failed to load recurring expenses',
+    fillAllFields: 'Please fill in all required fields',
+    addedSuccessfully: 'Recurring expense added successfully',
+    failedToAdd: 'Failed to add recurring expense',
+    deleteConfirm: 'Delete Recurring Expense',
+    areYouSureYouWantToDelete: 'Are you sure you want to delete this recurring expense?',
+    deletedSuccessfully: 'Recurring expense deleted successfully',
+    failedToDelete: 'Failed to delete recurring expense',
+    failedToUpdatePaidStatus: 'Failed to update paid status',
+    nextDue: 'Next Due',
+    overdue: 'Overdue',
+    reminderAt: 'Reminder at',
+    paid: 'Paid',
+    startDate: 'Start Date',
+    enableNotifications: 'Enable Notifications',
+    markUnpaid: 'Mark Unpaid',
+    markPaid: 'Mark Paid',
+    noExpenses: 'No recurring expenses yet',
+    addInstructions: 'Add recurring expenses to get reminders',
   },
 
   // Errors
