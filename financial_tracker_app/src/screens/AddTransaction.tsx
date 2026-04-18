@@ -19,6 +19,7 @@ import { addTransaction } from '../services/transactionService';
 import { getCategories, addCustomCategory } from '../services/categoryService';
 import { RootStackParamList, TransactionType } from '../types';
 import AddCategoryModal from '../components/AddCategoryModal';
+import useAddTransactionsStyles from '@/styles/useAddTransactionsStyles';
 
 interface Category {
   id?: string;
@@ -45,6 +46,7 @@ export default function AddTransaction({ navigation, route }: Props) {
   const [categories, setCategories] = useState<Category[]>([]);
   const [loadingCategories, setLoadingCategories] = useState(true);
   const [showAddCategoryModal, setShowAddCategoryModal] = useState(false);
+  const styles = useAddTransactionsStyles();
 
   // Load categories from Firebase
   useEffect(() => {
@@ -256,7 +258,7 @@ export default function AddTransaction({ navigation, route }: Props) {
           style={styles.backButton}
           onPress={() => navigation.goBack()}
         >
-          <Ionicons name="arrow-back" size={24} color="#ffffff" />
+          <Ionicons name="arrow-back" size={24} color="#4ecca3" />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>
           Add {transactionType === 'expense' ? 'Expense' : 'Income'}
@@ -284,7 +286,7 @@ export default function AddTransaction({ navigation, route }: Props) {
             <TextInput
               style={styles.amountInput}
               placeholder="0.00"
-              placeholderTextColor="#a0a0a0"
+              placeholderTextColor="#a0a0a066"
               value={amount}
               onChangeText={setAmount}
               keyboardType="decimal-pad"

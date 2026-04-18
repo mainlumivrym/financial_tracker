@@ -20,6 +20,7 @@ export default function useUserInfoStyles() {
                 paddingBottom: 20,
             },
             backButton: {
+                color: theme.colors.text,
                 padding: 8,
             },
             headerTitle: {
