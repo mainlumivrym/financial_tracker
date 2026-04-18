@@ -19,6 +19,9 @@ export default {
     yesterday: 'Ayer',
     success: 'Éxito',
     error: 'Error',
+    income: 'Ingreso',
+    expense: 'Gasto',
+    addedSuccessfully: 'agregado exitosamente',
   },
 
   // Authentication
@@ -82,6 +85,7 @@ export default {
     whatWasThisFor: '¿Para qué fue esto?',
     selectCategory: 'Por favor selecciona una categoría',
     enterValidAmount: 'Por favor ingresa un monto válido',
+    failedToAdd: 'Error al agregar transacción',
   },
 
   // Categories
@@ -94,6 +98,8 @@ export default {
     selectIcon: 'Seleccionar Ícono',
     addCustomCategory: 'Agregar Categoría Personalizada',
     categoryAdded: '¡Categoría personalizada agregada!',
+    failedToLoad: 'Error al cargar categorías',
+    failedToAdd: 'Error al agregar categoría',
   },
 
   // Budget

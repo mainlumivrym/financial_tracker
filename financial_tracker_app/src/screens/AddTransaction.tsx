@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, use } from 'react';
 import { StatusBar } from 'expo-status-bar';
 import {
   StyleSheet,
@@ -23,6 +23,7 @@ import useAddTransactionsStyles from '@/styles/useAddTransactionsStyles';
 import ScreenHeader from '@/components/ScreenHeader';
 import { useTheme } from '../context/ThemeContext';
 import React from 'react';
+import { useLocalization } from '@/context/LocalizationContext';
 
 interface Category {
   id?: string;
@@ -38,6 +39,7 @@ type Props = NativeStackScreenProps<RootStackParamList, 'AddTransaction'>;
 export default function AddTransaction({ navigation, route }: Props) {
   const { theme } = useTheme();
   const styles = useAddTransactionsStyles();
+  const { t } = useLocalization();
 
   const { currentUser } = useAuth();
   const transactionType: TransactionType = route?.params?.type || 'expense';
@@ -65,7 +67,7 @@ export default function AddTransaction({ navigation, route }: Props) {
       setCategories(fetchedCategories);
     } catch (error) {
       console.error('Error loading categories:', error);
-      Alert.alert('Error', 'Failed to load categories');
+      Alert.alert(t('common.error'), t('categories.failedToLoad'));
     } finally {
       setLoadingCategories(false);
     }
@@ -81,10 +83,10 @@ export default function AddTransaction({ navigation, route }: Props) {
       const newCategory = await addCustomCategory(currentUser.uid, categoryData);
       setCategories([...categories, newCategory]);
       setShowAddCategoryModal(false);
-      Alert.alert('Success', 'Custom category added!');
+      Alert.alert(t('common.success'), t('categories.categoryAdded'));
     } catch (error) {
       console.error('Error adding category:', error);
-      Alert.alert('Error', 'Failed to add category');
+      Alert.alert(t('common.error'), t('categories.failedToAdd'));
     }
   };
 
@@ -119,9 +121,9 @@ export default function AddTransaction({ navigation, route }: Props) {
     yesterday.setDate(yesterday.getDate() - 1);
 
     if (date.toDateString() === today.toDateString()) {
-      return 'Today';
+      return t('common.today');
     } else if (date.toDateString() === yesterday.toDateString()) {
-      return 'Yesterday';
+      return t('common.yesterday');
     } else {
       return date.toLocaleDateString('en-US', {
         month: 'short',
@@ -134,12 +136,12 @@ export default function AddTransaction({ navigation, route }: Props) {
   const handleSave = async () => {
     // Validation
     if (!amount || parseFloat(amount) <= 0) {
-      Alert.alert('Error', 'Please enter a valid amount');
+      Alert.alert(t('common.error'), t('transactions.enterValidAmount'));
       return;
     }
 
     if (!category) {
-      Alert.alert('Error', 'Please select a category');
+      Alert.alert(t('common.error'), t('transactions.selectCategory'));
       return;
     }
 
@@ -156,8 +158,8 @@ export default function AddTransaction({ navigation, route }: Props) {
       });
 
       Alert.alert(
-        'Success',
-        `${transactionType === 'expense' ? 'Expense' : 'Income'} added successfully`,
+        t('common.success'),
+        `${transactionType === 'expense' ? t('common.expense') : t('common.income')} ${t('common.addedSuccessfully')}`,
         [
           {
             text: 'OK',
@@ -167,7 +169,7 @@ export default function AddTransaction({ navigation, route }: Props) {
       );
     } catch (error) {
       console.error('Error adding transaction:', error);
-      Alert.alert('Error', 'Failed to add transaction');
+      Alert.alert(t('common.error'), t('transactions.failedToAdd'));
     } finally {
       setLoading(false);
     }
@@ -198,7 +200,7 @@ export default function AddTransaction({ navigation, route }: Props) {
             style={styles.doneButton}
             onPress={() => setShowDatePicker(false)}
           >
-            <Text style={styles.doneButtonText}>Done</Text>
+            <Text style={styles.doneButtonText}>{t('common.done')}</Text>
           </TouchableOpacity>
         </>
       )}
@@ -212,7 +214,7 @@ export default function AddTransaction({ navigation, route }: Props) {
       contentContainerStyle={styles.categoriesScrollContent}
     >
       {loadingCategories ? (
-        <Text style={styles.loadingText}>Loading...</Text>
+        <Text style={styles.loadingText}>{t('common.loading')}</Text>
       ) : (
         <>
           {categories.map((cat) => (
@@ -242,8 +244,8 @@ export default function AddTransaction({ navigation, route }: Props) {
             style={styles.addCategoryItem}
             onPress={() => setShowAddCategoryModal(true)}
           >
-            <Ionicons name="add-circle-outline" size={24} color={theme.colors.primary} />
-            <Text style={styles.addCategoryItemText}>Add</Text>
+            <Ionicons name="add-circle-outline" size={24} color={theme.colors.highlight} />
+            <Text style={styles.addCategoryItemText}>{t('common.add')}</Text>
           </TouchableOpacity>
         </>
       )}
@@ -252,10 +254,10 @@ export default function AddTransaction({ navigation, route }: Props) {
 
   const renderHeader = () => (
     <ScreenHeader
-      title={`Add ${transactionType === 'expense' ? 'Expense' : 'Income'}`}
+      title={`Add ${transactionType === 'expense' ? t('common.expense') : t('common.income')}`}
       onBackPress={() => navigation.goBack()}
       rightButton={{
-        text: loading ? 'Saving...' : 'Save',
+        text: loading ? t('common.saving') : t('common.save'),
         onPress: handleSave,
         disabled: loading
       }}
@@ -283,10 +285,10 @@ export default function AddTransaction({ navigation, route }: Props) {
 
       {/* Description */}
       <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Description</Text>
+        <Text style={styles.sectionTitle}>{t('transactions.description')}</Text>
         <TextInput
           style={styles.descriptionInput}
-          placeholder="What was this for?"
+          placeholder={t('transactions.whatWasThisFor')}
           placeholderTextColor="#a0a0a0"
           value={description}
           onChangeText={setDescription}

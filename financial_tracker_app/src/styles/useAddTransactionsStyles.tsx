@@ -142,7 +142,7 @@ export default function useAddTransactionsStyles() {
             },
             addCategoryItemText: {
                 fontSize: 11,
-                color: theme.colors.primary,
+                color: theme.colors.highlight,
                 fontWeight: '600',
             },
             loadingText: {

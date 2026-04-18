@@ -17,6 +17,9 @@ export default {
     yesterday: 'Yesterday',
     success: 'Success',
     error: 'Error',
+    income: 'Income',
+    expense: 'Expense',
+    addedSuccessfully: 'added successfully',
   },
 
   // Authentication
@@ -80,6 +83,7 @@ export default {
     whatWasThisFor: 'What was this for?',
     selectCategory: 'Please select a category',
     enterValidAmount: 'Please enter a valid amount',
+    failedToAdd: 'Failed to add transaction',
   },
 
   // Categories
@@ -92,6 +96,8 @@ export default {
     selectIcon: 'Select Icon',
     addCustomCategory: 'Add Custom Category',
     categoryAdded: 'Custom category added!',
+    failedToLoad: 'Failed to load categories',
+    failedToAdd: 'Failed to add category',
   },
 
   // Budget
