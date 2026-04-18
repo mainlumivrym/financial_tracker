@@ -1,23 +1,67 @@
 import React, { useState, useEffect } from 'react';
 import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View, ScrollView, TouchableOpacity, Image, ActivityIndicator } from 'react-native';
+import { Text, View, ScrollView, TouchableOpacity, Image, ActivityIndicator } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
+import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { useAuth } from '../context/AuthContext';
 import { getUserProfile } from '../services/userService';
 import { getUserTransactions } from '../services/transactionService';
 import { getBudget, getCurrentMonth } from '../services/budgetService';
 import TransactionListItem from '../components/TransactionListItem';
-import { colors, globalStyles, spacing, borderRadius } from '../styles';
 import { formatCurrency } from '../utils/formatCurrency';
+import useDashboardStyles from '../styles/useDashboardStyles';
+import { RootStackParamList } from '../types';
 
-export default function Dashboard({ navigation }) {
+type Props = NativeStackScreenProps<RootStackParamList, 'Dashboard'>;
+
+interface UserProfile {
+  username?: string;
+  profilePicture?: string;
+  phone?: string;
+}
+
+interface Transaction {
+  id: string;
+  type: 'income' | 'expense';
+  amount: number;
+  category: string;
+  description?: string;
+  icon: string;
+  date?: any;
+  createdAt?: any;
+}
+
+interface Balance {
+  total: number;
+  income: number;
+  expenses: number;
+}
+
+interface BudgetAlert {
+  category: string;
+  spent: number;
+  limit: number;
+  percentage: number;
+  status: 'over';
+}
+
+interface BudgetProgress {
+  category: string;
+  spent: number;
+  limit: number;
+  remaining: number;
+  percentage: number;
+}
+
+export default function Dashboard({ navigation }: Props) {
   const { currentUser } = useAuth();
-  const [userProfile, setUserProfile] = useState(null);
-  const [transactions, setTransactions] = useState([]);
-  const [loadingTransactions, setLoadingTransactions] = useState(true);
-  const [balance, setBalance] = useState({ total: 0, income: 0, expenses: 0 });
-  const [budgetAlerts, setBudgetAlerts] = useState([]);
-  const [budgetProgress, setBudgetProgress] = useState([]);
+  const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
+  const [transactions, setTransactions] = useState<Transaction[]>([]);
+  const [loadingTransactions, setLoadingTransactions] = useState<boolean>(true);
+  const [balance, setBalance] = useState<Balance>({ total: 0, income: 0, expenses: 0 });
+  const [budgetAlerts, setBudgetAlerts] = useState<BudgetAlert[]>([]);
+  const [budgetProgress, setBudgetProgress] = useState<BudgetProgress[]>([]);
+  const styles = useDashboardStyles();
 
   const loadUserProfile = async () => {
     if (currentUser) {
@@ -69,7 +113,7 @@ export default function Dashboard({ navigation }) {
     }
   };
 
-  const checkBudgetAlerts = async (transactions) => {
+  const checkBudgetAlerts = async (transactions: Transaction[]) => {
     try {
       const currentMonth = getCurrentMonth();
       const budget = await getBudget(currentUser.uid, currentMonth);
@@ -90,7 +134,7 @@ export default function Dashboard({ navigation }) {
       });
 
       // Calculate spending per category
-      const categorySpending = {};
+      const categorySpending: Record<string, number> = {};
       currentMonthTransactions.forEach(t => {
         if (!categorySpending[t.category]) {
           categorySpending[t.category] = 0;
@@ -99,7 +143,7 @@ export default function Dashboard({ navigation }) {
       });
 
       // Generate alerts only for categories over budget
-      const alerts = [];
+      const alerts: BudgetAlert[] = [];
       budget.categoryBudgets.forEach(categoryBudget => {
         const spent = categorySpending[categoryBudget.category] || 0;
         const percentage = (spent / categoryBudget.limit) * 100;
@@ -354,299 +398,3 @@ export default function Dashboard({ navigation }) {
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: colors.background,
-  },
-  scrollView: {
-    flex: 1,
-    paddingHorizontal: 20,
-  },
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginTop: 60,
-    marginBottom: 30,
-  },
-  greeting: {
-    fontSize: 16,
-    color: colors.textSecondary,
-  },
-  userName: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: colors.text,
-    marginTop: 4,
-  },
-  avatarContainer: {
-    width: 50,
-    height: 50,
-    borderRadius: 25,
-    backgroundColor: colors.backgroundLight,
-    alignItems: 'center',
-    justifyContent: 'center',
-    overflow: 'hidden',
-  },
-  profileImage: {
-    width: '100%',
-    height: '100%',
-  },
-  avatar: {
-    fontSize: 24,
-  },
-  balanceCard: {
-    backgroundColor: colors.primary,
-    borderRadius: 20,
-    padding: 24,
-    marginBottom: 30,
-  },
-  balanceLabel: {
-    fontSize: 16,
-    color: colors.textDark,
-    opacity: 0.8,
-  },
-  balanceAmount: {
-    fontSize: 36,
-    fontWeight: 'bold',
-    color: colors.textDark,
-    marginTop: 8,
-    marginBottom: 20,
-  },
-  balanceStats: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-  },
-  statItem: {
-    flex: 1,
-    alignItems: 'center',
-  },
-  statLabel: {
-    fontSize: 14,
-    color: colors.textDark,
-    opacity: 0.7,
-    marginBottom: 4,
-  },
-  statIncome: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: colors.textDark,
-  },
-  statExpense: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: colors.textDark,
-  },
-  statDivider: {
-    width: 1,
-    backgroundColor: colors.background,
-    opacity: 0.2,
-    marginHorizontal: 20,
-  },
-  section: {
-    marginBottom: 30,
-  },
-  sectionHeader: {
-    height: 44,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 16,
-  },
-  sectionTitle: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: colors.text,
-    marginBottom: 0,
-  },
-  seeAllText: {
-    fontSize: 14,
-    color: colors.primary,
-  },
-  actionsGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'space-between',
-  },
-  actionButton: {
-    width: '48%',
-    backgroundColor: colors.backgroundLight,
-    borderRadius: 16,
-    padding: 20,
-    alignItems: 'center',
-    marginBottom: 12,
-  },
-  actionIcon: {
-    fontSize: 32,
-    marginBottom: 8,
-  },
-  actionText: {
-    fontSize: 14,
-    color: colors.text,
-    textAlign: 'center',
-  },
-  transactionsList: {
-    backgroundColor: colors.backgroundLight,
-    borderRadius: 16,
-    padding: 16,
-  },
-  emptyState: {
-    alignItems: 'center',
-    paddingVertical: 30,
-  },
-  emptyStateText: {
-    fontSize: 16,
-    color: colors.text,
-    fontWeight: '600',
-    marginBottom: 4,
-  },
-  emptyStateSubtext: {
-    fontSize: 14,
-    color: colors.textSecondary,
-  },
-  alertsList: {
-    gap: 12,
-  },
-  alertItem: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    padding: 16,
-    borderRadius: 12,
-    borderLeftWidth: 4,
-  },
-  alertItemWarning: {
-    backgroundColor: '#3a3a2e',
-    borderLeftColor: colors.warning,
-  },
-  alertItemOver: {
-    backgroundColor: '#3a2e2e',
-    borderLeftColor: colors.danger,
-  },
-  alertLeft: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    flex: 1,
-  },
-  alertIcon: {
-    fontSize: 24,
-    marginRight: 12,
-  },
-  alertInfo: {
-    flex: 1,
-  },
-  alertCategory: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: colors.text,
-    marginBottom: 4,
-  },
-  alertText: {
-    fontSize: 14,
-    color: colors.textSecondary,
-  },
-  alertPercentage: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: colors.warning,
-  },
-  alertPercentageOver: {
-    color: colors.danger,
-  },
-  budgetSummaryCard: {
-    backgroundColor: colors.backgroundLight,
-    borderRadius: 16,
-    padding: 16,
-    paddingBottom: 8,
-    marginBottom: 8,
-  },
-  budgetSummaryRow: {
-    height:32 ,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 8,
-  },
-  budgetSummaryLabel: {
-    fontSize: 14,
-    color: colors.textSecondary,
-  },
-  budgetSummaryLabelBold: {
-    fontSize: 15,
-    color: '#ffffff',
-    fontWeight: '600',
-  },
-  budgetSummaryAmount: {
-    fontSize: 16,
-    color: '#ffffff',
-    fontWeight: '600',
-  },
-  budgetSummarySpent: {
-    fontSize: 16,
-    color: colors.warning,
-    fontWeight: '600',
-  },
-  budgetSummaryRemaining: {
-    fontSize: 18,
-    color: colors.primary,
-    fontWeight: 'bold',
-  },
-  budgetSummaryOverBudget: {
-    color: colors.danger,
-  },
-  budgetSummaryDivider: {
-    height: 1,
-    backgroundColor: colors.divider,
-    marginVertical: 8,
-  },
-  budgetProgressList: {
-    backgroundColor: colors.backgroundLight,
-    borderRadius: 16,
-    padding: 16,
-    gap: 20,
-  },
-  budgetItem: {
-    gap: 8,
-  },
-  budgetHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  budgetCategory: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: colors.text,
-  },
-  budgetAmount: {
-    fontSize: 14,
-    color: colors.textSecondary,
-    fontWeight: '500',
-  },
-  progressBarContainer: {
-    height: 8,
-    backgroundColor: colors.background,
-    borderRadius: 4,
-    overflow: 'hidden',
-  },
-  progressBar: {
-    height: '100%',
-    borderRadius: 4,
-  },
-  progressBarNormal: {
-    backgroundColor: colors.primary,
-  },
-  progressBarOver: {
-    backgroundColor: colors.danger,
-  },
-  budgetRemaining: {
-    fontSize: 13,
-    color: colors.textSecondary,
-  },
-  budgetOver: {
-    color: colors.budgetOver,
-    fontWeight: '600',
-  },
-});

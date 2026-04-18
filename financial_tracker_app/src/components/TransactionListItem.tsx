@@ -1,6 +1,6 @@
 import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
-import { colors } from '../styles';
+import { useTheme } from '../context/ThemeContext';
 import { formatCurrency } from '../utils/formatCurrency';
 
 interface Transaction {
@@ -25,6 +25,7 @@ export default function TransactionListItem({
   showCategory = false,
   showTime = true
 }: TransactionListItemProps) {
+  const { theme } = useTheme();
 
   const formatTransactionDate = () => {
     const timestampField = transaction.date || transaction.createdAt;
@@ -52,7 +53,7 @@ export default function TransactionListItem({
     <View
       style={[
         styles.transactionIconContainer,
-        { backgroundColor: colors.backgroundDark },
+        { backgroundColor: theme.colors.backgroundDark },
       ]}
     >
       <Text style={styles.transactionIcon}>{transaction.icon}</Text>
@@ -61,25 +62,24 @@ export default function TransactionListItem({
 
   const renderTransactionInfo = () => (
     <View style={styles.transactionInfo}>
-      <Text style={styles.transactionTitle}>
+      <Text style={[styles.transactionTitle, { color: theme.colors.text }]}>
         {transaction.description || transaction.category}
       </Text>
       {transaction.description && (
-        <Text style={styles.transactionCategory}>{transaction.category}</Text>
+        <Text style={[styles.transactionCategory, { color: theme.colors.textSecondary }]}>{transaction.category}</Text>
       )}
       {!showTime && (
-        <Text style={styles.transactionDate}>{formatTransactionDate()}</Text>
+        <Text style={[styles.transactionDate, { color: theme.colors.textSecondary }]}>{formatTransactionDate()}</Text>
       )}
     </View>
   )
 
   const renderTransactionAmount = () => (
     <Text
-      style={
-        transaction.type === 'income'
-          ? styles.transactionAmountPositive
-          : styles.transactionAmountNegative
-      }
+      style={[
+        styles.transactionAmount,
+        { color: transaction.type === 'income' ? theme.colors.income : theme.colors.expense }
+      ]}
     >
       {transaction.type === 'income' ? '+' : '-'}${formatCurrency(transaction.amount)}
     </Text>
@@ -94,7 +94,7 @@ export default function TransactionListItem({
       <View style={styles.transactionRight}>
         {renderTransactionAmount()}
         {showTime && (
-          <Text style={styles.transactionTime}>{formatTransactionDate()}</Text>
+          <Text style={[styles.transactionTime, { color: theme.colors.textSecondary }]}>{formatTransactionDate()}</Text>
         )}
       </View>
     </View>
@@ -130,35 +130,24 @@ const styles = StyleSheet.create({
   transactionTitle: {
     fontSize: 16,
     fontWeight: '600',
-    color: colors.text,
     marginBottom: 2,
   },
   transactionCategory: {
     fontSize: 12,
-    color: colors.textSecondary,
   },
   transactionDate: {
     fontSize: 12,
-    color: colors.textSecondary,
     marginTop: 2,
   },
   transactionRight: {
     alignItems: 'flex-end',
   },
-  transactionAmountNegative: {
+  transactionAmount: {
     fontSize: 16,
     fontWeight: 'bold',
-    color: colors.expense,
-    marginBottom: 2,
-  },
-  transactionAmountPositive: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: colors.income,
     marginBottom: 2,
   },
   transactionTime: {
     fontSize: 12,
-    color: colors.textSecondary,
   },
 });

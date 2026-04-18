@@ -12,17 +12,22 @@ import {
 } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import { Ionicons } from '@expo/vector-icons';
+import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { useAuth } from '../context/AuthContext';
 import { getUserProfile, updateUserProfile } from '../services/userService';
+import ThemeSwitcher from '../components/ThemeSwitcher';
+import { RootStackParamList } from '../types';
 
-export default function UserInfo({ navigation }) {
+type Props = NativeStackScreenProps<RootStackParamList, 'UserInfo'>;
+
+export default function UserInfo({ navigation }: Props) {
   const { currentUser, logout } = useAuth();
-  const [username, setUsername] = useState('');
-  const [email, setEmail] = useState(currentUser?.email || '');
-  const [phone, setPhone] = useState('');
-  const [profilePicture, setProfilePicture] = useState(null);
-  const [isEditing, setIsEditing] = useState(false);
-  const [loading, setLoading] = useState(true);
+  const [username, setUsername] = useState<string>('');
+  const [email, setEmail] = useState<string>(currentUser?.email || '');
+  const [phone, setPhone] = useState<string>('');
+  const [profilePicture, setProfilePicture] = useState<string | null>(null);
+  const [isEditing, setIsEditing] = useState<boolean>(false);
+  const [loading, setLoading] = useState<boolean>(true);
 
   useEffect(() => {
     loadUserProfile();
@@ -192,6 +197,15 @@ export default function UserInfo({ navigation }) {
                 <Text style={styles.value}>{phone || 'Not set'}</Text>
               )}
             </View>
+          </View>
+        </View>
+
+        {/* Appearance Settings */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Appearance</Text>
+          
+          <View style={styles.infoCard}>
+            <ThemeSwitcher />
           </View>
         </View>
 
