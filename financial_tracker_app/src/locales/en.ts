@@ -113,6 +113,7 @@ export default {
     onTrack: 'On Track',
     approaching: 'Approaching Limit',
     exceeded: 'Budget Exceeded',
+    failedToLoad: 'Failed to load budget',
   },
 
   // Reports

@@ -115,6 +115,8 @@ export default {
     onTrack: 'En Camino',
     approaching: 'Acercándose al Límite',
     exceeded: 'Presupuesto Excedido',
+    failedToLoad: 'Error al cargar presupuesto',
+    failedToSave: 'Error al guardar presupuesto',
   },
 
   // Reports

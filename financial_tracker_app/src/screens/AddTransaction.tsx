@@ -254,7 +254,7 @@ export default function AddTransaction({ navigation, route }: Props) {
 
   const renderHeader = () => (
     <ScreenHeader
-      title={`Add ${transactionType === 'expense' ? t('common.expense') : t('common.income')}`}
+      title={transactionType === 'expense' ? t('transactions.addExpense') : t('transactions.addIncome')}
       onBackPress={() => navigation.goBack()}
       rightButton={{
         text: loading ? t('common.saving') : t('common.save'),

@@ -24,6 +24,7 @@ import {
 } from '../services/budgetService';
 import { RootStackParamList } from '../types';
 import useBudgetManagementStyles from '@/styles/useBudgetManagementStyles';
+import { useLocalization } from '@/context/LocalizationContext';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'BudgetManagement'>;
 
@@ -35,6 +36,7 @@ interface CategoryWithBudget {
 
 export default function BudgetManagement({ navigation }: Props) {
   const styles = useBudgetManagementStyles();
+  const {t} = useLocalization();
 
   const { currentUser } = useAuth();
   const [loading, setLoading] = useState(true);
@@ -73,7 +75,7 @@ export default function BudgetManagement({ navigation }: Props) {
       setCategoryBudgets(budgetsWithCategories);
     } catch (error) {
       console.error('Error loading budget data:', error);
-      Alert.alert('Error', 'Failed to load budget data');
+      Alert.alert(t('common.error'), t('budget.failedToLoad'));
     } finally {
       setLoading(false);
     }
@@ -112,25 +114,25 @@ export default function BudgetManagement({ navigation }: Props) {
         }));
 
       if (budgetsToSave.length === 0) {
-        Alert.alert('Error', 'Please set at least one category budget');
+        Alert.alert(t('common.error'), t('budget.setAtLeastOne'));
         return;
       }
 
       await setBudget(currentUser.uid, currentMonth, budgetsToSave);
 
       Alert.alert(
-        'Success',
-        'Budget saved successfully',
+        t('common.success'),
+        t('budget.budgetSaved'),
         [
           {
-            text: 'OK',
+            text: t('common.ok'),
             onPress: () => navigation.goBack()
           }
         ]
       );
     } catch (error) {
       console.error('Error saving budget:', error);
-      Alert.alert('Error', 'Failed to save budget');
+      Alert.alert(t('common.error'), t('budget.failedToSave'));
     } finally {
       setSaving(false);
     }
@@ -144,7 +146,7 @@ export default function BudgetManagement({ navigation }: Props) {
       subtitle={formatMonth(currentMonth)}
       onBackPress={() => navigation.goBack()}
       rightButton={{
-        text: saving ? 'Saving...' : 'Save',
+        text: saving ? t('common.saving') : t('common.save'),
         onPress: handleSave,
         disabled: saving
       }}
@@ -153,7 +155,7 @@ export default function BudgetManagement({ navigation }: Props) {
 
   const renderTotalBudgetCard = () => (
     <View style={styles.totalCard}>
-      <Text style={styles.totalLabel}>Total Monthly Budget</Text>
+      <Text style={styles.totalLabel}>{t('budget.totalMonthlyBudget')}</Text>
       <Text style={styles.totalAmount}>${formatCurrency(totalBudget)}</Text>
     </View>
   )
