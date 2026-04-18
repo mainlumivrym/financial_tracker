@@ -19,6 +19,10 @@ import { addTransaction } from '../services/transactionService';
 import { getCategories, addCustomCategory } from '../services/categoryService';
 import { RootStackParamList, TransactionType } from '../types';
 import AddCategoryModal from '../components/AddCategoryModal';
+import useAddTransactionsStyles from '@/styles/useAddTransactionsStyles';
+import ScreenHeader from '@/components/ScreenHeader';
+import { useTheme } from '../context/ThemeContext';
+import React from 'react';
 
 interface Category {
   id?: string;
@@ -32,6 +36,9 @@ interface Category {
 type Props = NativeStackScreenProps<RootStackParamList, 'AddTransaction'>;
 
 export default function AddTransaction({ navigation, route }: Props) {
+  const { theme } = useTheme();
+  const styles = useAddTransactionsStyles();
+
   const { currentUser } = useAuth();
   const transactionType: TransactionType = route?.params?.type || 'expense';
 
@@ -172,11 +179,11 @@ export default function AddTransaction({ navigation, route }: Props) {
         style={styles.dateButton}
         onPress={showDateTimePicker}
       >
-        <Ionicons name="calendar-outline" size={20} color="#4ecca3" />
+        <Ionicons name="calendar-outline" size={20} color={theme.colors.primary} />
         <Text style={styles.dateText}>{formatDate(date)}</Text>
         <Ionicons name="chevron-forward" size={20} color="#a0a0a0" />
       </TouchableOpacity>
-      
+
       {/* iOS only - Android uses imperative API */}
       {Platform.OS === 'ios' && showDatePicker && (
         <>
@@ -199,7 +206,7 @@ export default function AddTransaction({ navigation, route }: Props) {
   )
 
   const renderCategoryPicker = () => (
-    <ScrollView 
+    <ScrollView
       style={styles.categoriesScroll}
       showsVerticalScrollIndicator={false}
       contentContainerStyle={styles.categoriesScrollContent}
@@ -213,7 +220,8 @@ export default function AddTransaction({ navigation, route }: Props) {
               key={cat.id || cat.name}
               style={[
                 styles.categoryItem,
-                category === cat.name && styles.categoryItemSelected
+                category === cat.name && styles.categoryItemSelected,
+                category && category !== cat.name && { opacity: 0.9 }
               ]}
               onPress={() => handleCategorySelect(cat)}
             >
@@ -225,7 +233,7 @@ export default function AddTransaction({ navigation, route }: Props) {
                 {cat.name}
               </Text>
               {category === cat.name && (
-                <Ionicons name="checkmark-circle" size={20} color="#4ecca3" style={styles.checkmark} />
+                <Ionicons name="checkmark-circle" size={24} color={theme.colors.highlight} style={styles.checkmark} />
               )}
             </TouchableOpacity>
           ))}
@@ -234,7 +242,7 @@ export default function AddTransaction({ navigation, route }: Props) {
             style={styles.addCategoryItem}
             onPress={() => setShowAddCategoryModal(true)}
           >
-            <Ionicons name="add-circle-outline" size={24} color="#4ecca3" />
+            <Ionicons name="add-circle-outline" size={24} color={theme.colors.primary} />
             <Text style={styles.addCategoryItemText}>Add</Text>
           </TouchableOpacity>
         </>
@@ -242,8 +250,72 @@ export default function AddTransaction({ navigation, route }: Props) {
     </ScrollView>
   )
 
+  const renderHeader = () => (
+    <ScreenHeader
+      title={`Add ${transactionType === 'expense' ? 'Expense' : 'Income'}`}
+      onBackPress={() => navigation.goBack()}
+      rightButton={{
+        text: loading ? 'Saving...' : 'Save',
+        onPress: handleSave,
+        disabled: loading
+      }}
+    />
+  )
+
+  const renderLeftColumn = () => (
+    <ScrollView style={styles.leftColumn} showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
+      {/* Amount Input */}
+      <View style={styles.amountSection}>
+        <Text style={styles.currencySymbol}>$</Text>
+        <TextInput
+          style={styles.amountInput}
+          placeholder="0.00"
+          placeholderTextColor="#a0a0a066"
+          value={amount}
+          onChangeText={setAmount}
+          keyboardType="decimal-pad"
+          autoFocus
+        />
+      </View>
+
+      {/* Date & Time */}
+      {renderDatePicker()}
+
+      {/* Description */}
+      <View style={styles.section}>
+        <Text style={styles.sectionTitle}>Description</Text>
+        <TextInput
+          style={styles.descriptionInput}
+          placeholder="What was this for?"
+          placeholderTextColor="#a0a0a0"
+          value={description}
+          onChangeText={setDescription}
+          multiline
+          numberOfLines={4}
+        />
+      </View>
+
+      <View style={styles.bottomSpacer} />
+    </ScrollView>
+  )
+
+  const renderRightColumn = () => (
+    <View style={styles.rightColumn}>
+      {renderCategoryPicker()}
+    </View>
+  )
+
+  const renderAddCategoryModal = () => (
+    <AddCategoryModal
+      visible={showAddCategoryModal}
+      onClose={() => setShowAddCategoryModal(false)}
+      onAdd={handleAddCategory}
+      type={transactionType}
+    />
+  )
+
   return (
-    <KeyboardAvoidingView 
+    <KeyboardAvoidingView
       style={styles.container}
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       keyboardVerticalOffset={0}
@@ -251,267 +323,18 @@ export default function AddTransaction({ navigation, route }: Props) {
       <StatusBar style="light" />
 
       {/* Header */}
-      <View style={styles.header}>
-        <TouchableOpacity
-          style={styles.backButton}
-          onPress={() => navigation.goBack()}
-        >
-          <Ionicons name="arrow-back" size={24} color="#ffffff" />
-        </TouchableOpacity>
-        <Text style={styles.headerTitle}>
-          Add {transactionType === 'expense' ? 'Expense' : 'Income'}
-        </Text>
-        <TouchableOpacity
-          style={styles.saveHeaderButton}
-          onPress={handleSave}
-          disabled={loading}
-        >
-          <Text style={[
-            styles.saveHeaderButtonText,
-            loading && styles.saveHeaderButtonDisabled
-          ]}>
-            {loading ? 'Saving...' : 'Save'}
-          </Text>
-        </TouchableOpacity>
-      </View>
+      {renderHeader()}
 
       <View style={styles.mainContent}>
         {/* Left Column - Input Fields */}
-        <ScrollView style={styles.leftColumn} showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
-          {/* Amount Input */}
-          <View style={styles.amountSection}>
-            <Text style={styles.currencySymbol}>$</Text>
-            <TextInput
-              style={styles.amountInput}
-              placeholder="0.00"
-              placeholderTextColor="#a0a0a0"
-              value={amount}
-              onChangeText={setAmount}
-              keyboardType="decimal-pad"
-              autoFocus
-            />
-          </View>
-
-          {/* Date & Time */}
-          {renderDatePicker()}
-
-          {/* Description */}
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Description</Text>
-            <TextInput
-              style={styles.descriptionInput}
-              placeholder="What was this for?"
-              placeholderTextColor="#a0a0a0"
-              value={description}
-              onChangeText={setDescription}
-              multiline
-              numberOfLines={4}
-            />
-          </View>
-
-          <View style={styles.bottomSpacer} />
-        </ScrollView>
+        {renderLeftColumn()}
 
         {/* Right Column - Categories */}
-        <View style={styles.rightColumn}>
-          {renderCategoryPicker()}
-        </View>
+        {renderRightColumn()}
       </View>
 
       {/* Add Category Modal */}
-      <AddCategoryModal
-        visible={showAddCategoryModal}
-        onClose={() => setShowAddCategoryModal(false)}
-        onAdd={handleAddCategory}
-        type={transactionType}
-      />
+      {renderAddCategoryModal()}
     </KeyboardAvoidingView>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#1a1a2e',
-  },
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingHorizontal: 20,
-    paddingTop: 60,
-    paddingBottom: 20,
-  },
-  backButton: {
-    padding: 8,
-  },
-  headerTitle: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: '#ffffff',
-  },
-  saveHeaderButton: {
-    padding: 8,
-  },
-  saveHeaderButtonText: {
-    fontSize: 16,
-    color: '#4ecca3',
-    fontWeight: '600',
-  },
-  saveHeaderButtonDisabled: {
-    opacity: 0.5,
-  },
-  mainContent: {
-    flex: 1,
-    flexDirection: 'row',
-  },
-  leftColumn: {
-    flex: 1,
-    paddingHorizontal: 20,
-  },
-  rightColumn: {
-    width: 132,
-    backgroundColor: '#16162a',
-    paddingVertical: 20,
-    paddingHorizontal: 12,
-    borderLeftWidth: 1,
-    borderLeftColor: '#2a2a3e',
-  },
-  categoriesTitle: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#a0a0a0',
-    marginBottom: 12,
-    textAlign: 'center',
-  },
-  amountSection: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginVertical: 30,
-  },
-  currencySymbol: {
-    fontSize: 40,
-    fontWeight: 'bold',
-    color: '#4ecca3',
-    marginRight: 8,
-  },
-  amountInput: {
-    fontSize: 48,
-    fontWeight: 'bold',
-    color: '#ffffff',
-    minWidth: 120,
-  },
-  section: {
-    marginBottom: 24,
-  },
-  sectionTitle: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#ffffff',
-    marginBottom: 12,
-  },
-  categoriesScroll: {
-    flex: 1,
-  },
-  categoriesScrollContent: {
-    paddingBottom: 20,
-  },
-  categoryItem: {
-    backgroundColor: '#2a2a3e',
-    borderRadius: 12,
-    padding: 12,
-    marginBottom: 10,
-    alignItems: 'center',
-    borderWidth: 2,
-    borderColor: 'transparent',
-    position: 'relative',
-  },
-  categoryItemSelected: {
-    borderColor: '#4ecca3',
-    backgroundColor: '#2a3e3a',
-  },
-  categoryItemIcon: {
-    fontSize: 32,
-    marginBottom: 6,
-  },
-  categoryItemText: {
-    fontSize: 11,
-    color: '#a0a0a0',
-    textAlign: 'center',
-    fontWeight: '500',
-  },
-  categoryItemTextSelected: {
-    color: '#4ecca3',
-    fontWeight: '600',
-  },
-  checkmark: {
-    position: 'absolute',
-    top: 6,
-    right: 6,
-  },
-  addCategoryItem: {
-    backgroundColor: '#2a2a3e',
-    borderRadius: 12,
-    padding: 12,
-    marginBottom: 10,
-    alignItems: 'center',
-    borderWidth: 0,
-    borderColor: '#4ecca3',
-    borderStyle: 'solid',
-    flexDirection: 'row',
-    justifyContent: 'center',
-    gap: 6,
-  },
-  addCategoryItemText: {
-    fontSize: 11,
-    color: '#4ecca3',
-    fontWeight: '600',
-  },
-  loadingText: {
-    color: '#a0a0a0',
-    fontSize: 14,
-    padding: 16,
-  },
-  dateButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#2a2a3e',
-    borderRadius: 12,
-    padding: 16,
-    borderWidth: 1,
-    borderColor: '#3a3a4e',
-  },
-  dateText: {
-    flex: 1,
-    marginLeft: 12,
-    color: '#fff',
-    fontSize: 16,
-  },
-  doneButton: {
-    backgroundColor: '#4ecca3',
-    padding: 12,
-    borderRadius: 8,
-    alignItems: 'center',
-    marginTop: 12,
-  },
-  doneButtonText: {
-    color: '#1a1a2e',
-    fontSize: 16,
-    fontWeight: '600',
-  },
-  descriptionInput: {
-    backgroundColor: '#2a2a3e',
-    borderRadius: 12,
-    padding: 14,
-    fontSize: 15,
-    color: '#ffffff',
-    borderWidth: 1,
-    borderColor: '#3a3a4e',
-    minHeight: 110,
-    textAlignVertical: 'top',
-  },
-  bottomSpacer: {
-    height: 20,
-  },
-});

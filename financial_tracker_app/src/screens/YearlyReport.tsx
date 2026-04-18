@@ -15,6 +15,7 @@ import { useAuth } from '../context/AuthContext';
 import { getUserTransactions } from '../services/transactionService';
 import { RootStackParamList } from '../types';
 import CategoryDistributionChart from '../components/CategoryDistributionChart';
+import ScreenHeader from '@/components/ScreenHeader';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'YearlyReport'>;
 
@@ -55,7 +56,7 @@ export default function YearlyReport({ navigation }: Props) {
       // Get last 12 months
       const monthsData: MonthData[] = [];
       const now = new Date();
-      
+
       for (let i = 11; i >= 0; i--) {
         const monthDate = new Date(now.getFullYear(), now.getMonth() - i, 1);
         const month = monthDate.toLocaleDateString('en-US', { month: 'short' });
@@ -66,8 +67,8 @@ export default function YearlyReport({ navigation }: Props) {
         const monthTransactions = fetchedTransactions.filter(t => {
           const transactionDate = t.date?.toDate?.() || t.createdAt?.toDate?.();
           return transactionDate &&
-                 transactionDate.getMonth() === monthIndex &&
-                 transactionDate.getFullYear() === year;
+            transactionDate.getMonth() === monthIndex &&
+            transactionDate.getFullYear() === year;
         });
 
         const income = monthTransactions
@@ -107,8 +108,8 @@ export default function YearlyReport({ navigation }: Props) {
         .filter(t => {
           const transactionDate = t.date?.toDate?.() || t.createdAt?.toDate?.();
           if (!transactionDate) return false;
-          const monthsAgo = (now.getFullYear() - transactionDate.getFullYear()) * 12 + 
-                           (now.getMonth() - transactionDate.getMonth());
+          const monthsAgo = (now.getFullYear() - transactionDate.getFullYear()) * 12 +
+            (now.getMonth() - transactionDate.getMonth());
           return monthsAgo >= 0 && monthsAgo < 12 && t.type === 'expense';
         })
         .forEach(t => {
@@ -154,21 +155,19 @@ export default function YearlyReport({ navigation }: Props) {
     return Math.max((value / maxValue) * maxHeight, 4);
   };
 
+  const renderHeader = () => (
+    <ScreenHeader
+      title={'Yearly Report'}
+      onBackPress={() => navigation.goBack()}
+    />
+  )
+
   return (
     <View style={styles.container}>
       <StatusBar style="light" />
 
       {/* Header */}
-      <View style={styles.header}>
-        <TouchableOpacity
-          style={styles.backButton}
-          onPress={() => navigation.goBack()}
-        >
-          <Ionicons name="arrow-back" size={24} color="#ffffff" />
-        </TouchableOpacity>
-        <Text style={styles.headerTitle}>Yearly Report</Text>
-        <View style={styles.backButton} />
-      </View>
+      {renderHeader()}
 
       {loading ? (
         <View style={styles.loadingContainer}>
@@ -204,9 +203,9 @@ export default function YearlyReport({ navigation }: Props) {
           </View>
 
           {/* Category Distribution Chart */}
-          <CategoryDistributionChart 
-            data={categoryBreakdown} 
-            title="Expense Distribution (12 Months)" 
+          <CategoryDistributionChart
+            data={categoryBreakdown}
+            title="Expense Distribution (12 Months)"
           />
 
           {/* Monthly Chart */}
@@ -223,9 +222,9 @@ export default function YearlyReport({ navigation }: Props) {
                   <Text style={styles.legendText}>Expenses</Text>
                 </View>
               </View>
-              
-              <ScrollView 
-                horizontal 
+
+              <ScrollView
+                horizontal
                 showsHorizontalScrollIndicator={true}
                 style={styles.chartScroll}
                 nestedScrollEnabled={true}
@@ -262,12 +261,12 @@ export default function YearlyReport({ navigation }: Props) {
             <Text style={styles.sectionTitle}>Monthly Breakdown</Text>
             <View style={styles.detailsContainer}>
               {monthlyData.slice().reverse().map((monthData, index) => (
-                <TouchableOpacity 
-                  key={index} 
+                <TouchableOpacity
+                  key={index}
                   style={styles.monthDetailCard}
-                  onPress={() => navigation.navigate('MonthlyReport', { 
-                    year: monthData.year, 
-                    month: monthData.monthIndex 
+                  onPress={() => navigation.navigate('MonthlyReport', {
+                    year: monthData.year,
+                    month: monthData.monthIndex
                   })}
                   activeOpacity={0.7}
                 >
