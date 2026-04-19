@@ -80,10 +80,10 @@ export default function useUserInfoStyles() {
             infoCard: {
                 backgroundColor: theme.colors.backgroundLight,
                 borderRadius: 16,
-                padding: 20,
+                padding: 22,
             },
             infoItem: {
-                paddingVertical: 8,
+                paddingVertical: 0,
             },
             label: {
                 fontSize: 14,

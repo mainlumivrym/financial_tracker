@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, use } from 'react';
 import { StatusBar } from 'expo-status-bar';
 import {
   Text,
@@ -21,12 +21,14 @@ import { formatCurrency } from '../utils/formatCurrency';
 import useMonthlyReportStyles from '@/styles/useMonthlyReportStyles';
 import ScreenHeader from '@/components/ScreenHeader';
 import { useTheme } from '../context/ThemeContext';
+import { useLocalization } from '@/context/LocalizationContext';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'MonthlyReport'>;
 
 export default function MonthlyReport({ navigation, route }: Props) {
   const { theme } = useTheme();
   const styles = useMonthlyReportStyles();
+  const {t} = useLocalization();
 
   const { currentUser } = useAuth();
   const [loading, setLoading] = useState(true);
@@ -197,12 +199,12 @@ export default function MonthlyReport({ navigation, route }: Props) {
     <View style={styles.summaryGrid}>
       <View style={[styles.summaryCard, styles.incomeCard]}>
         <Text style={styles.summaryIcon}>💰</Text>
-        <Text style={styles.summaryLabel}>Income</Text>
+        <Text style={styles.summaryLabel}>{t('common.income')}</Text>
         <Text style={styles.summaryAmount}>${formatCurrency(monthlyData.income)}</Text>
       </View>
       <View style={[styles.summaryCard, styles.expenseCard]}>
         <Text style={styles.summaryIcon}>💸</Text>
-        <Text style={styles.summaryLabel}>Expenses</Text>
+        <Text style={styles.summaryLabel}>{t('common.expenses')}</Text>
         <Text style={styles.summaryAmount}>${formatCurrency(monthlyData.expenses)}</Text>
       </View>
     </View>
@@ -210,7 +212,7 @@ export default function MonthlyReport({ navigation, route }: Props) {
 
   const renderBalanceCard = () => (
     <View style={[styles.summaryCard, styles.balanceCard]}>
-      <Text style={styles.balanceLabel}>Net Balance</Text>
+      <Text style={styles.balanceLabel}>{t('reports.netBalance')}</Text>
       <Text style={[
         styles.balanceAmount,
         { color: monthlyData.balance >= 0 ? theme.colors.income : theme.colors.expense }
@@ -218,14 +220,14 @@ export default function MonthlyReport({ navigation, route }: Props) {
         {monthlyData.balance >= 0 ? '+' : ''}${formatCurrency(monthlyData.balance)}
       </Text>
       <Text style={styles.transactionCount}>
-        {monthlyData.transactionCount} transactions this month
+        {monthlyData.transactionCount} {t('reports.transactionsThisMonth')}
       </Text>
     </View>
   )
 
   const renderCategoryBreakdown = () => (
     <View style={styles.section}>
-      <Text style={styles.sectionTitle}>Expense Breakdown</Text>
+      <Text style={styles.sectionTitle}>{t('reports.expenseBreakdown')}</Text>
       <View style={styles.breakdownContainer}>
         {categoryBreakdown.map((item) => (
           renderCategoryBreakdownItem(item)
@@ -296,7 +298,7 @@ export default function MonthlyReport({ navigation, route }: Props) {
       <View style={styles.transactionSubitemLeft}>
         <View style={styles.transactionSubitemInfo}>
           <Text style={styles.transactionSubitemDescription}>
-            {transaction.description || 'No description'}
+            {transaction.description || t('common.noDescription')}
           </Text>
           <Text style={styles.transactionSubitemDate}>
             {formatTransactionDate(transaction.date || transaction.createdAt)}
@@ -312,16 +314,16 @@ export default function MonthlyReport({ navigation, route }: Props) {
   const renderEmptyState = () => (
     <View style={styles.emptyState}>
       <Text style={styles.emptyIcon}>📊</Text>
-      <Text style={styles.emptyText}>No data yet</Text>
+      <Text style={styles.emptyText}>{t('common.noData')}</Text>
       <Text style={styles.emptySubtext}>
-        Start adding transactions to see your financial reports
+        {t('common.startAddingTransactions')}
       </Text>
     </View>
   )
 
   const renderHeader = () => (
     <ScreenHeader
-      title={'Monthly Report'}
+      title={t('reports.monthlyReport')}
       onBackPress={() => navigation.goBack()}
 
     />

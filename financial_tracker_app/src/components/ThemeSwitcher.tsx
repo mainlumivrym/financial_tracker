@@ -1,9 +1,11 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { SelectableTheme, useTheme } from '../context/ThemeContext';
+import { useLocalization } from '@/context/LocalizationContext';
 
 export default function ThemeSwitcher() {
   const { themeName, setTheme, theme, selectableThemes } = useTheme();
+  const { t } = useLocalization();
 
   const renderThemeButton = (selectableTheme: SelectableTheme) => (
     <TouchableOpacity
@@ -24,14 +26,13 @@ export default function ThemeSwitcher() {
           fontWeight: themeName === selectableTheme.themeName ? '600' : '500'
         }
       ]}>
-        {selectableTheme.displayName}
+        {t(`themes.${selectableTheme.themeName}`)}
       </Text>
     </TouchableOpacity>
-  )
+  );
 
   return (
     <View style={styles.container}>
-      <Text style={[styles.label, { color: theme.colors.text }]}>Theme</Text>
       <View style={styles.buttonRow}>
         {selectableThemes.map((selectableTheme) => (
           <View key={selectableTheme.themeName}>

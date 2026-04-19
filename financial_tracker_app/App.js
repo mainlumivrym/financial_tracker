@@ -3,6 +3,7 @@ import { NavigationContainer, DefaultTheme } from '@react-navigation/native';
 import { createStackNavigator, CardStyleInterpolators } from '@react-navigation/stack';
 import { AuthProvider, useAuth } from './src/context/AuthContext';
 import { ThemeProvider } from './src/context/ThemeContext';
+import { LocalizationProvider } from './src/context/LocalizationContext';
 import 'react-native-gesture-handler';
 
 const DarkTheme = {
@@ -80,16 +81,18 @@ function Navigation() {
 export default function App() {
   return (
     <View style={styles.container}>
-      <ThemeProvider>
-        <AuthProvider>
-          <NavigationContainer 
-            theme={DarkTheme}
-            documentTitle={{ enabled: false }}
-          >
-            <Navigation />
-          </NavigationContainer>
-        </AuthProvider>
-      </ThemeProvider>
+      <LocalizationProvider>
+        <ThemeProvider>
+          <AuthProvider>
+            <NavigationContainer
+              theme={DarkTheme}
+              documentTitle={{ enabled: false }}
+            >
+              <Navigation />
+            </NavigationContainer>
+          </AuthProvider>
+        </ThemeProvider>
+      </LocalizationProvider>
     </View>
   );
 }
