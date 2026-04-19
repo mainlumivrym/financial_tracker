@@ -28,7 +28,7 @@ type Props = NativeStackScreenProps<RootStackParamList, 'MonthlyReport'>;
 export default function MonthlyReport({ navigation, route }: Props) {
   const { theme } = useTheme();
   const styles = useMonthlyReportStyles();
-  const {t} = useLocalization();
+  const { t } = useLocalization();
 
   const { currentUser } = useAuth();
   const [loading, setLoading] = useState(true);
@@ -51,6 +51,8 @@ export default function MonthlyReport({ navigation, route }: Props) {
   const [topCategories, setTopCategories] = useState<any[]>([]);
   const [expandedCategories, setExpandedCategories] = useState<Set<string>>(new Set());
   const [categories, setCategories] = useState<any[]>([]);
+  const [selectedTransactions, setSelectedTransactions] = useState<Set<string>>(new Set());
+  const [selectionMode, setSelectionMode] = useState(false);
 
   useEffect(() => {
     loadReportData();
@@ -166,6 +168,42 @@ export default function MonthlyReport({ navigation, route }: Props) {
     });
   };
 
+  const toggleTransactionSelection = (transactionId: string) => {
+    setSelectedTransactions(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(transactionId)) {
+        newSet.delete(transactionId);
+      } else {
+        newSet.add(transactionId);
+      }
+      return newSet;
+    });
+  };
+
+  const calculateSelectedSum = (): number => {
+    let sum = 0;
+    categoryBreakdown.forEach(category => {
+      category.transactions.forEach((transaction: any) => {
+        if (selectedTransactions.has(transaction.id)) {
+          sum += transaction.amount;
+        }
+      });
+    });
+    return sum;
+  };
+
+  const clearSelection = () => {
+    setSelectedTransactions(new Set());
+  };
+
+  const toggleSelectionMode = () => {
+    setSelectionMode(prev => !prev);
+    // Clear selections when exiting selection mode
+    if (selectionMode) {
+      setSelectedTransactions(new Set());
+    }
+  };
+
   const formatTransactionDate = (date: any): string => {
     const d = date?.toDate?.() || new Date(date);
     return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
@@ -184,7 +222,7 @@ export default function MonthlyReport({ navigation, route }: Props) {
         onPress={showMonthPicker}
       >
         <Text style={styles.monthText}>{formatMonthYear(selectedDate)}</Text>
-        <Ionicons name="calendar-outline" size={20} color={colors.textSecondary} style={{ marginLeft: 8 }} />
+        <Ionicons name="calendar-outline" size={20} color={theme.colors.primary} style={{ marginLeft: 8 }} />
       </TouchableOpacity>
       <TouchableOpacity
         style={styles.monthNavButton}
@@ -227,7 +265,12 @@ export default function MonthlyReport({ navigation, route }: Props) {
 
   const renderCategoryBreakdown = () => (
     <View style={styles.section}>
-      <Text style={styles.sectionTitle}>{t('reports.expenseBreakdown')}</Text>
+      <View style={styles.sectionHeader}>
+        <Text style={styles.sectionTitle}>{t('reports.expenseBreakdown')}</Text>
+      </View>
+
+      {renderSelectionSummary()}
+
       <View style={styles.breakdownContainer}>
         {categoryBreakdown.map((item) => (
           renderCategoryBreakdownItem(item)
@@ -293,23 +336,46 @@ export default function MonthlyReport({ navigation, route }: Props) {
     );
   }
 
-  const renderTransactionSubItem = (transaction: any, index: number) => (
-    <View key={transaction.id || index} style={styles.transactionSubitem}>
-      <View style={styles.transactionSubitemLeft}>
-        <View style={styles.transactionSubitemInfo}>
-          <Text style={styles.transactionSubitemDescription}>
-            {transaction.description || t('common.noDescription')}
-          </Text>
-          <Text style={styles.transactionSubitemDate}>
-            {formatTransactionDate(transaction.date || transaction.createdAt)}
-          </Text>
+  const renderTransactionSubItem = (transaction: any, index: number) => {
+    const isSelected = selectedTransactions.has(transaction.id);
+
+    return (
+      <TouchableOpacity
+        key={transaction.id || index}
+        style={[
+          styles.transactionSubitem,
+          isSelected && selectionMode && styles.transactionSubitemSelected
+        ]}
+        onPress={() => selectionMode && toggleTransactionSelection(transaction.id)}
+        activeOpacity={selectionMode ? 0.7 : 1}
+        disabled={!selectionMode}
+      >
+        <View style={styles.transactionSubitemLeft}>
+          {selectionMode && (
+            <View style={[
+              styles.checkbox,
+              isSelected && styles.checkboxSelected
+            ]}>
+              {isSelected && (
+                <Ionicons name="checkmark" size={16} color="#ffffff" />
+              )}
+            </View>
+          )}
+          <View style={styles.transactionSubitemInfo}>
+            <Text style={styles.transactionSubitemDescription}>
+              {transaction.description || 'No description'}
+            </Text>
+            <Text style={styles.transactionSubitemDate}>
+              {formatTransactionDate(transaction.date || transaction.createdAt)}
+            </Text>
+          </View>
         </View>
-      </View>
-      <Text style={styles.transactionSubitemAmount}>
-        ${formatCurrency(transaction.amount)}
-      </Text>
-    </View>
-  )
+        <Text style={styles.transactionSubitemAmount}>
+          ${formatCurrency(transaction.amount)}
+        </Text>
+      </TouchableOpacity>
+    );
+  }
 
   const renderEmptyState = () => (
     <View style={styles.emptyState}>
@@ -325,9 +391,63 @@ export default function MonthlyReport({ navigation, route }: Props) {
     <ScreenHeader
       title={t('reports.monthlyReport')}
       onBackPress={() => navigation.goBack()}
-
     />
   )
+
+  const renderSelectionSummary = () => (
+    <View style={!selectionMode ? [styles.selectionBar, styles.selectionBarUnselected] : styles.selectionBar}>
+      <View style={styles.selectionBarContent}>
+        <View
+          style={{
+            flex: 1,
+            flexDirection: 'column',
+          }}
+        >
+
+          {!selectionMode &&
+            <>
+              <Text style={styles.selectionBarTitle}>
+                Enable expenses selection
+              </Text>
+              <Text style={styles.selectionBarDescription}>
+                Select individual expenses to get a total
+              </Text>
+            </>
+          }
+
+          {selectionMode &&
+            <>
+              <Text style={styles.selectionBarText}>
+                {selectedTransactions.size} selected
+              </Text>
+              <Text style={styles.selectionBarSum}>
+                ${formatCurrency(selectedSum)}
+              </Text>
+            </>
+          }
+        </View>
+
+        <TouchableOpacity
+          style={{
+            width: 44,
+            height: 44,
+            alignContent: 'center',
+            justifyContent: 'center',
+            alignItems: 'center',
+          }}
+          onPress={toggleSelectionMode}
+        >
+          {
+            <Ionicons name={selectionMode ? "close" : "square-outline"} size={22} color={selectionMode ? "#ffffff" : theme.colors.text} />
+          }
+        </TouchableOpacity>
+
+      </View>
+    </View>
+  )
+
+  const selectedSum = calculateSelectedSum();
+  const hasSelection = selectedTransactions.size > 0;
 
   return (
     <View style={styles.container}>

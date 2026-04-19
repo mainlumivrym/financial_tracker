@@ -1,6 +1,7 @@
 import { useMemo } from "react";
 import { useTheme } from '../context/ThemeContext';
 import { StyleSheet } from 'react-native';
+import colors from "./colors";
 
 export default function useMonthlyReportStyles() {
     const { theme } = useTheme();
@@ -132,11 +133,36 @@ export default function useMonthlyReportStyles() {
             section: {
                 marginBottom: theme.spacing.xl,
             },
+            sectionHeader: {
+                flexDirection: 'row',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                marginBottom: theme.spacing.md,
+            },
             sectionTitle: {
                 fontSize: 20,
                 fontWeight: 'bold',
                 color: theme.colors.text,
-                marginBottom: theme.spacing.md,
+            },
+            selectionModeButton: {
+                flexDirection: 'row',
+                alignItems: 'center',
+                gap: theme.spacing.xs,
+                paddingVertical: theme.spacing.xs,
+                paddingHorizontal: theme.spacing.sm,
+                borderRadius: theme.borderRadius.sm,
+                backgroundColor: theme.colors.backgroundLight,
+            },
+            selectionModeButtonActive: {
+                backgroundColor: theme.colors.primary,
+            },
+            selectionModeButtonText: {
+                fontSize: 14,
+                fontWeight: '600',
+                color: theme.colors.text,
+            },
+            selectionModeButtonTextActive: {
+                color: theme.colors.greenCardText,
             },
             topCategoriesContainer: {
                 gap: theme.spacing.sm,
@@ -304,6 +330,65 @@ export default function useMonthlyReportStyles() {
             },
             transactionIcon: {
                 fontSize: 20,
+            },
+            checkbox: {
+                width: 20,
+                height: 20,
+                borderRadius: 4,
+                borderWidth: 2,
+                borderColor: theme.colors.textSecondary,
+                alignItems: 'center',
+                justifyContent: 'center',
+            },
+            checkboxSelected: {
+                backgroundColor: theme.colors.primary,
+                borderColor: theme.colors.primary,
+            },
+            transactionSubitemSelected: {
+                backgroundColor: colors.transparent,
+            },
+            selectionBar: {
+                height: 88,
+                flexDirection: 'row',
+                alignItems: 'center',
+                alignContent: 'center',
+                verticalAlign: 'middle',
+                justifyContent: 'center',
+                backgroundColor: theme.colors.greenCardBackground,
+                paddingHorizontal: 16,
+                paddingRight: 8,
+                marginBottom: 8,
+                borderRadius: theme.borderRadius.sm,
+            },
+            selectionBarUnselected: {
+                backgroundColor: theme.colors.backgroundLight,
+            },
+            selectionBarContent: {
+                flex: 1,
+                flexDirection: 'row',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+            },
+            selectionBarText: {
+                fontSize: 14,
+                color: theme.colors.greenCardText,
+                marginBottom: 2,
+            },
+            selectionBarTitle: {
+                fontSize: 16,
+                color: theme.colors.text,
+                marginBottom: 4,
+                fontWeight: '600',
+            },
+            selectionBarDescription: {
+                fontSize: 14,
+                color: theme.colors.text,
+                marginBottom: 2,
+            },
+            selectionBarSum: {
+                fontSize: 20,
+                fontWeight: 'bold',
+                color: theme.colors.greenCardText,
             },
         });
     }, [theme]);
