@@ -7,7 +7,8 @@ import {
   TouchableOpacity,
   ActivityIndicator,
   Dimensions,
-  Platform
+  Platform,
+  Pressable
 } from 'react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import DateTimePickerAndroid from '@react-native-community/datetimepicker';
@@ -53,6 +54,8 @@ export default function MonthlyReport({ navigation, route }: Props) {
   const [categories, setCategories] = useState<any[]>([]);
   const [selectedTransactions, setSelectedTransactions] = useState<Set<string>>(new Set());
   const [selectionMode, setSelectionMode] = useState(false);
+  const [isWidgetExpanded, setIsWidgetExpanded] = useState(false);
+
 
   useEffect(() => {
     loadReportData();
@@ -194,6 +197,7 @@ export default function MonthlyReport({ navigation, route }: Props) {
 
   const clearSelection = () => {
     setSelectedTransactions(new Set());
+    setIsWidgetExpanded(false);
   };
 
   const toggleSelectionMode = () => {
@@ -202,6 +206,12 @@ export default function MonthlyReport({ navigation, route }: Props) {
     if (selectionMode) {
       setSelectedTransactions(new Set());
     }
+  };
+
+  const handleLongPress = (transactionId: string) => {
+    // Enter selection mode and select the item
+    setSelectionMode(true);
+    setSelectedTransactions(new Set([transactionId]));
   };
 
   const formatTransactionDate = (date: any): string => {
@@ -268,8 +278,6 @@ export default function MonthlyReport({ navigation, route }: Props) {
       <View style={styles.sectionHeader}>
         <Text style={styles.sectionTitle}>{t('reports.expenseBreakdown')}</Text>
       </View>
-
-      {renderSelectionSummary()}
 
       <View style={styles.breakdownContainer}>
         {categoryBreakdown.map((item) => (
@@ -340,15 +348,15 @@ export default function MonthlyReport({ navigation, route }: Props) {
     const isSelected = selectedTransactions.has(transaction.id);
 
     return (
-      <TouchableOpacity
+      <Pressable
         key={transaction.id || index}
         style={[
           styles.transactionSubitem,
           isSelected && selectionMode && styles.transactionSubitemSelected
         ]}
         onPress={() => selectionMode && toggleTransactionSelection(transaction.id)}
-        activeOpacity={selectionMode ? 0.7 : 1}
-        disabled={!selectionMode}
+        onLongPress={() => handleLongPress(transaction.id)}
+        delayLongPress={400}
       >
         <View style={styles.transactionSubitemLeft}>
           {selectionMode && (
@@ -373,7 +381,7 @@ export default function MonthlyReport({ navigation, route }: Props) {
         <Text style={styles.transactionSubitemAmount}>
           ${formatCurrency(transaction.amount)}
         </Text>
-      </TouchableOpacity>
+      </Pressable>
     );
   }
 
@@ -394,55 +402,66 @@ export default function MonthlyReport({ navigation, route }: Props) {
     />
   )
 
-  const renderSelectionSummary = () => (
-    <View style={!selectionMode ? [styles.selectionBar, styles.selectionBarUnselected] : styles.selectionBar}>
-      <View style={styles.selectionBarContent}>
-        <View
-          style={{
-            flex: 1,
-            flexDirection: 'column',
-          }}
-        >
+  const renderFloatingWidget = () => (
 
-          {!selectionMode &&
-            <>
-              <Text style={styles.selectionBarTitle}>
-                Enable expenses selection
-              </Text>
-              <Text style={styles.selectionBarDescription}>
-                Select individual expenses to get a total
-              </Text>
-            </>
-          }
-
-          {selectionMode &&
-            <>
-              <Text style={styles.selectionBarText}>
-                {selectedTransactions.size} selected
-              </Text>
-              <Text style={styles.selectionBarSum}>
-                ${formatCurrency(selectedSum)}
-              </Text>
-            </>
-          }
+    <View style={[
+      styles.floatingWidget,
+      isWidgetExpanded && styles.floatingWidgetExpanded
+    ]}>
+      <TouchableOpacity
+        style={styles.floatingWidgetContent}
+        onPress={() => setIsWidgetExpanded(!isWidgetExpanded)}
+        activeOpacity={0.9}
+      >
+        <View style={styles.floatingWidgetInfo}>
+          <Text style={styles.floatingWidgetCount}>
+            {selectedTransactions.size} {selectedTransactions.size === 1 ? 'item' : 'items'}
+          </Text>
+          <Text style={styles.floatingWidgetSum}>
+            ${formatCurrency(selectedSum)}
+          </Text>
         </View>
+        <View style={styles.floatingWidgetActions}>
+          <TouchableOpacity
+            style={styles.floatingWidgetButton}
+            onPress={(e) => {
+              e.stopPropagation();
+              clearSelection();
+              setSelectionMode(false);
+            }}
+          >
+            <Ionicons name="close" size={24} color={theme.colors.greenCardText} />
+          </TouchableOpacity>
+        </View>
+      </TouchableOpacity>
 
-        <TouchableOpacity
-          style={{
-            width: 44,
-            height: 44,
-            alignContent: 'center',
-            justifyContent: 'center',
-            alignItems: 'center',
-          }}
-          onPress={toggleSelectionMode}
-        >
-          {
-            <Ionicons name={selectionMode ? "close" : "square-outline"} size={22} color={selectionMode ? "#ffffff" : theme.colors.text} />
-          }
-        </TouchableOpacity>
-
-      </View>
+      {/* Expanded List */}
+      {isWidgetExpanded && (
+        <View style={styles.floatingWidgetList}>
+          <View style={styles.floatingWidgetDivider} />
+          <ScrollView style={styles.floatingWidgetScrollView} showsVerticalScrollIndicator={false}>
+            {categoryBreakdown.map(category =>
+              category.transactions
+                .filter((t: any) => selectedTransactions.has(t.id))
+                .map((transaction: any) => (
+                  <View key={transaction.id} style={styles.floatingWidgetItem}>
+                    <View style={styles.floatingWidgetItemLeft}>
+                      <Text style={styles.floatingWidgetItemDescription}>
+                        {transaction.description || 'No description'}
+                      </Text>
+                      <Text style={styles.floatingWidgetItemCategory}>
+                        {transaction.category} • {formatTransactionDate(transaction.date || transaction.createdAt)}
+                      </Text>
+                    </View>
+                    <Text style={styles.floatingWidgetItemAmount}>
+                      ${formatCurrency(transaction.amount)}
+                    </Text>
+                  </View>
+                ))
+            )}
+          </ScrollView>
+        </View>
+      )}
     </View>
   )
 
@@ -489,6 +508,11 @@ export default function MonthlyReport({ navigation, route }: Props) {
 
           <View style={styles.bottomSpacer} />
         </ScrollView>
+      )}
+
+      {/* Floating Selection Widget */}
+      {selectionMode && (
+        renderFloatingWidget()
       )}
     </View>
   );

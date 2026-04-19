@@ -390,6 +390,99 @@ export default function useMonthlyReportStyles() {
                 fontWeight: 'bold',
                 color: theme.colors.greenCardText,
             },
+            floatingWidget: {
+                position: 'absolute',
+                bottom: theme.spacing.lg,
+                left: theme.spacing.lg,
+                right: theme.spacing.lg,
+                backgroundColor: theme.colors.primary,
+                borderRadius: theme.borderRadius.md,
+                shadowColor: '#000',
+                shadowOffset: {
+                    width: 0,
+                    height: 4,
+                },
+                shadowOpacity: 0.3,
+                shadowRadius: 8,
+                elevation: 8,
+                maxHeight: 120,
+            },
+            floatingWidgetExpanded: {
+                maxHeight: 400,
+            },
+            floatingWidgetContent: {
+                flexDirection: 'row',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                padding: theme.spacing.lg,
+                paddingRight: theme.spacing.md,
+            },
+            floatingWidgetInfo: {
+                flex: 1,
+            },
+            floatingWidgetCount: {
+                fontSize: 14,
+                color: theme.colors.greenCardText,
+                marginBottom: 4,
+                opacity: 0.9,
+            },
+            floatingWidgetSum: {
+                fontSize: 24,
+                fontWeight: 'bold',
+                color: theme.colors.greenCardText,
+            },
+            floatingWidgetActions: {
+                flexDirection: 'row',
+                alignItems: 'center',
+            },
+            floatingWidgetButton: {
+                width: 44,
+                height: 44,
+                alignItems: 'center',
+                justifyContent: 'center',
+                borderRadius: theme.borderRadius.full,
+                backgroundColor: 'rgba(0, 0, 0, 0.2)',
+            },
+            floatingWidgetList: {
+                paddingTop: theme.spacing.sm,
+            },
+            floatingWidgetDivider: {
+                height: 1,
+                backgroundColor: 'rgba(255, 255, 255, 0.2)',
+                marginBottom: theme.spacing.sm,
+            },
+            floatingWidgetScrollView: {
+                maxHeight: 280,
+                paddingHorizontal: theme.spacing.lg,
+            },
+            floatingWidgetItem: {
+                flexDirection: 'row',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                paddingVertical: theme.spacing.sm,
+                borderBottomWidth: 1,
+                borderBottomColor: 'rgba(255, 255, 255, 0.1)',
+            },
+            floatingWidgetItemLeft: {
+                flex: 1,
+                marginRight: theme.spacing.sm,
+            },
+            floatingWidgetItemDescription: {
+                fontSize: 14,
+                fontWeight: '500',
+                color: theme.colors.greenCardText,
+                marginBottom: 2,
+            },
+            floatingWidgetItemCategory: {
+                fontSize: 12,
+                color: theme.colors.greenCardText,
+                opacity: 0.8,
+            },
+            floatingWidgetItemAmount: {
+                fontSize: 14,
+                fontWeight: '600',
+                color: theme.colors.greenCardText,
+            },
         });
     }, [theme]);
 }
