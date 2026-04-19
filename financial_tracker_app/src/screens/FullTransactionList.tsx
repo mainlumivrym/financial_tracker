@@ -7,7 +7,8 @@ import {
   SectionList,
   TouchableOpacity,
   ActivityIndicator,
-  Alert
+  Alert,
+  SectionListData
 } from 'react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { Ionicons } from '@expo/vector-icons';
@@ -16,6 +17,10 @@ import { useAuth } from '../context/AuthContext';
 import { getUserTransactions, deleteTransaction } from '../services/transactionService';
 import { RootStackParamList } from '../types';
 import TransactionListItem from '../components/TransactionListItem';
+import useFullTransactionListStyles from '@/styles/useFullTransactionListStyles';
+import ScreenHeader from '@/components/ScreenHeader';
+import { useLocalization } from '@/context/LocalizationContext';
+import { useTheme } from '../context/ThemeContext';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'FullTransactionList'>;
 
@@ -31,6 +36,10 @@ interface Transaction {
 }
 
 export default function FullTransactionList({ navigation }: Props) {
+  const styles = useFullTransactionListStyles();
+  const { theme } = useTheme();
+  const { t } = useLocalization();
+
   const { currentUser } = useAuth();
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [loading, setLoading] = useState(true);
@@ -44,7 +53,7 @@ export default function FullTransactionList({ navigation }: Props) {
       try {
         setLoading(true);
         const fetchedTransactions = await getUserTransactions(currentUser.uid);
-        
+
         // Sort by date, newest first
         const sorted = fetchedTransactions.sort((a, b) => {
           const dateA = a.date?.toDate?.() || a.createdAt?.toDate?.() || new Date(0);
@@ -90,23 +99,23 @@ export default function FullTransactionList({ navigation }: Props) {
 
   const groupTransactionsByMonth = () => {
     const grouped: { [key: string]: Transaction[] } = {};
-    
+
     transactions.forEach((transaction) => {
       const timestampField = transaction.date || transaction.createdAt;
       if (!timestampField) return;
-      
+
       const date = timestampField.toDate ? timestampField.toDate() : new Date(timestampField);
-      const monthKey = date.toLocaleDateString('en-US', { 
+      const monthKey = date.toLocaleDateString('en-US', {
         month: 'long',
         year: 'numeric'
       });
-      
+
       if (!grouped[monthKey]) {
         grouped[monthKey] = [];
       }
       grouped[monthKey].push(transaction);
     });
-    
+
     // Convert to sections format for SectionList
     return Object.entries(grouped).map(([month, data]) => ({
       title: month,
@@ -118,119 +127,143 @@ export default function FullTransactionList({ navigation }: Props) {
     const income = monthTransactions
       .filter(t => t.type === 'income')
       .reduce((sum, t) => sum + t.amount, 0);
-    
+
     const expenses = monthTransactions
       .filter(t => t.type === 'expense')
       .reduce((sum, t) => sum + t.amount, 0);
-    
+
     const balance = income - expenses;
-    
+
     return { income, expenses, balance };
   };
 
   const sections = groupTransactionsByMonth();
+
+  const renderHeader = () => (
+    <ScreenHeader
+      title={t('fullTransactionsList.title')}
+      onBackPress={() => navigation.goBack()}
+    />
+  )
+
+  const renderSectionHeader = (section: SectionListData<Transaction>) => {
+    return (
+      <View style={styles.sectionHeader}>
+        <Text style={styles.dateHeader}>{section.title}</Text>
+      </View>
+    );
+  };
+
+  const renderEmptyContainer = () => (
+    <View style={styles.emptyContainer}>
+      <Text style={styles.emptyIcon}>📝</Text>
+      <Text style={styles.emptyText}>{t('dashboard.noTransactions')}</Text>
+      <Text style={styles.emptySubtext}>{t('dashboard.startTracking')}</Text>
+    </View>
+  );
+
+  const renderSectionItem = (
+    item: Transaction,
+    isFirst: boolean,
+    isLast: boolean
+  ) => (
+    <SwipeRow
+      rightOpenValue={-75}
+      disableRightSwipe
+      friction={8}
+    >
+      {/* Hidden delete button */}
+      <View style={[
+        styles.rowBack,
+        isFirst && styles.rowBackFirst,
+        isLast && styles.rowBackLast
+      ]}>
+        <TouchableOpacity
+          style={styles.deleteButton}
+          onPress={() => handleDeleteTransaction(
+            item.id,
+            item.description || item.category
+          )}
+        >
+          <Ionicons name="trash-outline" size={24} color="#ffffff" />
+        </TouchableOpacity>
+      </View>
+
+      {/* Visible transaction item */}
+      <View style={[
+        styles.itemContainer,
+        isFirst && styles.itemContainerFirst,
+        isLast && styles.itemContainerLast
+      ]}>
+        <TransactionListItem
+          transaction={item}
+          showCategory={true}
+          showTime={false}
+        />
+      </View>
+    </SwipeRow>
+  );
+
+  const renderSectionSummary = (
+    income: number,
+    expenses: number,
+    balance: number
+  ) => (
+    <View style={styles.monthSummary}>
+      <View style={styles.summaryRow}>
+        <Text style={styles.summaryLabel}>Income</Text>
+        <Text style={styles.summaryIncome}>+${income.toFixed(2)}</Text>
+      </View>
+      <View style={styles.summaryRow}>
+        <Text style={styles.summaryLabel}>Expenses</Text>
+        <Text style={styles.summaryExpense}>-${expenses.toFixed(2)}</Text>
+      </View>
+      <View style={[styles.summaryRow, styles.summaryTotal]}>
+        <Text style={styles.summaryTotalLabel}>Balance</Text>
+        <Text style={[
+          styles.summaryTotalAmount,
+          { color: balance >= 0 ? theme.colors.income : theme.colors.expense }
+        ]}>
+          {balance >= 0 ? '+' : ''}${balance.toFixed(2)}
+        </Text>
+      </View>
+    </View>
+  )
 
   return (
     <View style={styles.container}>
       <StatusBar style="light" />
 
       {/* Header */}
-      <View style={styles.header}>
-        <TouchableOpacity
-          style={styles.backButton}
-          onPress={() => navigation.goBack()}
-        >
-          <Ionicons name="arrow-back" size={24} color="#ffffff" />
-        </TouchableOpacity>
-        <Text style={styles.headerTitle}>All Transactions</Text>
-        <View style={styles.backButton} />
-      </View>
+      {renderHeader()}
 
       {loading ? (
         <View style={styles.loadingContainer}>
           <ActivityIndicator size="large" color="#4ecca3" />
         </View>
       ) : transactions.length === 0 ? (
-        <View style={styles.emptyContainer}>
-          <Text style={styles.emptyIcon}>📝</Text>
-          <Text style={styles.emptyText}>No transactions yet</Text>
-          <Text style={styles.emptySubtext}>Start tracking your finances!</Text>
-        </View>
+        renderEmptyContainer()
       ) : (
         <SectionList
           sections={sections}
           keyExtractor={(item) => item.id}
           stickySectionHeadersEnabled={true}
           renderSectionHeader={({ section }) => (
-            <View style={styles.sectionHeader}>
-              <Text style={styles.dateHeader}>{section.title}</Text>
-            </View>
+            renderSectionHeader(section)
           )}
           renderItem={({ item, index, section }) => {
             const isFirst = index === 0;
             const isLast = index === section.data.length - 1;
-            
+
             return (
-              <SwipeRow
-                rightOpenValue={-75}
-                disableRightSwipe
-                friction={8}
-              >
-                {/* Hidden delete button */}
-                <View style={[
-                  styles.rowBack,
-                  isFirst && styles.rowBackFirst,
-                  isLast && styles.rowBackLast
-                ]}>
-                  <TouchableOpacity
-                    style={styles.deleteButton}
-                    onPress={() => handleDeleteTransaction(
-                      item.id,
-                      item.description || item.category
-                    )}
-                  >
-                    <Ionicons name="trash-outline" size={24} color="#ffffff" />
-                  </TouchableOpacity>
-                </View>
-                
-                {/* Visible transaction item */}
-                <View style={[
-                  styles.itemContainer,
-                  isFirst && styles.itemContainerFirst,
-                  isLast && styles.itemContainerLast
-                ]}>
-                  <TransactionListItem
-                    transaction={item}
-                    showCategory={true}
-                    showTime={false}
-                  />
-                </View>
-              </SwipeRow>
+              renderSectionItem(item, isFirst, isLast)
             );
           }}
           renderSectionFooter={({ section }) => {
             const { income, expenses, balance } = calculateMonthBalance(section.data);
-            
+
             return (
-              <View style={styles.monthSummary}>
-                <View style={styles.summaryRow}>
-                  <Text style={styles.summaryLabel}>Income</Text>
-                  <Text style={styles.summaryIncome}>+${income.toFixed(2)}</Text>
-                </View>
-                <View style={styles.summaryRow}>
-                  <Text style={styles.summaryLabel}>Expenses</Text>
-                  <Text style={styles.summaryExpense}>-${expenses.toFixed(2)}</Text>
-                </View>
-                <View style={[styles.summaryRow, styles.summaryTotal]}>
-                  <Text style={styles.summaryTotalLabel}>Balance</Text>
-                  <Text style={[
-                    styles.summaryTotalAmount,
-                    { color: balance >= 0 ? '#4ecca3' : '#ff6b6b' }
-                  ]}>
-                    {balance >= 0 ? '+' : ''}${balance.toFixed(2)}
-                  </Text>
-                </View>
-              </View>
+              renderSectionSummary(income, expenses, balance)
             );
           }}
           style={styles.scrollView}
@@ -241,152 +274,3 @@ export default function FullTransactionList({ navigation }: Props) {
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#1a1a2e',
-  },
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingHorizontal: 20,
-    paddingTop: 60,
-    paddingBottom: 20,
-  },
-  backButton: {
-    width: 40,
-    height: 40,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  headerTitle: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: '#ffffff',
-  },
-  loadingContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  emptyContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    paddingHorizontal: 40,
-  },
-  emptyIcon: {
-    fontSize: 64,
-    marginBottom: 16,
-  },
-  emptyText: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: '#ffffff',
-    marginBottom: 8,
-  },
-  emptySubtext: {
-    fontSize: 16,
-    color: '#a0a0a0',
-    textAlign: 'center',
-  },
-  scrollView: {
-    flex: 1,
-  },
-  listContent: {
-    paddingHorizontal: 20,
-  },
-  sectionHeader: {
-    backgroundColor: '#1a1a2e',
-    paddingVertical: 12,
-    paddingHorizontal: 20,
-    marginHorizontal: -20,
-  },
-  dateHeader: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: '#ffffff',
-  },
-  itemContainer: {
-    backgroundColor: '#2a2a3e',
-    paddingHorizontal: 12,
-  },
-  itemContainerFirst: {
-    borderTopLeftRadius: 16,
-    borderTopRightRadius: 16,
-    paddingTop: 4,
-  },
-  itemContainerLast: {
-    borderBottomLeftRadius: 16,
-    borderBottomRightRadius: 16,
-    paddingBottom: 4,
-  },
-  rowBack: {
-    alignItems: 'center',
-    backgroundColor: '#ff6b6b',
-    flex: 1,
-    flexDirection: 'row',
-    justifyContent: 'flex-end',
-  },
-  rowBackFirst: {
-    borderTopLeftRadius: 16,
-    borderTopRightRadius: 16,
-  },
-  rowBackLast: {
-    borderBottomLeftRadius: 16,
-    borderBottomRightRadius: 16,
-  },
-  deleteButton: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    width: 75,
-    alignSelf: 'center',
-  },
-  monthSummary: {
-    backgroundColor: '#2a2a3e',
-    borderRadius: 16,
-    padding: 16,
-    marginTop: 12,
-    marginBottom: 24,
-  },
-  summaryRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 8,
-  },
-  summaryLabel: {
-    fontSize: 14,
-    color: '#a0a0a0',
-  },
-  summaryIncome: {
-    fontSize: 14,
-    color: '#4ecca3',
-    fontWeight: '600',
-  },
-  summaryExpense: {
-    fontSize: 14,
-    color: '#ff6b6b',
-    fontWeight: '600',
-  },
-  summaryTotal: {
-    marginTop: 8,
-    paddingTop: 12,
-    borderTopWidth: 1,
-    borderTopColor: '#3a3a4e',
-  },
-  summaryTotalLabel: {
-    fontSize: 16,
-    color: '#ffffff',
-    fontWeight: 'bold',
-  },
-  summaryTotalAmount: {
-    fontSize: 18,
-    fontWeight: 'bold',
-  },
-  bottomSpacer: {
-    height: 40,
-  },
-});

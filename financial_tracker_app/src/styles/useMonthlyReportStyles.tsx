@@ -1,6 +1,7 @@
 import { useMemo } from "react";
 import { useTheme } from '../context/ThemeContext';
 import { StyleSheet } from 'react-native';
+import colors from "./colors";
 
 export default function useMonthlyReportStyles() {
     const { theme } = useTheme();
@@ -10,14 +11,6 @@ export default function useMonthlyReportStyles() {
             container: {
                 flex: 1,
                 backgroundColor: theme.colors.background,
-            },
-            header: {
-                flexDirection: 'row',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-                paddingHorizontal: theme.spacing.lg,
-                paddingTop: 60,
-                paddingBottom: 15,
             },
             monthPickerContainer: {
                 flexDirection: 'row',
@@ -59,17 +52,6 @@ export default function useMonthlyReportStyles() {
                 fontSize: 18,
                 fontWeight: '600',
                 color: theme.colors.primary,
-            },
-            backButton: {
-                width: 40,
-                height: 40,
-                alignItems: 'center',
-                justifyContent: 'center',
-            },
-            headerTitle: {
-                fontSize: 20,
-                fontWeight: 'bold',
-                color: theme.colors.text,
             },
             loadingContainer: {
                 flex: 1,
@@ -132,54 +114,6 @@ export default function useMonthlyReportStyles() {
             section: {
                 marginBottom: theme.spacing.xl,
             },
-            sectionTitle: {
-                fontSize: 20,
-                fontWeight: 'bold',
-                color: theme.colors.text,
-                marginBottom: theme.spacing.md,
-            },
-            topCategoriesContainer: {
-                gap: theme.spacing.sm,
-            },
-            topCategoryItem: {
-                flexDirection: 'row',
-                alignItems: 'center',
-                backgroundColor: theme.colors.backgroundLight,
-                borderRadius: theme.borderRadius.sm,
-                padding: theme.spacing.md,
-            },
-            rankBadge: {
-                width: 32,
-                height: 32,
-                borderRadius: theme.borderRadius.md,
-                backgroundColor: theme.colors.primary,
-                alignItems: 'center',
-                justifyContent: 'center',
-                marginRight: theme.spacing.sm,
-            },
-            rankText: {
-                fontSize: 16,
-                fontWeight: 'bold',
-                color: theme.colors.background,
-            },
-            topCategoryInfo: {
-                flex: 1,
-            },
-            topCategoryName: {
-                fontSize: 16,
-                fontWeight: '600',
-                color: theme.colors.text,
-                marginBottom: theme.spacing.xs,
-            },
-            topCategoryAmount: {
-                fontSize: 14,
-                color: theme.colors.textSecondary,
-            },
-            topCategoryPercentage: {
-                fontSize: 18,
-                fontWeight: 'bold',
-                color: theme.colors.primary,
-            },
             breakdownContainer: {
                 backgroundColor: theme.colors.backgroundLight,
                 borderRadius: theme.borderRadius.md,
@@ -214,11 +148,6 @@ export default function useMonthlyReportStyles() {
                 fontSize: 16,
                 fontWeight: '600',
                 color: theme.colors.text,
-            },
-            breakdownCount: {
-                fontSize: 12,
-                color: theme.colors.textSecondary,
-                marginTop: 2,
             },
             breakdownAmount: {
                 fontSize: 16,
@@ -258,9 +187,6 @@ export default function useMonthlyReportStyles() {
                 alignItems: 'center',
                 flex: 1,
                 gap: theme.spacing.sm,
-            },
-            transactionSubitemIcon: {
-                fontSize: 20,
             },
             transactionSubitemInfo: {
                 flex: 1,
@@ -302,8 +228,119 @@ export default function useMonthlyReportStyles() {
             bottomSpacer: {
                 height: theme.spacing.xxl,
             },
-            transactionIcon: {
-                fontSize: 20,
+            checkbox: {
+                width: 20,
+                height: 20,
+                borderRadius: 4,
+                borderWidth: 2,
+                borderColor: theme.colors.textSecondary,
+                alignItems: 'center',
+                justifyContent: 'center',
+            },
+            checkboxSelected: {
+                backgroundColor: theme.colors.primary,
+                borderColor: theme.colors.primary,
+            },
+            transactionSubitemSelected: {
+                backgroundColor: colors.transparent,
+            },
+            floatingWidget: {
+                position: 'absolute',
+                bottom: theme.spacing.lg,
+                left: theme.spacing.lg,
+                right: theme.spacing.lg,
+                backgroundColor: theme.colors.primary,
+                borderRadius: theme.borderRadius.md,
+                shadowColor: '#000',
+                shadowOffset: {
+                    width: 0,
+                    height: 4,
+                },
+                shadowOpacity: 0.3,
+                shadowRadius: 8,
+                elevation: 8,
+                maxHeight: 120,
+            },
+            floatingWidgetExpanded: {
+                maxHeight: 400,
+            },
+            floatingWidgetContent: {
+                flexDirection: 'row',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                padding: theme.spacing.lg,
+                paddingRight: theme.spacing.md,
+            },
+            floatingWidgetInfo: {
+                flex: 1,
+            },
+            floatingWidgetCount: {
+                fontSize: 14,
+                color: theme.colors.greenCardText,
+                marginBottom: 4,
+                opacity: 0.9,
+            },
+            floatingWidgetSum: {
+                fontSize: 24,
+                fontWeight: 'bold',
+                color: theme.colors.greenCardText,
+            },
+            floatingWidgetActions: {
+                flexDirection: 'row',
+                alignItems: 'center',
+            },
+            floatingWidgetButton: {
+                width: 44,
+                height: 44,
+                alignItems: 'center',
+                justifyContent: 'center',
+                borderRadius: theme.borderRadius.full,
+                backgroundColor: 'rgba(0, 0, 0, 0.2)',
+            },
+            floatingWidgetList: {
+                paddingTop: theme.spacing.sm,
+            },
+            floatingWidgetDivider: {
+                height: 1,
+                backgroundColor: 'rgba(255, 255, 255, 0.2)',
+                marginBottom: theme.spacing.sm,
+            },
+            floatingWidgetScrollView: {
+                maxHeight: 280,
+                paddingHorizontal: theme.spacing.lg,
+            },
+            floatingWidgetItem: {
+                flexDirection: 'row',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                paddingVertical: theme.spacing.sm,
+                borderBottomWidth: 1,
+                borderBottomColor: 'rgba(255, 255, 255, 0.1)',
+            },
+            floatingWidgetItemLeft: {
+                flex: 1,
+                marginRight: theme.spacing.sm,
+            },
+            floatingWidgetItemDescription: {
+                fontSize: 14,
+                fontWeight: '500',
+                color: theme.colors.greenCardText,
+                marginBottom: 2,
+            },
+            floatingWidgetItemCategory: {
+                fontSize: 12,
+                color: theme.colors.greenCardText,
+                opacity: 0.8,
+            },
+            floatingWidgetItemAmount: {
+                fontSize: 14,
+                fontWeight: '600',
+                color: theme.colors.greenCardText,
+            },
+            dailyGraphContainer: {
+                backgroundColor: theme.colors.backgroundLight,
+                borderRadius: theme.borderRadius.md,
+                padding: theme.spacing.md,
             },
         });
     }, [theme]);

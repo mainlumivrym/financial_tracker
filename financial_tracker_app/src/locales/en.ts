@@ -28,7 +28,9 @@ export default {
     optional: 'Optional',
     additionalNotes: 'Additional Notes',
     noDescription: 'No description',
-    noData: 'No data yet'
+    noData: 'No data yet',
+    day: 'Day',
+    net: 'Net',
   },
 
   // Authentication
@@ -136,6 +138,7 @@ export default {
     expenseBreakdown: 'Expense Breakdown',
     expenseDistribution: 'Expense Distribution',
     monthlyOverview: 'Monthly Overview',
+    dailyOverview: 'Daily Overview',
     transactions: 'transactions',
     transactionsThisMonth: 'transactions this month',
     startAddingTransactions: 'Add transactions to see your financial reports',
@@ -207,6 +210,12 @@ export default {
     markPaid: 'Mark Paid',
     noExpenses: 'No recurring expenses yet',
     addInstructions: 'Add recurring expenses to get reminders',
+  },
+
+  // Full Transaction List
+  fullTransactionsList: {
+    title: 'Transactions',
+    noTransactions: 'No transactions to display',
   },
 
   // Errors

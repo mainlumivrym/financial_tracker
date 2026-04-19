@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { StatusBar } from 'expo-status-bar';
 import { Text, View, ScrollView, TouchableOpacity, Image, ActivityIndicator } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
 import { useFocusEffect } from '@react-navigation/native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { useAuth } from '../context/AuthContext';
@@ -8,10 +9,12 @@ import { getUserProfile } from '../services/userService';
 import { getUserTransactions } from '../services/transactionService';
 import { getBudget, getCurrentMonth } from '../services/budgetService';
 import TransactionListItem from '../components/TransactionListItem';
+import SectionHeader from '../components/SectionHeader';
 import { formatCurrency } from '../utils/formatCurrency';
 import useDashboardStyles from '../styles/useDashboardStyles';
 import { RootStackParamList } from '../types';
 import { useLocalization } from '@/context/LocalizationContext';
+import { useTheme } from '../context/ThemeContext';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Dashboard'>;
 
@@ -57,6 +60,7 @@ interface BudgetProgress {
 export default function Dashboard({ navigation }: Props) {
   const styles = useDashboardStyles();
   const { t } = useLocalization();
+  const { theme } = useTheme();
 
   const { currentUser } = useAuth();
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
@@ -221,7 +225,12 @@ export default function Dashboard({ navigation }: Props) {
   )
 
   const renderBalanceCard = () => (
-    <View style={styles.balanceCard}>
+    <LinearGradient
+      colors={theme.gradientColors}
+      start={{ x: 0, y: 1 }}
+      end={{ x: 1, y: 0 }}
+      style={styles.balanceCard}
+    >
       <Text style={styles.balanceLabel}>{t('dashboard.balance')}</Text>
       <Text style={styles.balanceAmount}>${formatCurrency(balance.total)}</Text>
       <View style={styles.balanceStats}>
@@ -235,7 +244,7 @@ export default function Dashboard({ navigation }: Props) {
           <Text style={styles.statExpense}>-${formatCurrency(balance.expenses)}</Text>
         </View>
       </View>
-    </View>
+    </LinearGradient>
   )
   const renderQuickActionsItem = (
     icon: string,
@@ -269,9 +278,7 @@ export default function Dashboard({ navigation }: Props) {
 
   const renderBudgetOverview = () => (
     <View style={styles.section}>
-      <View style={styles.sectionHeader}>
-        <Text style={styles.sectionTitle}>{t('dashboard.budgetOverview')}</Text>
-      </View>
+      <SectionHeader title={t('dashboard.budgetOverview')} />
 
       {/* Budget Total Summary */}
       <View style={styles.budgetSummaryCard}>
@@ -344,15 +351,11 @@ export default function Dashboard({ navigation }: Props) {
 
   const renderRecentTransactions = () => (
     <View style={styles.section}>
-      <View style={styles.sectionHeader}>
-        <Text style={styles.sectionTitle}>{t('dashboard.recentTransactions')}</Text>
-        <TouchableOpacity style={{
-          height: '100%',
-          justifyContent: 'center'
-        }} onPress={() => navigation.navigate('FullTransactionList')}>
-          <Text style={styles.seeAllText}>{t('dashboard.viewAll')}</Text>
-        </TouchableOpacity>
-      </View>
+      <SectionHeader 
+        title={t('dashboard.recentTransactions')}
+        actionText={t('dashboard.viewAll')}
+        onActionPress={() => navigation.navigate('FullTransactionList')}
+      />
 
       <View style={styles.transactionsList}>
         {loadingTransactions ? (

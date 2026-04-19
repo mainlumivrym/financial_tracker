@@ -55,6 +55,7 @@ interface Theme {
   colors: ThemeColors;
   spacing: ThemeSpacing;
   borderRadius: ThemeBorderRadius;
+  gradientColors: string[];
 }
 
 type ThemeName = 'farmland' | 'dark' | 'lavender' | 'deepSea' | 'valley' | 'sakura' | 'frogPond';
@@ -111,6 +112,7 @@ const farmlandTheme: Theme = {
     lg: 16,
     full: 999,
   },
+  gradientColors: ['#7BA05B', '#A8C997'],
 };
 
 // Lavender Theme - Soft purple and pink palette
@@ -154,9 +156,10 @@ const lavenderTheme: Theme = {
     lg: 16,
     full: 999,
   },
+  gradientColors: ['#B8A5D6', '#E0D4F0'],
 };
 
-// Frog Pond Theme - Mossy greens and pond blues
+// Frog Pond Theme
 const frogPondTheme: Theme = {
   colors: {
     primary: '#4DB8A8',
@@ -197,9 +200,10 @@ const frogPondTheme: Theme = {
     lg: 16,
     full: 999,
   },
+  gradientColors: ['#4DB8A8', '#7FE0D3'],
 };
 
-// Sakura Theme - Cherry blossom-inspired soft pinks
+// Frog Pond Theme - Mossy greens and pond blues
 const sakuraTheme: Theme = {
   colors: {
     primary: '#FFB7C5',
@@ -240,6 +244,7 @@ const sakuraTheme: Theme = {
     lg: 16,
     full: 999,
   },
+  gradientColors: ['#FFB7C5', '#FFE0E8'],
 };
 
 // Valley Theme - Nature-inspired grassy greens
@@ -283,6 +288,7 @@ const valleyTheme: Theme = {
     lg: 16,
     full: 999,
   },
+  gradientColors: ['#6FA842', '#A4D673'],
 };
 
 // Deep Sea Theme - Ocean-inspired blues and teals
@@ -326,6 +332,7 @@ const deepSeaTheme: Theme = {
     lg: 16,
     full: 999,
   },
+  gradientColors: ['#2980B9', '#5DADE2'],
 };
 
 // Dark Theme - Sleek dark palette with neon green accents
@@ -369,6 +376,7 @@ const darkTheme: Theme = {
     lg: 16,
     full: 999,
   },
+  gradientColors: ['#4ecca3', '#7AFFCD'],
 };
 
 const themes: Record<ThemeName, Theme> = {
