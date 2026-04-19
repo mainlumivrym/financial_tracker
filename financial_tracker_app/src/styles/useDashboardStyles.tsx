@@ -49,7 +49,6 @@ export default function useDashboardStyles() {
             fontSize: 24,
         },
         balanceCard: {
-            backgroundColor: theme.colors.greenCardBackground,
             borderRadius: 20,
             padding: 24,
             marginBottom: 30,

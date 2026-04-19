@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { StatusBar } from 'expo-status-bar';
 import { Text, View, ScrollView, TouchableOpacity, Image, ActivityIndicator } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
 import { useFocusEffect } from '@react-navigation/native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { useAuth } from '../context/AuthContext';
@@ -13,6 +14,7 @@ import { formatCurrency } from '../utils/formatCurrency';
 import useDashboardStyles from '../styles/useDashboardStyles';
 import { RootStackParamList } from '../types';
 import { useLocalization } from '@/context/LocalizationContext';
+import { useTheme } from '../context/ThemeContext';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Dashboard'>;
 
@@ -58,6 +60,7 @@ interface BudgetProgress {
 export default function Dashboard({ navigation }: Props) {
   const styles = useDashboardStyles();
   const { t } = useLocalization();
+  const { theme } = useTheme();
 
   const { currentUser } = useAuth();
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
@@ -222,7 +225,12 @@ export default function Dashboard({ navigation }: Props) {
   )
 
   const renderBalanceCard = () => (
-    <View style={styles.balanceCard}>
+    <LinearGradient
+      colors={theme.gradientColors}
+      start={{ x: 0, y: 1 }}
+      end={{ x: 1, y: 0 }}
+      style={styles.balanceCard}
+    >
       <Text style={styles.balanceLabel}>{t('dashboard.balance')}</Text>
       <Text style={styles.balanceAmount}>${formatCurrency(balance.total)}</Text>
       <View style={styles.balanceStats}>
@@ -236,7 +244,7 @@ export default function Dashboard({ navigation }: Props) {
           <Text style={styles.statExpense}>-${formatCurrency(balance.expenses)}</Text>
         </View>
       </View>
-    </View>
+    </LinearGradient>
   )
   const renderQuickActionsItem = (
     icon: string,
