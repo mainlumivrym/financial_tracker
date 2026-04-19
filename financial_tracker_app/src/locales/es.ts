@@ -19,6 +19,7 @@ export default {
     error: 'Error',
     income: 'Ingreso',
     expense: 'Gasto',
+    expenses: 'Gastos',
     addedSuccessfully: 'agregado exitosamente',
     name: 'Nombre',
     amount: 'Monto',
@@ -26,6 +27,8 @@ export default {
     description: 'Descripción',
     optional: 'Opcional',
     additionalNotes: 'Notas Adicionales',
+    noDescription: 'Sin descripción',
+    noData: 'No hay datos aún'
   },
 
   // Authentication
@@ -135,6 +138,7 @@ export default {
     monthlyOverview: 'Resumen Mensual',
     transactions: 'transacciones',
     transactionsThisMonth: 'transacciones este mes',
+    startAddingTransactions: 'Agrega transacciones para ver tus informes financieros',
   },
 
   // Profile
