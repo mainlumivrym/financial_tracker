@@ -212,6 +212,12 @@ export default {
     addInstructions: 'Agrega gastos recurrentes para recibir recordatorios',
   },
 
+  // Full Transaction List
+  fullTransactionsList: {
+    title: 'Transacciones',
+    noTransactions: 'No hay transacciones para mostrar',
+  },
+
   // Errors
   errors: {
     generic: 'Algo salió mal',

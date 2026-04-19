@@ -233,7 +233,7 @@ export default function UserInfo({ navigation }: Props) {
       onPress={handleLogout}
     >
       <Ionicons name="log-out-outline" size={24} color="#ff6b6b" />
-      <Text style={styles.logoutText}>{t('profile.logout')}</Text>
+      <Text style={styles.logoutText}>{t('auth.logout')}</Text>
     </TouchableOpacity>
   );
 
