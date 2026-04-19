@@ -136,6 +136,7 @@ export default {
     expenseBreakdown: 'Expense Breakdown',
     expenseDistribution: 'Expense Distribution',
     monthlyOverview: 'Monthly Overview',
+    dailyOverview: 'Daily Overview',
     transactions: 'transactions',
     transactionsThisMonth: 'transactions this month',
     startAddingTransactions: 'Add transactions to see your financial reports',

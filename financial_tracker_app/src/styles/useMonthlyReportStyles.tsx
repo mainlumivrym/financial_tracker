@@ -483,6 +483,11 @@ export default function useMonthlyReportStyles() {
                 fontWeight: '600',
                 color: theme.colors.greenCardText,
             },
+            dailyGraphContainer: {
+                backgroundColor: theme.colors.backgroundLight,
+                borderRadius: theme.borderRadius.md,
+                padding: theme.spacing.md,
+            },
         });
     }, [theme]);
 }

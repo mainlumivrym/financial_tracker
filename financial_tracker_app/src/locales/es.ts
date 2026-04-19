@@ -28,7 +28,9 @@ export default {
     optional: 'Opcional',
     additionalNotes: 'Notas Adicionales',
     noDescription: 'Sin descripción',
-    noData: 'No hay datos aún'
+    noData: 'No hay datos aún',
+    day: 'Día',
+    net: 'Neto',
   },
 
   // Authentication
@@ -128,14 +130,15 @@ export default {
 
   // Reports
   reports: {
-    monthlyReport: 'Reporte Mensual',
-    yearlyReport: 'Reporte Anual',
+    monthlyReport: 'Informe Mensual',
+    yearlyReport: 'Informe Anual',
     netBalance: 'Balance Neto',
-    totalIncome: 'Ingreso Total',
+    totalIncome: 'Ingresos Totales',
     totalExpenses: 'Gastos Totales',
     expenseBreakdown: 'Desglose de Gastos',
     expenseDistribution: 'Distribución de Gastos',
     monthlyOverview: 'Resumen Mensual',
+    dailyOverview: 'Resumen Diario',
     transactions: 'transacciones',
     transactionsThisMonth: 'transacciones este mes',
     startAddingTransactions: 'Agrega transacciones para ver tus informes financieros',

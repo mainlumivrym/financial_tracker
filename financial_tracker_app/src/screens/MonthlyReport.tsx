@@ -21,6 +21,7 @@ import { colors } from '../styles';
 import { formatCurrency } from '../utils/formatCurrency';
 import useMonthlyReportStyles from '@/styles/useMonthlyReportStyles';
 import ScreenHeader from '@/components/ScreenHeader';
+import DailyOverviewGraph from '@/components/DailyOverviewGraph';
 import { useTheme } from '../context/ThemeContext';
 import { useLocalization } from '@/context/LocalizationContext';
 
@@ -51,6 +52,7 @@ export default function MonthlyReport({ navigation, route }: Props) {
   const [categoryBreakdown, setCategoryBreakdown] = useState<any[]>([]);
   const [topCategories, setTopCategories] = useState<any[]>([]);
   const [expandedCategories, setExpandedCategories] = useState<Set<string>>(new Set());
+  const [dailyData, setDailyData] = useState<any[]>([]);
   const [categories, setCategories] = useState<any[]>([]);
   const [selectedTransactions, setSelectedTransactions] = useState<Set<string>>(new Set());
   const [selectionMode, setSelectionMode] = useState(false);
@@ -122,6 +124,42 @@ export default function MonthlyReport({ navigation, route }: Props) {
       breakdown.sort((a, b) => b.amount - a.amount);
       setCategoryBreakdown(breakdown);
       setTopCategories(breakdown.slice(0, 3));
+
+      // Calculate daily breakdown
+      const daysInMonth = new Date(
+        selectedDate.getFullYear(),
+        selectedDate.getMonth() + 1,
+        0
+      ).getDate();
+
+      const dailyTotals: { [key: number]: { income: number; expenses: number } } = {};
+      
+      // Initialize all days
+      for (let day = 1; day <= daysInMonth; day++) {
+        dailyTotals[day] = { income: 0, expenses: 0 };
+      }
+
+      // Sum transactions by day
+      currentMonthTransactions.forEach(t => {
+        const transactionDate = t.date?.toDate?.() || t.createdAt?.toDate?.();
+        if (transactionDate) {
+          const day = transactionDate.getDate();
+          if (t.type === 'income') {
+            dailyTotals[day].income += t.amount;
+          } else {
+            dailyTotals[day].expenses += t.amount;
+          }
+        }
+      });
+
+      const daily = Object.entries(dailyTotals).map(([day, data]) => ({
+        day: parseInt(day),
+        income: data.income,
+        expenses: data.expenses,
+        net: data.income - data.expenses
+      }));
+
+      setDailyData(daily);
 
     } catch (error) {
       console.error('Error loading report data:', error);
@@ -385,6 +423,19 @@ export default function MonthlyReport({ navigation, route }: Props) {
     );
   }
 
+  const renderDailyGraph = () => (
+    <View style={styles.section}>
+      <Text style={styles.sectionTitle}>{t('reports.dailyOverview')}</Text>
+      <View style={styles.dailyGraphContainer}>
+        <DailyOverviewGraph
+          dailyData={dailyData}
+          incomeLabel={t('common.income')}
+          expensesLabel={t('common.expenses')}
+        />
+      </View>
+    </View>
+  )
+
   const renderEmptyState = () => (
     <View style={styles.emptyState}>
       <Text style={styles.emptyIcon}>📊</Text>
@@ -500,6 +551,11 @@ export default function MonthlyReport({ navigation, route }: Props) {
           {/* Category Breakdown */}
           {categoryBreakdown.length > 0 && (
             renderCategoryBreakdown()
+          )}
+
+          {/* Daily Graph */}
+          {dailyData.length > 0 && (
+            renderDailyGraph()
           )}
 
           {categoryBreakdown.length === 0 && (
