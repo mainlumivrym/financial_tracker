@@ -12,14 +12,6 @@ export default function useMonthlyReportStyles() {
                 flex: 1,
                 backgroundColor: theme.colors.background,
             },
-            header: {
-                flexDirection: 'row',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-                paddingHorizontal: theme.spacing.lg,
-                paddingTop: 60,
-                paddingBottom: 15,
-            },
             monthPickerContainer: {
                 flexDirection: 'row',
                 alignItems: 'center',
@@ -60,17 +52,6 @@ export default function useMonthlyReportStyles() {
                 fontSize: 18,
                 fontWeight: '600',
                 color: theme.colors.primary,
-            },
-            backButton: {
-                width: 40,
-                height: 40,
-                alignItems: 'center',
-                justifyContent: 'center',
-            },
-            headerTitle: {
-                fontSize: 20,
-                fontWeight: 'bold',
-                color: theme.colors.text,
             },
             loadingContainer: {
                 flex: 1,
@@ -133,79 +114,6 @@ export default function useMonthlyReportStyles() {
             section: {
                 marginBottom: theme.spacing.xl,
             },
-            sectionHeader: {
-                flexDirection: 'row',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-                marginBottom: theme.spacing.md,
-            },
-            sectionTitle: {
-                fontSize: 20,
-                fontWeight: 'bold',
-                color: theme.colors.text,
-            },
-            selectionModeButton: {
-                flexDirection: 'row',
-                alignItems: 'center',
-                gap: theme.spacing.xs,
-                paddingVertical: theme.spacing.xs,
-                paddingHorizontal: theme.spacing.sm,
-                borderRadius: theme.borderRadius.sm,
-                backgroundColor: theme.colors.backgroundLight,
-            },
-            selectionModeButtonActive: {
-                backgroundColor: theme.colors.primary,
-            },
-            selectionModeButtonText: {
-                fontSize: 14,
-                fontWeight: '600',
-                color: theme.colors.text,
-            },
-            selectionModeButtonTextActive: {
-                color: theme.colors.greenCardText,
-            },
-            topCategoriesContainer: {
-                gap: theme.spacing.sm,
-            },
-            topCategoryItem: {
-                flexDirection: 'row',
-                alignItems: 'center',
-                backgroundColor: theme.colors.backgroundLight,
-                borderRadius: theme.borderRadius.sm,
-                padding: theme.spacing.md,
-            },
-            rankBadge: {
-                width: 32,
-                height: 32,
-                borderRadius: theme.borderRadius.md,
-                backgroundColor: theme.colors.primary,
-                alignItems: 'center',
-                justifyContent: 'center',
-                marginRight: theme.spacing.sm,
-            },
-            rankText: {
-                fontSize: 16,
-                fontWeight: 'bold',
-                color: theme.colors.background,
-            },
-            topCategoryInfo: {
-                flex: 1,
-            },
-            topCategoryName: {
-                fontSize: 16,
-                fontWeight: '600',
-                color: theme.colors.text,
-                marginBottom: theme.spacing.xs,
-            },
-            topCategoryAmount: {
-                fontSize: 14,
-                color: theme.colors.textSecondary,
-            },
-            topCategoryPercentage: {
-                fontSize: 18,
-                fontWeight: 'bold',
-                color: theme.colors.primary,
-            },
             breakdownContainer: {
                 backgroundColor: theme.colors.backgroundLight,
                 borderRadius: theme.borderRadius.md,
@@ -240,11 +148,6 @@ export default function useMonthlyReportStyles() {
                 fontSize: 16,
                 fontWeight: '600',
                 color: theme.colors.text,
-            },
-            breakdownCount: {
-                fontSize: 12,
-                color: theme.colors.textSecondary,
-                marginTop: 2,
             },
             breakdownAmount: {
                 fontSize: 16,
@@ -284,9 +187,6 @@ export default function useMonthlyReportStyles() {
                 alignItems: 'center',
                 flex: 1,
                 gap: theme.spacing.sm,
-            },
-            transactionSubitemIcon: {
-                fontSize: 20,
             },
             transactionSubitemInfo: {
                 flex: 1,
@@ -328,9 +228,6 @@ export default function useMonthlyReportStyles() {
             bottomSpacer: {
                 height: theme.spacing.xxl,
             },
-            transactionIcon: {
-                fontSize: 20,
-            },
             checkbox: {
                 width: 20,
                 height: 20,
@@ -346,49 +243,6 @@ export default function useMonthlyReportStyles() {
             },
             transactionSubitemSelected: {
                 backgroundColor: colors.transparent,
-            },
-            selectionBar: {
-                height: 88,
-                flexDirection: 'row',
-                alignItems: 'center',
-                alignContent: 'center',
-                verticalAlign: 'middle',
-                justifyContent: 'center',
-                backgroundColor: theme.colors.greenCardBackground,
-                paddingHorizontal: 16,
-                paddingRight: 8,
-                marginBottom: 8,
-                borderRadius: theme.borderRadius.sm,
-            },
-            selectionBarUnselected: {
-                backgroundColor: theme.colors.backgroundLight,
-            },
-            selectionBarContent: {
-                flex: 1,
-                flexDirection: 'row',
-                alignItems: 'center',
-                justifyContent: 'space-between',
-            },
-            selectionBarText: {
-                fontSize: 14,
-                color: theme.colors.greenCardText,
-                marginBottom: 2,
-            },
-            selectionBarTitle: {
-                fontSize: 16,
-                color: theme.colors.text,
-                marginBottom: 4,
-                fontWeight: '600',
-            },
-            selectionBarDescription: {
-                fontSize: 14,
-                color: theme.colors.text,
-                marginBottom: 2,
-            },
-            selectionBarSum: {
-                fontSize: 20,
-                fontWeight: 'bold',
-                color: theme.colors.greenCardText,
             },
             floatingWidget: {
                 position: 'absolute',

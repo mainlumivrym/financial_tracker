@@ -8,6 +8,7 @@ import { getUserProfile } from '../services/userService';
 import { getUserTransactions } from '../services/transactionService';
 import { getBudget, getCurrentMonth } from '../services/budgetService';
 import TransactionListItem from '../components/TransactionListItem';
+import SectionHeader from '../components/SectionHeader';
 import { formatCurrency } from '../utils/formatCurrency';
 import useDashboardStyles from '../styles/useDashboardStyles';
 import { RootStackParamList } from '../types';
@@ -269,9 +270,7 @@ export default function Dashboard({ navigation }: Props) {
 
   const renderBudgetOverview = () => (
     <View style={styles.section}>
-      <View style={styles.sectionHeader}>
-        <Text style={styles.sectionTitle}>{t('dashboard.budgetOverview')}</Text>
-      </View>
+      <SectionHeader title={t('dashboard.budgetOverview')} />
 
       {/* Budget Total Summary */}
       <View style={styles.budgetSummaryCard}>
@@ -344,15 +343,11 @@ export default function Dashboard({ navigation }: Props) {
 
   const renderRecentTransactions = () => (
     <View style={styles.section}>
-      <View style={styles.sectionHeader}>
-        <Text style={styles.sectionTitle}>{t('dashboard.recentTransactions')}</Text>
-        <TouchableOpacity style={{
-          height: '100%',
-          justifyContent: 'center'
-        }} onPress={() => navigation.navigate('FullTransactionList')}>
-          <Text style={styles.seeAllText}>{t('dashboard.viewAll')}</Text>
-        </TouchableOpacity>
-      </View>
+      <SectionHeader 
+        title={t('dashboard.recentTransactions')}
+        actionText={t('dashboard.viewAll')}
+        onActionPress={() => navigation.navigate('FullTransactionList')}
+      />
 
       <View style={styles.transactionsList}>
         {loadingTransactions ? (

@@ -24,6 +24,7 @@ import ScreenHeader from '@/components/ScreenHeader';
 import DailyOverviewGraph from '@/components/DailyOverviewGraph';
 import { useTheme } from '../context/ThemeContext';
 import { useLocalization } from '@/context/LocalizationContext';
+import SectionHeader from '@/components/SectionHeader';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'MonthlyReport'>;
 
@@ -133,7 +134,7 @@ export default function MonthlyReport({ navigation, route }: Props) {
       ).getDate();
 
       const dailyTotals: { [key: number]: { income: number; expenses: number } } = {};
-      
+
       // Initialize all days
       for (let day = 1; day <= daysInMonth; day++) {
         dailyTotals[day] = { income: 0, expenses: 0 };
@@ -313,9 +314,9 @@ export default function MonthlyReport({ navigation, route }: Props) {
 
   const renderCategoryBreakdown = () => (
     <View style={styles.section}>
-      <View style={styles.sectionHeader}>
-        <Text style={styles.sectionTitle}>{t('reports.expenseBreakdown')}</Text>
-      </View>
+      <SectionHeader
+        title={t('reports.expenseBreakdown')}
+      />
 
       <View style={styles.breakdownContainer}>
         {categoryBreakdown.map((item) => (
@@ -425,7 +426,9 @@ export default function MonthlyReport({ navigation, route }: Props) {
 
   const renderDailyGraph = () => (
     <View style={styles.section}>
-      <Text style={styles.sectionTitle}>{t('reports.dailyOverview')}</Text>
+      <SectionHeader
+        title={t('reports.dailyOverview')}
+      />
       <View style={styles.dailyGraphContainer}>
         <DailyOverviewGraph
           dailyData={dailyData}
